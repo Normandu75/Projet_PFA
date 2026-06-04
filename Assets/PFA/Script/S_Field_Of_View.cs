@@ -189,10 +189,10 @@ public class S_Field_Of_View : MonoBehaviour
             return new  ViewCastInfo(true, hit.point, hit.distance, globalAngle);
 
         }
-        if (Physics.Raycast(transform.position, dir, out hit, viewRadius, targetMask))
-        {
-            return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
-        }
+        // if (Physics.Raycast(transform.position, dir, out hit, viewRadius, targetMask))
+        // {
+        //     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+        // }
         else
         {
             return new ViewCastInfo(false, transform.position + dir * viewRadius, viewRadius, globalAngle);
