@@ -10,6 +10,9 @@ public class S_Controller : MonoBehaviour
     Camera cam;
 
     public Image image;
+
+    public bool FlashLightOn;
+
     public S_Field_Of_View fov;
     public S_FlashLight_Energy energy;
 
@@ -33,17 +36,29 @@ public class S_Controller : MonoBehaviour
 
         transform.LookAt(mousePos + Vector3.up * transform.position.y);
 
-        if (Input.GetKeyDown(KeyCode.E) && fov.viewRadius < 20)
+        if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f && FlashLightOn == true)
         {
             image.fillAmount += 0.5f;
-            fov.viewRadius += 5f;
 
-            if (fov.viewRadius > 20)
+            if (image.fillAmount == 1f)
             {
-                fov.viewRadius = 20;
-
                 StartCoroutine(StopDepletion());
             }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == true)
+        {
+            fov.viewRadius = 5;
+
+            FlashLightOn = false;
+            energy.Depleting = false;
+        }
+        else if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == false)
+        {
+            fov.viewRadius = 20;
+
+            FlashLightOn = true;
+            energy.Depleting = true;
         }
     }
 
@@ -55,8 +70,6 @@ public class S_Controller : MonoBehaviour
     IEnumerator StopDepletion()
     {
         energy.Depleting = false;
-
-        Debug.Log(energy.Depleting);
 
         yield return new WaitForSeconds(5f);
 
