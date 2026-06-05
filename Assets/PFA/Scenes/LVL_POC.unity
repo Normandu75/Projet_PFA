@@ -694,6 +694,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::S_Controller
   speed: 6
   image: {fileID: 0}
+  FlashLightOn: 1
   fov: {fileID: 0}
   energy: {fileID: 0}
 --- !u!54 &400303801
@@ -832,7 +833,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_FlashLight_Energy
   image: {fileID: 0}
+  mat: {fileID: 0}
   fov: {fileID: 0}
+  controller: {fileID: 0}
   Depleting: 0
 --- !u!1 &410087039
 GameObject:

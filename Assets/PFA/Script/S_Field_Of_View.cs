@@ -184,15 +184,10 @@ public class S_Field_Of_View : MonoBehaviour
         Vector3 dir = DirFromAngle(globalAngle, true);
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, dir, out hit, viewRadius, obstacleMask))
+        if (Physics.Raycast(transform.position, dir, out hit, viewRadius, obstacleMask) || Physics.Raycast(transform.position, dir, out hit, viewRadius, targetMask))
         {
             return new  ViewCastInfo(true, hit.point, hit.distance, globalAngle);
-
         }
-        // if (Physics.Raycast(transform.position, dir, out hit, viewRadius, targetMask))
-        // {
-        //     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
-        // }
         else
         {
             return new ViewCastInfo(false, transform.position + dir * viewRadius, viewRadius, globalAngle);
