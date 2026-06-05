@@ -10,13 +10,12 @@ public class S_FlashLight_Energy : MonoBehaviour
     public S_Controller controller;
 
     public bool Depleting;
-    private float NumberWang;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         image = GameObject.Find("EnergyBar_Inside").GetComponent<Image>();
-        mat = GameObject.Find("Character").GetComponent<MeshRenderer>().material;
+        mat = GameObject.Find("View_Visualisation").GetComponent<MeshRenderer>().material;
         fov = GetComponent<S_Field_Of_View>();
         controller = GetComponent<S_Controller>();
         Depleting = true;
@@ -34,18 +33,20 @@ public class S_FlashLight_Energy : MonoBehaviour
         {
             if (image.fillAmount != 0)
             {
-                NumberWang = Random.Range(0f, 1f);
+                image.fillAmount -= 0.05f * Time.deltaTime;
 
-                image.fillAmount -= 0.1f * Time.deltaTime;
+                if(image.fillAmount <= 0.5f)
+                {
+                    mat.color = Color.Lerp(Color.white, Color.red, Mathf.PingPong(Time.time, 1));
+                }
 
-                if (NumberWang < 0.5f)
-                {
-                    Debug.Log("Wang");
-                }
-                else
-                {
-                    Debug.Log("Not Wang");
-                }
+            }
+            else
+            {
+                fov.viewRadius = 5;
+                
+                controller.FlashLightOn = false;
+                Depleting = false;
             }
         }
 

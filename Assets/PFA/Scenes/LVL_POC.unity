@@ -667,7 +667,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Field_Of_Vew
   viewRadius: 20
-  viewAngle: 90
+  viewAngle: 50
   targetMask:
     serializedVersion: 2
     m_Bits: 128

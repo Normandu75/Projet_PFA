@@ -36,7 +36,7 @@ public class S_Controller : MonoBehaviour
 
         transform.LookAt(mousePos + Vector3.up * transform.position.y);
 
-        if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f && FlashLightOn == true)
+        if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f)
         {
             image.fillAmount += 0.5f;
 
@@ -48,7 +48,8 @@ public class S_Controller : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == true)
         {
-            fov.viewRadius = 5;
+            fov.viewRadius = 8;
+            fov.viewAngle = 90;
 
             FlashLightOn = false;
             energy.Depleting = false;
@@ -56,6 +57,7 @@ public class S_Controller : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == false)
         {
             fov.viewRadius = 20;
+            fov.viewAngle = 50;
 
             FlashLightOn = true;
             energy.Depleting = true;
