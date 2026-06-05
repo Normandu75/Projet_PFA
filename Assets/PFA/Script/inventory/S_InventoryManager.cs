@@ -1,0 +1,42 @@
+using UnityEngine.UI;
+using UnityEngine;
+
+public class S_InventoryManager : MonoBehaviour
+{
+    public GameObject InventoryMenu; 
+    public S_ItemSlot[] itemSlot;
+    private bool menuActivated; 
+    void Start()
+    {
+        
+    }
+
+    void Update()
+    {
+        //Ne fonctionne pas. La touche n'est pas detecté lorce qu'elle est pressed. 
+        if(Input.GetKeyDown(KeyCode.Tab) && menuActivated)
+        {
+            InventoryMenu.SetActive(false);
+            menuActivated = false;
+            Debug.Log("AAAAH");
+        }
+        else if(Input.GetKeyDown(KeyCode.Tab) && !menuActivated)
+        {
+            InventoryMenu.SetActive(true);
+            menuActivated = true;
+            Debug.Log("FAAAAH");
+        }
+    }
+    public void AddItem(string itemName, int quantity, Sprite icon)
+    {
+        Debug.Log("Item Name : " + itemName + ", Quantity : " + quantity + ", Icon : " + icon);
+        for (int i = 0; i < itemSlot.Length; i++)
+        {
+            if(itemSlot[i].isFull == false)
+            {
+                itemSlot[i].AddItem(itemName, quantity, icon);
+                return;
+            }
+        }
+    }
+}
