@@ -11,12 +11,15 @@ public class S_Field_Of_View_Editor : Editor
 
         Handles.color = Color.white;
         Handles.DrawWireArc(fow.transform.position, Vector3.up, Vector3.forward, 360, fow.viewRadius);
+        Handles.DrawWireArc(fow.transform.position, Vector3.up, Vector3.forward, 360, fow.circleRadius);
 
         Vector3 viewAngleA = fow.DirFromAngle(-fow.viewAngle / 2, false);
         Vector3 viewAngleB = fow.DirFromAngle(fow.viewAngle / 2, false);
 
         Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleA * fow.viewRadius);
         Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleB * fow.viewRadius);
+        Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleA * fow.circleRadius);
+        Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleB * fow.circleRadius);
 
         Handles.color = Color.red;
 

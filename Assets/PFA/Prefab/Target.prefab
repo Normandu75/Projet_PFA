@@ -153,3 +153,5 @@ MonoBehaviour:
   agent: {fileID: 0}
   range: 0
   Origin: {fileID: 0}
+  Player: {fileID: 0}
+  isInLight: 0

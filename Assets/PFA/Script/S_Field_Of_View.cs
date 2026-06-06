@@ -2,12 +2,15 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using System;
+using UnityEngine.Assertions.Must;
 
 public class S_Field_Of_View : MonoBehaviour
 {
     public float viewRadius;
     [Range(0, 360)]
     public float viewAngle;
+    public float circleRadius;
 
     public LayerMask targetMask;
     public LayerMask obstacleMask;
@@ -21,13 +24,19 @@ public class S_Field_Of_View : MonoBehaviour
     public float maskCutDistance = 0.1f;
 
     public MeshFilter viewMeshFilter;
+    public MeshFilter circleMeshFilter;
     Mesh viewMesh;
+    Mesh circleMesh;
 
     void Start()
     {
         viewMesh = new Mesh();
         viewMesh.name = "viewMesh";
         viewMeshFilter.mesh = viewMesh;
+
+        circleMesh = new Mesh();
+        circleMesh.name = "circleMesh";
+        circleMeshFilter.mesh = circleMesh;
 
         StartCoroutine(FindTargetsWithDelay(0.2f));
     }
@@ -45,6 +54,7 @@ public class S_Field_Of_View : MonoBehaviour
         void LateUpdate()
     {
         DrawFieldOfView();
+        DrawCircleOfView();
     }
 
     void FindVisibleTargets()
@@ -149,6 +159,64 @@ public class S_Field_Of_View : MonoBehaviour
         viewMesh.RecalculateNormals();
     }
 
+    void DrawCircleOfView()
+    {
+        int stepCount = Mathf.RoundToInt(360f * meshResolution);
+        float stepAngleSize = 360f / stepCount;
+
+        List<Vector3> viewPoints = new List<Vector3>();
+        ViewCastInfo oldViewCast = new ViewCastInfo();
+
+        for (int i = 0; i <= stepCount; i++)
+        {
+            float angle = transform.eulerAngles.y + stepAngleSize * i;
+
+            ViewCastInfo newViewCast = ViewCastCircle(angle);
+
+            if (i > 0)
+            {
+                bool edgeThresholdExceeded = Mathf.Abs(oldViewCast.distance - newViewCast.distance) > edgeThreshold;
+
+                if (oldViewCast.hit != newViewCast.hit || (oldViewCast.hit && newViewCast.hit && edgeThresholdExceeded))
+                {
+                    EdgeInfo edge = FindEdge(oldViewCast, newViewCast);
+
+                    if (edge.pointA != Vector3.zero)
+                        viewPoints.Add(edge.pointA);
+
+                    if (edge.pointB != Vector3.zero)
+                        viewPoints.Add(edge.pointB);
+                }
+            }
+
+            viewPoints.Add(newViewCast.point);
+            oldViewCast = newViewCast;
+        }
+
+        int vertexCount = viewPoints.Count + 1;
+        Vector3[] vertices = new Vector3[vertexCount];
+        int[] triangles = new int[(vertexCount - 2) * 3];
+
+        vertices[0] = Vector3.zero;
+
+        for (int i = 0; i < vertexCount - 1; i++)
+        {
+            vertices[i + 1] = transform.InverseTransformPoint(viewPoints[i]);
+
+            if (i < vertexCount - 2)
+            {
+                triangles[i * 3] = 0;
+                triangles[i * 3 + 1] = i + 1;
+                triangles[i * 3 + 2] = i + 2;
+            }
+        }
+
+        circleMesh.Clear();
+        circleMesh.vertices = vertices;
+        circleMesh.triangles = triangles;
+        circleMesh.RecalculateNormals();
+    } 
+
     EdgeInfo FindEdge(ViewCastInfo minViewCast, ViewCastInfo maxViewCast)
     {
         float minAngle = minViewCast.angle;
@@ -191,6 +259,22 @@ public class S_Field_Of_View : MonoBehaviour
         else
         {
             return new ViewCastInfo(false, transform.position + dir * viewRadius, viewRadius, globalAngle);
+        }
+    }
+
+    ViewCastInfo ViewCastCircle(float globalAngle)
+    {
+        Vector3 dir = DirFromAngle(globalAngle, true);
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, dir, out hit, circleRadius, obstacleMask) ||
+            Physics.Raycast(transform.position, dir, out hit, circleRadius, targetMask))
+        {
+            return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+        }
+        else
+        {
+            return new ViewCastInfo(false, transform.position + dir * circleRadius, circleRadius, globalAngle);
         }
     }
 
