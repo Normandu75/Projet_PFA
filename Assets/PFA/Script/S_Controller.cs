@@ -10,6 +10,7 @@ public class S_Controller : MonoBehaviour
     Camera cam;
 
     public Image image;
+    public Material mat;
 
     public bool FlashLightOn;
 
@@ -24,6 +25,7 @@ public class S_Controller : MonoBehaviour
         rigidBody = GetComponent<Rigidbody>();
         cam = Camera.main;
         image = GameObject.Find("EnergyBar_Inside").GetComponent<Image>();
+        mat = GameObject.Find("EnergyBar_Inside").GetComponent<Image>().material;
         fov = GetComponent<S_Field_Of_View>();
         energy = GetComponent<S_FlashLight_Energy>();
     }
@@ -36,7 +38,7 @@ public class S_Controller : MonoBehaviour
 
         transform.LookAt(mousePos + Vector3.up * transform.position.y);
 
-        if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f)
+        if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f && FlashLightOn == true)
         {
             image.fillAmount += 0.5f;
 
@@ -62,6 +64,13 @@ public class S_Controller : MonoBehaviour
             FlashLightOn = true;
             energy.Depleting = true;
         }
+
+        if (image.fillAmount > 0.5f)
+        {
+            mat.color = Color.Lerp(Color.white, Color.white, Mathf.PingPong(Time.time, 1));
+
+            Debug.Log("Energy Resplenished");
+        }
     }
 
     void FixedUpdate()
@@ -75,6 +84,13 @@ public class S_Controller : MonoBehaviour
 
         yield return new WaitForSeconds(5f);
 
-        energy.Depleting = true;
+        if (FlashLightOn == true)
+        {
+            energy.Depleting = true;
+        }
+        else
+        {
+            energy.Depleting = false;          
+        }
     }
 }

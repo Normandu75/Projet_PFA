@@ -38,6 +38,8 @@ public class S_FlashLight_Energy : MonoBehaviour
                 if(image.fillAmount <= 0.5f)
                 {
                     mat.color = Color.Lerp(Color.white, Color.red, Mathf.PingPong(Time.time, 1));
+
+                    Debug.Log("Energy_Low");
                 }
 
             }
