@@ -38,7 +38,7 @@ public class S_Controller : MonoBehaviour
 
         transform.LookAt(mousePos + Vector3.up * transform.position.y);
 
-        if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f && FlashLightOn == true)
+        if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f)
         {
             image.fillAmount += 0.5f;
 
