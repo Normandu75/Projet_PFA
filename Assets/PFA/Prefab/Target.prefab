@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2076688057006860766}
   - component: {fileID: -102395555585055507}
   - component: {fileID: -3716498208103476497}
+  - component: {fileID: -4902454401211231276}
   m_Layer: 7
   m_Name: Target
   m_TagString: Untagged
@@ -155,3 +156,20 @@ MonoBehaviour:
   Origin: {fileID: 0}
   Player: {fileID: 0}
   isInLight: 0
+--- !u!114 &-4902454401211231276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2986542503314045810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6205dd16bd6211478adaffe021bac9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::S_Attack_System
+  healthBar: {fileID: 0}
+  damage: 10
+  character:
+    serializedVersion: 2
+    m_Bits: 512
