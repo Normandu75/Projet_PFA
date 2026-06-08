@@ -9,7 +9,6 @@ public class S_ItemSlot : MonoBehaviour, IPointerClickHandler
     public int quantity;
     public Sprite icon;
     public bool isFull;
-
     [SerializeField] private Image iconImage;
 
 
@@ -46,6 +45,10 @@ public class S_ItemSlot : MonoBehaviour, IPointerClickHandler
     }
     public void OnLeftClick()
     {
+        if (thisItemSelected)
+        {
+            inventoryManager.UseItem(itemName);
+        }
         inventoryManager.DeselectAllSlots();
         selectedShader.SetActive(true);
         thisItemSelected = true;

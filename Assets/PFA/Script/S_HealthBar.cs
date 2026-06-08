@@ -45,7 +45,7 @@ public class S_HealthBar : MonoBehaviour
 
         Debug.Log("Damage : -" + damage);
     }
-    void AddHealth(int heal) // Ajoute en appuyant sur T la vie.
+    public void AddHealth(int heal) // Ajoute en appuyant sur T la vie.
     {
         currentHealth += heal;
 

@@ -6,6 +6,7 @@ public class S_InventoryManager : MonoBehaviour
     public GameObject InventoryMenu; 
     public S_ItemSlot[] itemSlot;
     private bool menuActivated; 
+    public S_ItemSO[] itemSOs;
     void Start()
     {
         
@@ -25,6 +26,16 @@ public class S_InventoryManager : MonoBehaviour
             InventoryMenu.SetActive(true);
             menuActivated = true;
             Debug.Log("FAAAAH");
+        }
+    }
+    public void UseItem(string itemName)
+    {
+        for (int i = 0; i < itemSOs.Length; i++)
+        {
+            if(itemSOs[i].itemName == itemName)
+            {
+                itemSOs[i].UseItem();
+            }
         }
     }
     public void AddItem(string itemName, int quantity, Sprite icon)
