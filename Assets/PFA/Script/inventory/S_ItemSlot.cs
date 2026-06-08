@@ -67,7 +67,14 @@ public class S_ItemSlot : MonoBehaviour, IPointerClickHandler
     }
     private void EmptySlot()
     {
+        quantity = 0;
+        itemName = "";
+        icon = null;
+        isFull = false;                          // ← le slot redevient disponible
         iconImage.sprite = emptySprite;
+       // iconImage.enabled = false;               // optionnel : cache l'image vide
+        selectedShader.SetActive(false);
+        thisItemSelected = false;
     }
     public void OnRightClick()
     {
