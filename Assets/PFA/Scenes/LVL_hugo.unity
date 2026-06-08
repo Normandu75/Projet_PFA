@@ -135,17 +135,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!114 &4300674 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 321261366818233901, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
-  m_PrefabInstance: {fileID: 465376488}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebdf1e2a02785ca438ad950219a60b1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::S_ItemSlot
 --- !u!1 &12635640
 GameObject:
   m_ObjectHideFlags: 0
@@ -598,7 +587,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27f821e52c9fea14cb0216cb74a1af58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Item
-  itemName: Cube
+  itemName: Health
   quantity: 1
   icon: {fileID: 21300000, guid: 8123898884bcd27408114aa9055adda3, type: 3}
 --- !u!1001 &162841439
@@ -871,7 +860,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27f821e52c9fea14cb0216cb74a1af58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Item
-  itemName: Cube
+  itemName: Health
   quantity: 1
   icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!65 &233244899
@@ -1500,6 +1489,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::S_Field_Of_Vew
   viewRadius: 20
   viewAngle: 90
+  circleRadius: 0
   targetMask:
     serializedVersion: 2
     m_Bits: 128
@@ -1512,6 +1502,7 @@ MonoBehaviour:
   edgeThreshold: 0.5
   maskCutDistance: 0.2
   viewMeshFilter: {fileID: 231750053}
+  circleMeshFilter: {fileID: 0}
 --- !u!114 &400303800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1526,6 +1517,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::S_Controller
   speed: 6
   image: {fileID: 0}
+  mat: {fileID: 0}
   FlashLightOn: 0
   fov: {fileID: 0}
   energy: {fileID: 0}
@@ -1701,6 +1693,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::S_InventoryManager
   InventoryMenu: {fileID: 243738262}
   itemSlot: []
+  itemSOs: []
 --- !u!224 &406532111 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2999714382265137740, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
@@ -1907,17 +1900,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!114 &445393638 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 321261366818233901, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
-  m_PrefabInstance: {fileID: 162841439}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebdf1e2a02785ca438ad950219a60b1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::S_ItemSlot
 --- !u!1001 &452817343
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2236,17 +2218,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!114 &637885423 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 321261366818233901, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
-  m_PrefabInstance: {fileID: 1918715496}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebdf1e2a02785ca438ad950219a60b1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::S_ItemSlot
 --- !u!1001 &639679626
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2612,17 +2583,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!114 &951915493 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 321261366818233901, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
-  m_PrefabInstance: {fileID: 897895380}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebdf1e2a02785ca438ad950219a60b1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::S_ItemSlot
 --- !u!224 &988795288 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2999714382265137740, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
@@ -2639,17 +2599,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!114 &988795291 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 321261366818233901, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
-  m_PrefabInstance: {fileID: 452817343}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebdf1e2a02785ca438ad950219a60b1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::S_ItemSlot
 --- !u!1 &1080642113
 GameObject:
   m_ObjectHideFlags: 0
@@ -3271,17 +3220,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
---- !u!114 &1647044228 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 321261366818233901, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
-  m_PrefabInstance: {fileID: 297974279}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebdf1e2a02785ca438ad950219a60b1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::S_ItemSlot
 --- !u!114 &1647044229 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5698286027210385927, guid: 536b20a8095e94a4fa479ab934660475, type: 3}
@@ -3421,12 +3359,8 @@ MonoBehaviour:
   - {fileID: 2073041399}
   - {fileID: 406532114}
   - {fileID: 99343580}
-  - {fileID: 445393638}
-  - {fileID: 988795291}
-  - {fileID: 4300674}
-  - {fileID: 637885423}
-  - {fileID: 951915493}
-  - {fileID: 1647044228}
+  itemSOs:
+  - {fileID: 11400000, guid: 9773bffc8a712fd4d91522845b9f719f, type: 2}
 --- !u!1 &1720033241
 GameObject:
   m_ObjectHideFlags: 0
@@ -4047,7 +3981,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27f821e52c9fea14cb0216cb74a1af58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Item
-  itemName: Cube
+  itemName: Health
   quantity: 1
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!65 &2032878718
