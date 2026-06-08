@@ -363,8 +363,8 @@ Camera:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -386,7 +386,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 20
+  far clip plane: 10
   field of view: 60
   orthographic: 1
   orthographic size: 20
@@ -858,9 +858,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 061638d28d3caa140845392edc018bc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_HealthBar
+  healthBarSlider: {fileID: 0}
   maxHealth: 100
   currentHealth: 0
   heal: 20
+  fill: {fileID: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0

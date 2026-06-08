@@ -8,7 +8,10 @@ Shader "Custom/Stencil_Object"
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque" }
+        Tags { "RenderType" = "Transparent", "Queue" = "Transparent"}
+
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
 
         Stencil
         {
