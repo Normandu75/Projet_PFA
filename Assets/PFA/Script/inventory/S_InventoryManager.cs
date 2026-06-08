@@ -6,7 +6,9 @@ public class S_InventoryManager : MonoBehaviour
     public GameObject InventoryMenu; 
     public S_ItemSlot[] itemSlot;
     private bool menuActivated; 
+    public S_Door nearDoor;
     public S_ItemSO[] itemSOs;
+    
     void Start()
     {
         
@@ -31,14 +33,20 @@ public class S_InventoryManager : MonoBehaviour
             S_Controller movement = GameObject.Find("Character").GetComponent<S_Controller>();
             movement.speed = 0;
         }
-    }
+        if (!menuActivated)
+        {
+            DeselectAllSlots();
+        }
+            
+    } 
     public bool UseItem(string itemName)
     {
         for (int i = 0; i < itemSOs.Length; i++)
         {
             if(itemSOs[i].itemName == itemName)
             {
-                bool usable = itemSOs[i].UseItem();
+                bool usable = itemSOs[i].UseItem(nearDoor);
+                Debug.Log("Item appelé Clef ?" + itemName);
                 return usable;
             }
         }
@@ -63,5 +71,10 @@ public class S_InventoryManager : MonoBehaviour
             itemSlot[i].selectedShader.SetActive(false);
             itemSlot[i].thisItemSelected = false;
         }
+    }
+    public void SetNearDoor(S_Door door)
+    {
+        nearDoor = door;
+        Debug.Log("Porte détectée");
     }
 }

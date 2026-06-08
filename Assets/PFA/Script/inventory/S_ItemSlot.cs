@@ -70,9 +70,8 @@ public class S_ItemSlot : MonoBehaviour, IPointerClickHandler
         quantity = 0;
         itemName = "";
         icon = null;
-        isFull = false;                          // ← le slot redevient disponible
-        iconImage.sprite = emptySprite;
-       // iconImage.enabled = false;               // optionnel : cache l'image vide
+        isFull = false;                          
+        iconImage.sprite = emptySprite;           
         selectedShader.SetActive(false);
         thisItemSelected = false;
     }

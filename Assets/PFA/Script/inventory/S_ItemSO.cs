@@ -26,10 +26,26 @@ public class S_ItemSO : ScriptableObject
         
     }
 
+//----- Utilisation de la clef
+    public bool UseItem(S_Door nearDoor)
+    {
+        if (statToChange == StatToChange.key)
+        {
+            if (nearDoor == null)
+            {
+                return false;
+            }
+            return nearDoor.TryUnlock(itemName);
+        }
+
+        return UseItem();
+    }
+
     public enum StatToChange
     {
         none,
         health,
-        stamina
+        stamina,
+        key
     };
 }
