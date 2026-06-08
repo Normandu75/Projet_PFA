@@ -250,32 +250,51 @@ public class S_Field_Of_View : MonoBehaviour
     ViewCastInfo ViewCast(float globalAngle)
     {
         Vector3 dir = DirFromAngle(globalAngle, true);
-        RaycastHit hit;
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, dir, viewRadius, obstacleMask | targetMask);
 
-        if (Physics.Raycast(transform.position, dir, out hit, viewRadius, obstacleMask) || Physics.Raycast(transform.position, dir, out hit, viewRadius, targetMask))
+        if (hits.Length > 0)
         {
-            return new  ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (((1 << hit.collider.gameObject.layer) & obstacleMask) != 0)
+                {
+                    return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+                }
+                if (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
+                {
+                    return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+                }
+            }
         }
-        else
-        {
-            return new ViewCastInfo(false, transform.position + dir * viewRadius, viewRadius, globalAngle);
-        }
+
+        return new ViewCastInfo(false, transform.position + dir * viewRadius, viewRadius, globalAngle);
     }
 
     ViewCastInfo ViewCastCircle(float globalAngle)
     {
         Vector3 dir = DirFromAngle(globalAngle, true);
-        RaycastHit hit;
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, dir, circleRadius, obstacleMask | targetMask);
 
-        if (Physics.Raycast(transform.position, dir, out hit, circleRadius, obstacleMask) ||
-            Physics.Raycast(transform.position, dir, out hit, circleRadius, targetMask))
+        if (hits.Length > 0)
         {
-            return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (((1 << hit.collider.gameObject.layer) & obstacleMask) != 0)
+                {
+                    return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+                }
+                if (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
+                {
+                    return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+                }
+            }
         }
-        else
-        {
-            return new ViewCastInfo(false, transform.position + dir * circleRadius, circleRadius, globalAngle);
-        }
+
+        return new ViewCastInfo(false, transform.position + dir * circleRadius, circleRadius, globalAngle);
     }
 
     public Vector3 DirFromAngle(float angleInDegrees, bool angleIsGlobal)
