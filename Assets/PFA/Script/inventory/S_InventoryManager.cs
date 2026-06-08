@@ -20,23 +20,29 @@ public class S_InventoryManager : MonoBehaviour
             InventoryMenu.SetActive(false);
             menuActivated = false;
             Debug.Log("AAAAH");
+            S_Controller movement = GameObject.Find("Character").GetComponent<S_Controller>();
+            movement.speed = 6;
         }
         else if(Input.GetKeyDown(KeyCode.Tab) && !menuActivated)
         {
             InventoryMenu.SetActive(true);
             menuActivated = true;
             Debug.Log("FAAAAH");
+            S_Controller movement = GameObject.Find("Character").GetComponent<S_Controller>();
+            movement.speed = 0;
         }
     }
-    public void UseItem(string itemName)
+    public bool UseItem(string itemName)
     {
         for (int i = 0; i < itemSOs.Length; i++)
         {
             if(itemSOs[i].itemName == itemName)
             {
-                itemSOs[i].UseItem();
+                bool usable = itemSOs[i].UseItem();
+                return usable;
             }
         }
+        return false;
     }
     public void AddItem(string itemName, int quantity, Sprite icon)
     {

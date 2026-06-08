@@ -8,6 +8,7 @@ public class S_ItemSlot : MonoBehaviour, IPointerClickHandler
     public string itemName;
     public int quantity;
     public Sprite icon;
+    public Sprite emptySprite;
     public bool isFull;
     [SerializeField] private Image iconImage;
 
@@ -47,11 +48,33 @@ public class S_ItemSlot : MonoBehaviour, IPointerClickHandler
     {
         if (thisItemSelected)
         {
-            inventoryManager.UseItem(itemName);
+            bool usable = inventoryManager.UseItem(itemName);
+            if(usable)
+            {
+                this.quantity -= 1;
+                if(this.quantity <= 0)
+                    EmptySlot();
+            }
+            
         }
-        inventoryManager.DeselectAllSlots();
-        selectedShader.SetActive(true);
-        thisItemSelected = true;
+        else
+        {
+            inventoryManager.DeselectAllSlots();
+            selectedShader.SetActive(true);
+            thisItemSelected = true;
+        }
+        
+    }
+    private void EmptySlot()
+    {
+        quantity = 0;
+        itemName = "";
+        icon = null;
+        isFull = false;                          // ← le slot redevient disponible
+        iconImage.sprite = emptySprite;
+       // iconImage.enabled = false;               // optionnel : cache l'image vide
+        selectedShader.SetActive(false);
+        thisItemSelected = false;
     }
     public void OnRightClick()
     {

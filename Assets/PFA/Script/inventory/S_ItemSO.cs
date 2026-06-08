@@ -6,13 +6,24 @@ public class S_ItemSO : ScriptableObject
     public StatToChange statToChange = new StatToChange();
     public int amountToChangeStat;
 
-    public void UseItem()
+    public bool UseItem()
     {
         if(statToChange == StatToChange.health)
         {
-            GameObject.Find("Character").GetComponent<S_HealthBar>().AddHealth(amountToChangeStat);
-            Debug.Log("Heal de 20 HP");
+            S_HealthBar healthBar = GameObject.Find("Character").GetComponent<S_HealthBar>();
+            if(healthBar.currentHealth == healthBar.maxHealth)
+            {
+                return false;
+            }
+            else
+            {
+                healthBar.AddHealth(amountToChangeStat);
+                Debug.Log("Heal de 20 HP");
+                return true;
+            }    
         }
+        return false;
+        
     }
 
     public enum StatToChange
