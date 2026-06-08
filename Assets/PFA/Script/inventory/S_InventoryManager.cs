@@ -20,12 +20,16 @@ public class S_InventoryManager : MonoBehaviour
             InventoryMenu.SetActive(false);
             menuActivated = false;
             Debug.Log("AAAAH");
+            S_Controller movement = GameObject.Find("Character").GetComponent<S_Controller>();
+            movement.speed = 6;
         }
         else if(Input.GetKeyDown(KeyCode.Tab) && !menuActivated)
         {
             InventoryMenu.SetActive(true);
             menuActivated = true;
             Debug.Log("FAAAAH");
+            S_Controller movement = GameObject.Find("Character").GetComponent<S_Controller>();
+            movement.speed = 0;
         }
     }
     public bool UseItem(string itemName)
