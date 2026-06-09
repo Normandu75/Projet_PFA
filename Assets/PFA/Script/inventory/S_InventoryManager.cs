@@ -39,22 +39,23 @@ public class S_InventoryManager : MonoBehaviour
         }
             
     } 
+    
     public bool UseItem(string itemName)
-    {
+    { 
+        Debug.Log("Objet utilisé : " + itemName);
         for (int i = 0; i < itemSOs.Length; i++)
         {
             if(itemSOs[i].itemName == itemName)
             {
                 bool usable = itemSOs[i].UseItem(nearDoor);
-                Debug.Log("Item appelé Clef ?" + itemName);
                 return usable;
             }
         }
         return false;
-    }
+    } 
+    
     public void AddItem(string itemName, int quantity, Sprite icon)
     {
-        Debug.Log("Item Name : " + itemName + ", Quantity : " + quantity + ", Icon : " + icon);
         for (int i = 0; i < itemSlot.Length; i++)
         {
             if(itemSlot[i].isFull == false)

@@ -21,7 +21,6 @@ public class S_ItemSlot : MonoBehaviour, IPointerClickHandler
     {
         inventoryManager = GameObject.Find("UI").GetComponent<S_InventoryManager>();
     }
-
     public void AddItem(string itemName, int quantity, Sprite icon)
     {
         this.itemName = itemName;
@@ -31,6 +30,7 @@ public class S_ItemSlot : MonoBehaviour, IPointerClickHandler
         iconImage.sprite = icon;
         iconImage.enabled = true;
         iconImage.gameObject.SetActive(true);
+        
     }
 
     public void OnPointerClick(PointerEventData eventData)
