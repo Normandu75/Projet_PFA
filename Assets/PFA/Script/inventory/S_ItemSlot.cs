@@ -55,7 +55,7 @@ public class S_ItemSlot : MonoBehaviour, IPointerClickHandler
                 if(this.quantity <= 0)
                     EmptySlot();
             }
-            
+            Debug.Log("Click sur objet : " + itemName);
         }
         else
         {
