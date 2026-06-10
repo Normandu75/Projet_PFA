@@ -6,10 +6,13 @@ using UnityEngine.AI;
 public class S_Random_Movement : MonoBehaviour
 {
     public NavMeshAgent agent;
+
     public float range; 
 
     public Transform Origin;
     public Transform Player;
+
+    public LayerMask hide;
 
     public bool isInLight;
 
@@ -19,7 +22,6 @@ public class S_Random_Movement : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         Origin = GetComponent<Transform>();
         Player = GameObject.Find("Character").transform;
-        isInLight = true;
     }
 
     // Update is called once per frame
@@ -62,5 +64,15 @@ public class S_Random_Movement : MonoBehaviour
         result = Vector3.zero;
 
         return false;
+    }
+
+    public void NearestHide()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 4f, hide);
+
+        if (colliders.Length == 0)
+        {
+            Debug.Log("Pas de cachette");
+        }
     }
 }

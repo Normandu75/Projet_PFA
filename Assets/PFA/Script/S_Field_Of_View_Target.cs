@@ -5,40 +5,27 @@ using Unity.VisualScripting;
 using System;
 using UnityEngine.Assertions.Must;
 
-public class S_Field_Of_View : MonoBehaviour
+public class S_Field_Of_View_Target : MonoBehaviour
 {
     public float viewRadius;
     [Range(0, 360)]
     public float viewAngle;
-    public float circleRadius;
 
-    public LayerMask targetMask;
+    public LayerMask characterMask;
     public LayerMask obstacleMask;
 
-    public List<Transform> visibleTargets = new List<Transform>();
+    public List<Transform> visibleCharacter = new List<Transform>();
 
     public float meshResolution;
     public int edgeResolveIterations;
     public float edgeThreshold;
 
-    public float maskCutDistance = 0.1f;
+    public S_Random_Movement movement;
 
-    public MeshFilter viewMeshFilter;
-    public MeshFilter circleMeshFilter;
-    Mesh viewMesh;
-    Mesh circleMesh;
 
     void Start()
     {
-        //On set la variable viewMesh pour le FielOfView
-        viewMesh = new Mesh();
-        viewMesh.name = "viewMesh";
-        viewMeshFilter.mesh = viewMesh;
-
-        //On set la variable circleMesh pour le CircleOfView
-        circleMesh = new Mesh();
-        circleMesh.name = "circleMesh";
-        circleMeshFilter.mesh = circleMesh;
+        movement = GetComponent<S_Random_Movement>();
 
         //On lance la coroutine pour détecter les targets
         StartCoroutine(FindTargetsWithDelay(0.2f));
@@ -51,7 +38,7 @@ public class S_Field_Of_View : MonoBehaviour
         {
             yield return new WaitForSeconds(delay);
 
-            FindVisibleTargets();
+            FindVisibleCharacter();
         }
     }
 
@@ -59,14 +46,13 @@ public class S_Field_Of_View : MonoBehaviour
         void LateUpdate()
     {
         DrawFieldOfView();
-        DrawCircleOfView();
     }
 
     //Fonction qui permet de trouver ou non s'il y a un / plusieurs ennemi(s) dans notre FOV
-    void FindVisibleTargets()
+    void FindVisibleCharacter()
     {
-        visibleTargets.Clear();
-        Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, targetMask); //Raycast qui nous permet de détecter ou non les cibles
+        visibleCharacter.Clear();
+        Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, characterMask); //Raycast qui nous permet de détecter ou non les cibles
 
         for (int i = 0; i < targetsInViewRadius.Length; i++)
         {
@@ -80,24 +66,13 @@ public class S_Field_Of_View : MonoBehaviour
 
                 if (!Physics.Raycast(transform.position, dirToTarget, disToTarget, obstacleMask)) //Permet de verifier s'il (Raycast) ne touhe pas de d'obstacle 
                 {
-                    visibleTargets.Add(target); //Ajoute la cible dans le tableau
+                    visibleCharacter.Add(target); //Ajoute la cible dans le tableau
                 }
             }
-        }
-        
-        for (int i = 0; i < targetsInViewRadius.Length; i++)
-        {
-            GameObject targetInRange = targetsInViewRadius[i].gameObject.GetComponent<MeshRenderer>().gameObject; //Permet de récupérer le MeshRenderer de la cible touchée
-            bool isVisible = visibleTargets.Contains(targetsInViewRadius[i].transform); //Permet de vérifier s'il y a bien des ennemis dans le tableau visibleTargets 
-
-            if (targetInRange != isVisible) //S'il n'y a pas d'ennemis dans notre champs de vision
+            else
             {
-                targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = false; //Désactive les MeshRenderer des targets
-            }
-            else //S'il y a des ennemis dans notre champs de vision
-            {
-                targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = true; //Active les MeshRenderer des targets
-                targetInRange.gameObject.GetComponent<S_Random_Movement>().isInLight = true; //Permet aux ennemis de se dirigiger vers nous
+                movement.isInLight = false;
+                movement.NearestHide();
             }
         }
     }
@@ -140,88 +115,7 @@ public class S_Field_Of_View : MonoBehaviour
 
             oldViewCast = newViewCast;
         }
-
-        int vertexCount = viewPoints.Count + 1;
-        Vector3[] vertices = new Vector3[vertexCount];
-        int[] triangles = new int[(vertexCount - 2) * 3];
-
-        vertices[0] = Vector3.zero;
-        
-        for (int i = 0; i < vertexCount - 1; i++)
-        {
-            vertices[i + 1] = transform.InverseTransformPoint(viewPoints[i]) + Vector3.forward * maskCutDistance;
-
-            if (i < vertexCount - 2)
-            {
-                triangles[i * 3] = 0;
-                triangles[i * 3 + 1] = i + 1;
-                triangles[i * 3 + 2] = i + 2;
-            }
-        }
-
-        viewMesh.Clear();
-        viewMesh.vertices = vertices;
-        viewMesh.triangles = triangles;
-        viewMesh.RecalculateNormals();
     }
-
-    void DrawCircleOfView()
-    {
-        int stepCount = Mathf.RoundToInt(360f * meshResolution);
-        float stepAngleSize = 360f / stepCount;
-
-        List<Vector3> viewPoints = new List<Vector3>();
-        ViewCastInfo oldViewCast = new ViewCastInfo();
-
-        for (int i = 0; i <= stepCount; i++)
-        {
-            float angle = transform.eulerAngles.y + stepAngleSize * i;
-
-            ViewCastInfo newViewCast = ViewCastCircle(angle);
-
-            if (i > 0)
-            {
-                bool edgeThresholdExceeded = Mathf.Abs(oldViewCast.distance - newViewCast.distance) > edgeThreshold;
-
-                if (oldViewCast.hit != newViewCast.hit || (oldViewCast.hit && newViewCast.hit && edgeThresholdExceeded))
-                {
-                    EdgeInfo edge = FindEdge(oldViewCast, newViewCast);
-
-                    if (edge.pointA != Vector3.zero)
-                        viewPoints.Add(edge.pointA);
-
-                    if (edge.pointB != Vector3.zero)
-                        viewPoints.Add(edge.pointB);
-                }
-            }
-
-            viewPoints.Add(newViewCast.point);
-            oldViewCast = newViewCast;
-        }
-
-        int vertexCount = viewPoints.Count + 1;
-        Vector3[] vertices = new Vector3[vertexCount];
-        int[] triangles = new int[(vertexCount - 2) * 3];
-
-        vertices[0] = Vector3.zero;
-
-        for (int i = 0; i < vertexCount - 1; i++)
-        {
-            vertices[i + 1] = transform.InverseTransformPoint(viewPoints[i]);
-
-            if (i < vertexCount - 2)
-            {
-                triangles[i * 3] = 0;
-                triangles[i * 3 + 1] = i + 1;
-                triangles[i * 3 + 2] = i + 2;
-            }
-        }
-
-        circleMesh.Clear();
-        circleMesh.vertices = vertices;
-        circleMesh.triangles = triangles;
-        circleMesh.RecalculateNormals();
-    } 
 
     EdgeInfo FindEdge(ViewCastInfo minViewCast, ViewCastInfo maxViewCast)
     {
@@ -256,7 +150,7 @@ public class S_Field_Of_View : MonoBehaviour
     ViewCastInfo ViewCast(float globalAngle)
     {
         Vector3 dir = DirFromAngle(globalAngle, true);
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, dir, viewRadius, obstacleMask | targetMask);
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, dir, viewRadius, obstacleMask | characterMask);
 
         if (hits.Length > 0)
         {
@@ -268,7 +162,7 @@ public class S_Field_Of_View : MonoBehaviour
                 {
                     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
                 }
-                if (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
+                if (((1 << hit.collider.gameObject.layer) & characterMask) != 0)
                 {
                     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
                 }
@@ -276,31 +170,6 @@ public class S_Field_Of_View : MonoBehaviour
         }
 
         return new ViewCastInfo(false, transform.position + dir * viewRadius, viewRadius, globalAngle);
-    }
-
-    ViewCastInfo ViewCastCircle(float globalAngle)
-    {
-        Vector3 dir = DirFromAngle(globalAngle, true);
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, dir, circleRadius, obstacleMask | targetMask);
-
-        if (hits.Length > 0)
-        {
-            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
-
-            foreach (RaycastHit hit in hits)
-            {
-                if (((1 << hit.collider.gameObject.layer) & obstacleMask) != 0)
-                {
-                    return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
-                }
-                if (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
-                {
-                    return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
-                }
-            }
-        }
-
-        return new ViewCastInfo(false, transform.position + dir * circleRadius, circleRadius, globalAngle);
     }
 
     public Vector3 DirFromAngle(float angleInDegrees, bool angleIsGlobal)
