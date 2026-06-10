@@ -289,6 +289,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 6bdcd2dbdeb8ca54696f23928a00c77e, type: 2}
+  - {fileID: 2100000, guid: d31d5c865c0b24940bca8d9233221014, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -363,7 +364,7 @@ Camera:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -386,7 +387,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 10
+  far clip plane: 20
   field of view: 60
   orthographic: 1
   orthographic size: 20
@@ -1162,6 +1163,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 6bdcd2dbdeb8ca54696f23928a00c77e, type: 2}
+  - {fileID: 2100000, guid: d31d5c865c0b24940bca8d9233221014, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1274,6 +1276,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 9c440f3dbcbbc9a458952787db3aecc4, type: 2}
+  - {fileID: 2100000, guid: edc857141517d58409d5e32dfe94856c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1461,6 +1464,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 9c440f3dbcbbc9a458952787db3aecc4, type: 2}
+  - {fileID: 2100000, guid: edc857141517d58409d5e32dfe94856c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1859,6 +1863,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 9c440f3dbcbbc9a458952787db3aecc4, type: 2}
+  - {fileID: 2100000, guid: edc857141517d58409d5e32dfe94856c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2034,7 +2039,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.16666667
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 1bc27b1325dad6c4b960de267768f626, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 7636568e0b223c44dbd142314d06eb4b, type: 2}
   m_BuildHeightMesh: 0
 --- !u!1001 &3542196837130975211
 PrefabInstance:
@@ -2085,9 +2090,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2268292477153434474, guid: 9df32257afb7dc544b4c00b6dc184a9d, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2268292477153434474, guid: 9df32257afb7dc544b4c00b6dc184a9d, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 9c440f3dbcbbc9a458952787db3aecc4, type: 2}
+    - target: {fileID: 2268292477153434474, guid: 9df32257afb7dc544b4c00b6dc184a9d, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: edc857141517d58409d5e32dfe94856c, type: 2}
     - target: {fileID: 8670644429563366188, guid: 9df32257afb7dc544b4c00b6dc184a9d, type: 3}
       propertyPath: m_Name
       value: Porte
