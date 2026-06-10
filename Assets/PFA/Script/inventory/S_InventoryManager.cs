@@ -9,28 +9,34 @@ public class S_InventoryManager : MonoBehaviour
     public S_Door nearDoor;
     public S_ItemSO[] itemSOs;
     
+    public GameObject backgroundBackPack; 
+    public GameObject tabUi; 
+    private S_Controller movement;
+    
     void Start()
     {
         
+        movement = GameObject.Find("Character").GetComponent<S_Controller>();
     }
 
     void Update()
     {
-        //Ne fonctionne pas. La touche n'est pas detecté lorce qu'elle est pressed. 
         if(Input.GetKeyDown(KeyCode.Tab) && menuActivated)
         {
             InventoryMenu.SetActive(false);
+            backgroundBackPack.SetActive(false);
+            tabUi.SetActive(true);
             menuActivated = false;
             Debug.Log("AAAAH");
-            S_Controller movement = GameObject.Find("Character").GetComponent<S_Controller>();
             movement.speed = 6;
         }
         else if(Input.GetKeyDown(KeyCode.Tab) && !menuActivated)
         {
             InventoryMenu.SetActive(true);
+            backgroundBackPack.SetActive(true);
+            tabUi.SetActive(false);
             menuActivated = true;
             Debug.Log("FAAAAH");
-            S_Controller movement = GameObject.Find("Character").GetComponent<S_Controller>();
             movement.speed = 0;
         }
         if (!menuActivated)
