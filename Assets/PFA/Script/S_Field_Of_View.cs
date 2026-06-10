@@ -30,17 +30,21 @@ public class S_Field_Of_View : MonoBehaviour
 
     void Start()
     {
+        //On set la variable viewMesh pour le FielOfView
         viewMesh = new Mesh();
         viewMesh.name = "viewMesh";
         viewMeshFilter.mesh = viewMesh;
 
+        //On set la variable circleMesh pour le CircleOfView
         circleMesh = new Mesh();
         circleMesh.name = "circleMesh";
         circleMeshFilter.mesh = circleMesh;
 
+        //On lance la coroutine pour détecter les targets
         StartCoroutine(FindTargetsWithDelay(0.2f));
     }
 
+    //La coroutine
     IEnumerator FindTargetsWithDelay(float delay)
     {
         while (true)
@@ -51,79 +55,82 @@ public class S_Field_Of_View : MonoBehaviour
         }
     }
 
+    //On lance appelle les fonctions Draw / Circle OfView
         void LateUpdate()
     {
         DrawFieldOfView();
         DrawCircleOfView();
     }
 
+    //Fonction qui permet de trouver ou non s'il y a un / plusieurs ennemi(s) dans notre FOV
     void FindVisibleTargets()
     {
         visibleTargets.Clear();
-        Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
+        Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, targetMask); //Raycast qui nous permet de détecter ou non les cibles
 
         for (int i = 0; i < targetsInViewRadius.Length; i++)
         {
-            Transform target = targetsInViewRadius[i].transform;
+            Transform target = targetsInViewRadius[i].transform; //déterminier la position des cibles
 
-            Vector3 dirToTarget = (target.position - transform.position).normalized;
+            Vector3 dirToTarget = (target.position - transform.position).normalized; //déterminer la distance jusqu'à la cible
 
             if (Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
             {
                 float disToTarget = Vector3.Distance(transform.position, target.position);
 
-                if (!Physics.Raycast(transform.position, dirToTarget, disToTarget, obstacleMask))
+                if (!Physics.Raycast(transform.position, dirToTarget, disToTarget, obstacleMask)) //Permet de verifier s'il (Raycast) ne touhe pas de d'obstacle 
                 {
-                    visibleTargets.Add(target);
+                    visibleTargets.Add(target); //Ajoute la cible dans le tableau
                 }
             }
         }
         
         for (int i = 0; i < targetsInViewRadius.Length; i++)
         {
-            GameObject targetInRange = targetsInViewRadius[i].gameObject.GetComponent<MeshRenderer>().gameObject;
-            bool isVisible = visibleTargets.Contains(targetsInViewRadius[i].transform);
-            if (targetInRange != isVisible)
+            GameObject targetInRange = targetsInViewRadius[i].gameObject.GetComponent<MeshRenderer>().gameObject; //Permet de récupérer le MeshRenderer de la cible touchée
+            bool isVisible = visibleTargets.Contains(targetsInViewRadius[i].transform); //Permet de vérifier s'il y a bien des ennemis dans le tableau visibleTargets 
+
+            if (targetInRange != isVisible) //S'il n'y a pas d'ennemis dans notre champs de vision
             {
-                targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = false;
-                targetInRange.gameObject.GetComponent<S_Random_Movement>().isInLight = false;
+                targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = false; //Désactive les MeshRenderer des targets
+                targetInRange.gameObject.GetComponent<S_Random_Movement>().isInLight = false; //Permet aux ennemis de ne pas se dirigiger vers nous
             }
-            else
+            else //S'il y a des ennemis dans notre champs de vision
             {
-                targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = true;
-                targetInRange.gameObject.GetComponent<S_Random_Movement>().isInLight = true;
+                targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = true; //Active les MeshRenderer des targets
+                targetInRange.gameObject.GetComponent<S_Random_Movement>().isInLight = true; //Permet aux ennemis de se dirigiger vers nous
             }
         }
     }
 
     void DrawFieldOfView()
     {
-        int stepCount = Mathf.RoundToInt(viewAngle * meshResolution);
-        float stepAngleSize = viewAngle / stepCount;
+        int stepCount = Mathf.RoundToInt(viewAngle * meshResolution); //Crée 
+        float stepAngleSize = viewAngle / stepCount; //Crée l'angle de notre FOV
 
-        List<Vector3> viewPoints = new List<Vector3>();
+        List<Vector3> viewPoints = new List<Vector3>(); //Crée une liste de Vector3
 
         ViewCastInfo oldViewCast = new ViewCastInfo();
 
         for (int i = 0; i <= stepCount; i++)
         {
-            float angle = transform.eulerAngles.y - viewAngle / 2 + stepAngleSize * i;
+            float angle = transform.eulerAngles.y - viewAngle / 2 + stepAngleSize * i; //Détermine l'angle uniquement sur l'axe y
 
             ViewCastInfo newViewCast = ViewCast(angle);
 
             if (i > 0)
             {   
-                bool edgeThresholdExceeded = Mathf.Abs(oldViewCast.distance - newViewCast.distance) > edgeThreshold;
+                bool edgeThresholdExceeded = Mathf.Abs(oldViewCast.distance - newViewCast.distance) > edgeThreshold; //Récupere la valeur absolue de la distance entre l'ancien et le nouveau ViewCast lorsqu'elle supérieure à edgeThreshold
 
-                if (oldViewCast.hit != newViewCast.hit || (oldViewCast.hit && newViewCast.hit && edgeThresholdExceeded))
+                if (oldViewCast.hit != newViewCast.hit || (oldViewCast.hit && newViewCast.hit && edgeThresholdExceeded)) //Vérifie si le hit de l'ancien ViewCast et différent du nouveau
                 {
-                    EdgeInfo edge = FindEdge(oldViewCast, newViewCast);
+                    EdgeInfo edge = FindEdge(oldViewCast, newViewCast); //Permet de set une variable pour les bords détectés par l'ancien et nouveau ViewCast
 
-                    if (edge.pointA != Vector3.zero)
+                    if (edge.pointA != Vector3.zero) //Verifie s'il détecte bien un bord pour le pointA
                     {
                         viewPoints.Add(edge.pointA);
                     }
-                    if (edge.pointB != Vector3.zero)
+                    if (edge.pointB != Vector3.zero) //Verifie s'il détecte bien un bord pour le pointB
                     {
                         viewPoints.Add(edge.pointB);
                     }
