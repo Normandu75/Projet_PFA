@@ -20,6 +20,8 @@ public class S_Field_Of_View_Target : MonoBehaviour
     public int edgeResolveIterations;
     public float edgeThreshold;
     public bool isInSight;
+    public bool checkHide;
+    public bool isDetecting;
 
     public S_Random_Movement movement;
 
@@ -70,17 +72,19 @@ public class S_Field_Of_View_Target : MonoBehaviour
                     visibleCharacter.Add(target); //Ajoute la cible dans le tableau
 
                     isInSight = true;
+                    checkHide = false;
                 }
-            }
-            else
-            {
-                movement.isInLight = false;
 
-                if (isInSight)
+                if (visibleCharacter.Count > 0)
                 {
-                    movement.NearestHide();
-
-                    isInSight = false;
+                    isInSight = true;
+                    checkHide = false;
+                    isDetecting = false; // on annule la détection
+                }
+                else
+                {
+                    if (!isDetecting)
+                    StartCoroutine(DetectionTime());
                 }
             }
         }
@@ -217,5 +221,26 @@ public class S_Field_Of_View_Target : MonoBehaviour
             pointA = _pointA;
             pointB = _pointB;
         }
+    }
+
+    IEnumerator DetectionTime()
+    {
+        isDetecting = true;
+        isInSight = false;
+
+        yield return new WaitForSeconds(1f);
+
+        if (!isInSight)
+        {
+            movement.isInLight = false;
+
+            if (!checkHide)
+            {
+                movement.NearestHide();
+                checkHide = true;
+            }
+        }
+
+        isDetecting = false;
     }
 }

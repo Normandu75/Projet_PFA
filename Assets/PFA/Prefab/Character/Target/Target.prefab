@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Random_Movement
   agent: {fileID: 0}
-  range: 0
+  range: 8
   Origin: {fileID: 0}
   Player: {fileID: 0}
   objectMask:
@@ -190,8 +190,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5fffa12f8c9edc4bb849f7df626e9fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Field_Of_View_Target
-  viewRadius: 0
-  viewAngle: 0
+  viewRadius: 20
+  viewAngle: 50
   characterMask:
     serializedVersion: 2
     m_Bits: 512
@@ -203,6 +203,7 @@ MonoBehaviour:
   edgeResolveIterations: 4
   edgeThreshold: 0.5
   isInSight: 0
+  checkHide: 0
   movement: {fileID: 0}
 --- !u!1 &6953710108145318492
 GameObject:

@@ -12,6 +12,8 @@ public class S_Field_Of_View : MonoBehaviour
     public float viewAngle;
     public float circleRadius;
 
+    public S_Field_Of_View_Target fovTarget;
+
     public LayerMask targetMask;
     public LayerMask obstacleMask;
     public LayerMask objectMask;
@@ -90,7 +92,7 @@ public class S_Field_Of_View : MonoBehaviour
         
         for (int i = 0; i < targetsInViewRadius.Length; i++)
         {
-            GameObject targetInRange = targetsInViewRadius[i].gameObject.GetComponent<MeshRenderer>().gameObject; //Permet de récupérer le MeshRenderer de la cible touchée
+            GameObject targetInRange = targetsInViewRadius[i].gameObject; //Permet de récupérer le MeshRenderer de la cible touchée
             bool isVisible = visibleTargets.Contains(targetsInViewRadius[i].transform); //Permet de vérifier s'il y a bien des ennemis dans le tableau visibleTargets 
 
             if (targetInRange != isVisible) //S'il n'y a pas d'ennemis dans notre champs de vision
