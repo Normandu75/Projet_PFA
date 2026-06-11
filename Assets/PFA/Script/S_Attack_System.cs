@@ -24,7 +24,7 @@ public class S_Attack_System : MonoBehaviour
 
     void DetectionAndAttack()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 4f, character);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 2f, character);
 
         if (colliders.Length > 0)
         {
