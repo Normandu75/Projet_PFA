@@ -70,9 +70,6 @@ public class S_Field_Of_View_Target : MonoBehaviour
                 if (!Physics.Raycast(transform.position, dirToTarget, disToTarget, obstacleMask)) //Permet de verifier s'il (Raycast) ne touhe pas de d'obstacle 
                 {
                     visibleCharacter.Add(target); //Ajoute la cible dans le tableau
-
-                    isInSight = true;
-                    checkHide = false;
                 }
 
                 if (visibleCharacter.Count > 0)
@@ -228,7 +225,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
         isDetecting = true;
         isInSight = false;
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(5f);
 
         if (!isInSight)
         {
@@ -239,6 +236,10 @@ public class S_Field_Of_View_Target : MonoBehaviour
                 movement.NearestHide();
                 checkHide = true;
             }
+        }
+        else
+        {
+            movement.isInLight = true;
         }
 
         isDetecting = false;
