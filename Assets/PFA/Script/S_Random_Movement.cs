@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.AI;
+using System.Diagnostics.CodeAnalysis;
 
 public class S_Random_Movement : MonoBehaviour
 {
@@ -70,14 +71,27 @@ public class S_Random_Movement : MonoBehaviour
     {
         Collider[] colliders = Physics.OverlapSphere(transform.position, 50f, objectMask);
 
+        Transform nearest = null;
+        float minDist = Mathf.Infinity;
+
         foreach (Collider col in colliders)
         {
-            if (col.CompareTag("Hide"))
+            if (!col.CompareTag("Hide"))
             {
-                agent.SetDestination(col.transform.position);
+                continue;
+            }
 
-                Debug.Log("Direction cachette");
+            float dist = Vector3.Distance(transform.position, col.transform.position);
+
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = col.transform;
+
+                agent.SetDestination(nearest.transform.position);
             }
         }
     }
+
+        /*agent.SetDestination(col.transform.position);*/
 }
