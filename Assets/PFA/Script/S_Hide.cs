@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class S_Hide : MonoBehaviour
@@ -10,6 +11,7 @@ public class S_Hide : MonoBehaviour
 
     public GameObject character;
     public Collider collision;
+    public Rigidbody rb;
 
     void Start()
     {
@@ -17,6 +19,7 @@ public class S_Hide : MonoBehaviour
         character = GameObject.Find("Character");
         control = GameObject.Find("Character").GetComponent<S_Controller>();
         collision = GameObject.Find("Collider").GetComponent<Collider>();
+        rb = GameObject.Find("Character").GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -27,6 +30,7 @@ public class S_Hide : MonoBehaviour
 
             collision.enabled = false;
             character.transform.position = transform.position;
+            rb.isKinematic = true;
             control.canMove = false;
             isHidden = true;
         }
