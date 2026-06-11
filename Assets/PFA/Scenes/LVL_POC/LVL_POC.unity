@@ -718,7 +718,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2986542503314045810, guid: 7063d062d1d1e2444b15037019155510, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6185139900147801996, guid: 7063d062d1d1e2444b15037019155510, type: 3}
       propertyPath: viewAngle
