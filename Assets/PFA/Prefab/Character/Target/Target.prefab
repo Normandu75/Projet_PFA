@@ -157,6 +157,9 @@ MonoBehaviour:
   range: 0
   Origin: {fileID: 0}
   Player: {fileID: 0}
+  objectMask:
+    serializedVersion: 2
+    m_Bits: 1024
   isInLight: 0
 --- !u!114 &-4902454401211231276
 MonoBehaviour:
@@ -195,12 +198,12 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 64
-  visibleTargets: []
+  visibleCharacter: []
   meshResolution: 1
   edgeResolveIterations: 4
   edgeThreshold: 0.5
-  maskCutDistance: 0.2
-  viewMeshFilter: {fileID: 4493421951391011704}
+  isInSight: 0
+  movement: {fileID: 0}
 --- !u!1 &6953710108145318492
 GameObject:
   m_ObjectHideFlags: 0

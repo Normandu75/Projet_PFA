@@ -13,6 +13,7 @@ public class S_Controller : MonoBehaviour
     public Material mat;
 
     public bool FlashLightOn;
+    public bool canMove;
 
     public S_Field_Of_View fov;
     public S_FlashLight_Energy energy;
@@ -28,6 +29,7 @@ public class S_Controller : MonoBehaviour
         mat = GameObject.Find("EnergyBar_Inside").GetComponent<Image>().material;
         fov = GetComponent<S_Field_Of_View>();
         energy = GetComponent<S_FlashLight_Energy>();
+        canMove = true;
     }
 
     // Update is called once per frame
@@ -75,7 +77,10 @@ public class S_Controller : MonoBehaviour
 
     void FixedUpdate()
     {
-        rigidBody.MovePosition(rigidBody.position + velocity * Time.fixedDeltaTime);
+        if (canMove)
+        {
+            rigidBody.MovePosition(rigidBody.position + velocity * Time.fixedDeltaTime);
+        }
     }
 
     IEnumerator StopDepletion()

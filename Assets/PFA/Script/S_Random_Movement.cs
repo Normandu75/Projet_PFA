@@ -12,7 +12,7 @@ public class S_Random_Movement : MonoBehaviour
     public Transform Origin;
     public Transform Player;
 
-    public LayerMask hide;
+    public LayerMask objectMask;
 
     public bool isInLight;
 
@@ -68,11 +68,16 @@ public class S_Random_Movement : MonoBehaviour
 
     public void NearestHide()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 4f, hide);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 50f, objectMask);
 
-        if (colliders.Length == 0)
+        foreach (Collider col in colliders)
         {
-            Debug.Log("Pas de cachette");
+            if (col.CompareTag("Hide"))
+            {
+                agent.SetDestination(col.transform.position);
+
+                Debug.Log("Direction cachette");
+            }
         }
     }
 }

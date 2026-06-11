@@ -19,6 +19,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
     public float meshResolution;
     public int edgeResolveIterations;
     public float edgeThreshold;
+    public bool isInSight;
 
     public S_Random_Movement movement;
 
@@ -67,12 +68,20 @@ public class S_Field_Of_View_Target : MonoBehaviour
                 if (!Physics.Raycast(transform.position, dirToTarget, disToTarget, obstacleMask)) //Permet de verifier s'il (Raycast) ne touhe pas de d'obstacle 
                 {
                     visibleCharacter.Add(target); //Ajoute la cible dans le tableau
+
+                    isInSight = true;
                 }
             }
             else
             {
                 movement.isInLight = false;
-                movement.NearestHide();
+
+                if (isInSight)
+                {
+                    movement.NearestHide();
+
+                    isInSight = false;
+                }
             }
         }
     }

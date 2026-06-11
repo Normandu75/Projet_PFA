@@ -19,11 +19,6 @@ public class S_Attack_System : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // if (Input.GetKeyDown(KeyCode.R))
-        // {
-        //     healthBar.TakeDamage(damage);
-        // }
-
         DetectionAndAttack();
     }
 

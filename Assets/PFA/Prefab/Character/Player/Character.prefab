@@ -188,7 +188,11 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 64
+  objectMask:
+    serializedVersion: 2
+    m_Bits: 0
   visibleTargets: []
+  visibleObjects: []
   meshResolution: 1
   edgeResolveIterations: 4
   edgeThreshold: 0.5
@@ -245,6 +249,8 @@ MonoBehaviour:
   itemSlot: []
   nearDoor: {fileID: 0}
   itemSOs: []
+  backgroundBackPack: {fileID: 0}
+  tabUi: {fileID: 0}
 --- !u!1 &1923116718100351935
 GameObject:
   m_ObjectHideFlags: 0

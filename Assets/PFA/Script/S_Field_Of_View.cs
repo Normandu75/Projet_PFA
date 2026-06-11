@@ -14,8 +14,10 @@ public class S_Field_Of_View : MonoBehaviour
 
     public LayerMask targetMask;
     public LayerMask obstacleMask;
+    public LayerMask objectMask;
 
     public List<Transform> visibleTargets = new List<Transform>();
+    public List<Transform> visibleObjects = new List<Transform>();
 
     public float meshResolution;
     public int edgeResolveIterations;
@@ -52,6 +54,7 @@ public class S_Field_Of_View : MonoBehaviour
             yield return new WaitForSeconds(delay);
 
             FindVisibleTargets();
+            FindVisibleObjects();
         }
     }
 
@@ -98,6 +101,44 @@ public class S_Field_Of_View : MonoBehaviour
             {
                 targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = true; //Active les MeshRenderer des targets
                 targetInRange.gameObject.GetComponent<S_Random_Movement>().isInLight = true; //Permet aux ennemis de se dirigiger vers nous
+            }
+        }
+    }
+
+    void FindVisibleObjects()
+    {
+        visibleObjects.Clear();
+        Collider[] objectsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, objectMask); //Raycast qui nous permet de détecter ou non les cibles
+
+        for (int i = 0; i < objectsInViewRadius.Length; i++)
+        {
+            Transform target = objectsInViewRadius[i].transform; //déterminier la position des cibles
+
+            Vector3 dirToTarget = (target.position - transform.position).normalized; //déterminer la distance jusqu'à la cible
+
+            if (Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
+            {
+                float disToTarget = Vector3.Distance(transform.position, target.position);
+
+                if (!Physics.Raycast(transform.position, dirToTarget, disToTarget, obstacleMask)) //Permet de verifier s'il (Raycast) ne touhe pas de d'obstacle 
+                {
+                    visibleObjects.Add(target); //Ajoute la cible dans le tableau
+                }
+            }
+        }
+        
+        for (int i = 0; i < objectsInViewRadius.Length; i++)
+        {
+            GameObject objectInRange = objectsInViewRadius[i].gameObject.GetComponent<MeshRenderer>().gameObject; //Permet de récupérer le MeshRenderer de la cible touchée
+            bool isVisible = visibleObjects.Contains(objectsInViewRadius[i].transform); //Permet de vérifier s'il y a bien des ennemis dans le tableau visibleTargets 
+
+            if (objectInRange != isVisible) //S'il n'y a pas d'ennemis dans notre champs de vision
+            {
+                objectInRange.gameObject.GetComponent<MeshRenderer>().enabled = false; //Désactive les MeshRenderer des targets
+            }
+            else //S'il y a des ennemis dans notre champs de vision
+            {
+                objectInRange.gameObject.GetComponent<MeshRenderer>().enabled = true; //Active les MeshRenderer des targets
             }
         }
     }
