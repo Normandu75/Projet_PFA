@@ -13,6 +13,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
 
     public LayerMask characterMask;
     public LayerMask obstacleMask;
+    public LayerMask objectMask;
 
     public List<Transform> visibleCharacter = new List<Transform>();
 
@@ -24,6 +25,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
     public bool isDetecting;
 
     public S_Random_Movement movement;
+    public S_Hide hide;
 
 
     void Start()
@@ -46,7 +48,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
     }
 
     //On lance appelle les fonctions Draw / Circle OfView
-        void LateUpdate()
+    void LateUpdate()
     {
         DrawFieldOfView();
     }
@@ -244,4 +246,22 @@ public class S_Field_Of_View_Target : MonoBehaviour
 
         isDetecting = false;
     }
+
+    /*void DestructionHide()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 50f, objectMask);
+
+        foreach (Collider col in colliders)
+        {
+            if (col.CompareTag("Hide"))
+            {
+                Debug.Log("Cachette détruit");
+            }
+
+            if (isInSight && hide.isHidden && col.CompareTag("Hide"))
+            {
+                Debug.Log("Cachette détruit");
+            }
+        }
+    }*/
 }
