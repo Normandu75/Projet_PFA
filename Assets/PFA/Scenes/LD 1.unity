@@ -5723,7 +5723,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02929834facc67047a5bf169d15e8246, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Door
-  interactionRadius: 2.5
+  interactionRadius: 5
   requiredKeyName: Key
   proximityText: {fileID: 726536470}
 --- !u!65 &1552398373
@@ -5773,7 +5773,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 9c440f3dbcbbc9a458952787db3aecc4, type: 2}
-  - {fileID: 2100000, guid: edc857141517d58409d5e32dfe94856c, type: 2}
+  - {fileID: 2100000, guid: d84f79e23ecd6cc4992454679931fa37, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
