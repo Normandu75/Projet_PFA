@@ -272,6 +272,16 @@ public class S_Field_Of_View_Target : MonoBehaviour
         if (dist <= 5f)
         {
             Debug.Log("Cachette détruite : " + hideSpot.name);
+
+            S_Hide hide = GameObject.Find("Hide").GetComponent<S_Hide>();
+
+            hide.collision.enabled = true;
+            hide.control.canMove = true;
+            hide.control.canPress = true;
+            hide.isHidden = false;
+
+            hide.fovCharacter.viewRadius = 8f;
+
             Destroy(hideSpot.gameObject);
         }
     }

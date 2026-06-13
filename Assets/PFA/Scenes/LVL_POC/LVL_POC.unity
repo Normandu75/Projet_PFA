@@ -787,7 +787,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17af49e8f5151c14aa7083cafafbe907, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Controller
-  speed: 6
+  speed: 10
   image: {fileID: 0}
   mat: {fileID: 0}
   FlashLightOn: 1
