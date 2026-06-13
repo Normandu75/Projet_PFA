@@ -14,6 +14,7 @@ public class S_Controller : MonoBehaviour
 
     public bool FlashLightOn;
     public bool canMove;
+    public bool canPress;
 
     public S_Field_Of_View fov;
     public S_FlashLight_Energy energy;
@@ -30,6 +31,7 @@ public class S_Controller : MonoBehaviour
         fov = GetComponent<S_Field_Of_View>();
         energy = GetComponent<S_FlashLight_Energy>();
         canMove = true;
+        canPress = true;
     }
 
     // Update is called once per frame
@@ -50,28 +52,31 @@ public class S_Controller : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == true)
+        if (canPress)
         {
-            fov.viewRadius = 8;
-            fov.viewAngle = 90;
+            if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == true)
+            {
+                fov.viewRadius = 8;
+                fov.viewAngle = 90;
 
-            FlashLightOn = false;
-            energy.Depleting = false;
-        }
-        else if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == false)
-        {
-            fov.viewRadius = 20;
-            fov.viewAngle = 50;
+                FlashLightOn = false;
+                energy.Depleting = false;
+            }
+            else if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == false)
+            {
+                fov.viewRadius = 20;
+                fov.viewAngle = 50;
 
-            FlashLightOn = true;
-            energy.Depleting = true;
-        }
+                FlashLightOn = true;
+                energy.Depleting = true;
+            }
 
-        if (image.fillAmount > 0.5f)
-        {
-            mat.color = Color.Lerp(Color.white, Color.white, Mathf.PingPong(Time.time, 1));
+            if (image.fillAmount > 0.5f)
+            {
+                mat.color = Color.Lerp(Color.white, Color.white, Mathf.PingPong(Time.time, 1));
 
-            Debug.Log("Energy Resplenished");
+                Debug.Log("Energy Resplenished");
+            }
         }
     }
 

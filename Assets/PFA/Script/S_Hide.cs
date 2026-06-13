@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class S_Hide : MonoBehaviour
 {
-    private S_Random_Movement enemy;
+    public S_Field_Of_View_Target fovTarget;
+    public S_Field_Of_View fovCharacter;
     public S_Controller control;
 
     public bool isHidden;
@@ -15,10 +16,11 @@ public class S_Hide : MonoBehaviour
 
     void Start()
     {
-        enemy = GameObject.Find("Target").GetComponent<S_Random_Movement>();
+        fovTarget = GameObject.Find("Target").GetComponent<S_Field_Of_View_Target>();
+        fovCharacter = GameObject.Find("Character").GetComponent<S_Field_Of_View>();
         character = GameObject.Find("Character");
         control = GameObject.Find("Character").GetComponent<S_Controller>();
-        collision = GameObject.Find("Collider").GetComponent<Collider>();
+        collision = GameObject.Find("Character").GetComponent<Collider>();
         rb = GameObject.Find("Character").GetComponent<Rigidbody>();
     }
 
@@ -28,18 +30,31 @@ public class S_Hide : MonoBehaviour
         {
             Debug.Log("Caché");
 
+            /*if (fovTarget.isInSight == false)
+            {
+                character.layer = 0;
+            }*/
+
             collision.enabled = false;
-            character.transform.position = transform.position;
             rb.isKinematic = true;
             control.canMove = false;
+            control.FlashLightOn = false;
+            control.canPress = false;
             isHidden = true;
+
+            character.transform.position = transform.position;
+            fovCharacter.viewRadius = 0f;
+
         }
         else if (Input.GetKeyDown(KeyCode.F) && isHidden)
         {
             collision.enabled = true;
-            character.transform.position = transform.position + transform.forward * 1f;
             control.canMove = true;
+            control.canPress = true;
             isHidden = false;
+
+            character.transform.position = transform.position + transform.forward * 1f;
+            fovCharacter.viewRadius = 8f;
         }
     }
 

@@ -792,6 +792,7 @@ MonoBehaviour:
   mat: {fileID: 0}
   FlashLightOn: 1
   canMove: 0
+  canPress: 0
   fov: {fileID: 0}
   energy: {fileID: 0}
 --- !u!54 &400303801
@@ -1838,6 +1839,10 @@ PrefabInstance:
     - target: {fileID: 6185139900147801996, guid: 7063d062d1d1e2444b15037019155510, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6185139900147801996, guid: 7063d062d1d1e2444b15037019155510, type: 3}
+      propertyPath: objectMask.m_Bits
+      value: 1024
       objectReference: {fileID: 0}
     - target: {fileID: 7700071962599760413, guid: 7063d062d1d1e2444b15037019155510, type: 3}
       propertyPath: m_LocalPosition.x

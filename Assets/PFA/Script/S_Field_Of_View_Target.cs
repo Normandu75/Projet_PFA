@@ -25,7 +25,6 @@ public class S_Field_Of_View_Target : MonoBehaviour
     public bool isDetecting;
 
     public S_Random_Movement movement;
-    public S_Hide hide;
 
 
     void Start()
@@ -51,6 +50,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
     void LateUpdate()
     {
         DrawFieldOfView();
+        DestructionHide();
     }
 
     //Fonction qui permet de trouver ou non s'il y a un / plusieurs ennemi(s) dans notre FOV
@@ -79,6 +79,8 @@ public class S_Field_Of_View_Target : MonoBehaviour
                     isInSight = true;
                     checkHide = false;
                     isDetecting = false; // on annule la détection
+
+                    Debug.Log("Vu");
                 }
                 else
                 {
@@ -227,27 +229,54 @@ public class S_Field_Of_View_Target : MonoBehaviour
         isDetecting = true;
         isInSight = false;
 
+        Debug.Log("Vois plus");
+
         yield return new WaitForSeconds(5f);
 
         if (!isInSight)
         {
             movement.isInLight = false;
 
+            Debug.Log("Te revois plus");
+
             if (!checkHide)
             {
                 movement.NearestHide();
+
                 checkHide = true;
             }
         }
         else
         {
             movement.isInLight = true;
+
+            Debug.Log("Te revois");
         }
 
         isDetecting = false;
     }
 
-    /*void DestructionHide()
+    void DestructionHide()
+    {
+        if (!isInSight)
+        {
+            return; // l’ennemi doit voir le joueur
+        }
+
+        S_Hide hideSpot = GetPlayerHideSpot();
+
+        if (hideSpot == null) return; // le joueur n’est pas dans une cachette
+
+        float dist = Vector3.Distance(transform.position, hideSpot.transform.position);
+
+        if (dist <= 5f)
+        {
+            Debug.Log("Cachette détruite : " + hideSpot.name);
+            Destroy(hideSpot.gameObject);
+        }
+    }
+
+    S_Hide GetPlayerHideSpot()
     {
         Collider[] colliders = Physics.OverlapSphere(transform.position, 50f, objectMask);
 
@@ -255,13 +284,14 @@ public class S_Field_Of_View_Target : MonoBehaviour
         {
             if (col.CompareTag("Hide"))
             {
-                Debug.Log("Cachette détruit");
-            }
+                S_Hide hide = col.GetComponent<S_Hide>();
 
-            if (isInSight && hide.isHidden && col.CompareTag("Hide"))
-            {
-                Debug.Log("Cachette détruit");
+                if (hide != null && hide.playerInside)
+                {
+                    return hide;
+                }
             }
         }
-    }*/
+        return null;
+    }
 }
