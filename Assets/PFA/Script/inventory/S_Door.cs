@@ -50,7 +50,7 @@ public class S_Door : MonoBehaviour
 
         if (proximityText != null)
         {
-            Destroy(proximityText.gameObject);
+            proximityText.gameObject.SetActive(false);
         }
 
         Destroy(gameObject);
