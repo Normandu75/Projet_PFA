@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using TMPro;
 
 public class S_Hide : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class S_Hide : MonoBehaviour
 
     public bool isHidden;
     public bool playerInside;
+
+    [SerializeField]
+    private TMP_Text hideText;
 
     public GameObject character;
     public Collider collision;
@@ -33,6 +37,8 @@ public class S_Hide : MonoBehaviour
 
         lumen.enabled = false;
         //lumenFloor.enabled = false; 
+
+        hideText.gameObject.SetActive(false);
     }
 
     void Update()
@@ -54,6 +60,8 @@ public class S_Hide : MonoBehaviour
             isHidden = true;
             lumen.enabled = true;
 
+            hideText.gameObject.SetActive(false);
+
             character.transform.position = transform.position;
             fovCharacter.viewRadius = 0f;
 
@@ -65,6 +73,8 @@ public class S_Hide : MonoBehaviour
             control.canPress = true;
             isHidden = false;
             lumen.enabled = false;
+
+            hideText.gameObject.SetActive(false);
 
             character.transform.position = transform.position + transform.forward * 1f;
             fovCharacter.viewRadius = 8f;
@@ -78,6 +88,8 @@ public class S_Hide : MonoBehaviour
             playerInside = true;
             //lumenFloor.enabled = true;
 
+            hideText.gameObject.SetActive(true);
+
             Debug.Log("Caché");
         }
     }
@@ -88,6 +100,8 @@ public class S_Hide : MonoBehaviour
         {
             playerInside = false;
             //lumenFloor.enabled = true;
+
+            hideText.gameObject.SetActive(false);
         }
     }
 }
