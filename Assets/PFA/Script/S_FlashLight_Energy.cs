@@ -41,7 +41,6 @@ public class S_FlashLight_Energy : MonoBehaviour
 
                     Debug.Log("Energy_Low");
                 }
-
             }
             else
             {

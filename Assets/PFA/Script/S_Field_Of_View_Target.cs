@@ -273,17 +273,19 @@ public class S_Field_Of_View_Target : MonoBehaviour
         {
             Debug.Log("Cachette détruite : " + hideSpot.name);
 
-            S_Hide hide = GameObject.Find("Hide").GetComponent<S_Hide>();
+            hideSpot.collision.enabled = true;
+            hideSpot.control.canMove = true;
+            hideSpot.control.canPress = true;
+            hideSpot.isHidden = false;
+            hideSpot.rb.isKinematic = false;
 
-            hide.collision.enabled = true;
-            hide.control.canMove = true;
-            hide.control.canPress = true;
-            hide.isHidden = false;
-            hide.rb.isKinematic = false;
-
-            hide.fovCharacter.viewRadius = 8f;
+            hideSpot.fovCharacter.viewRadius = 8f;
 
             Destroy(hideSpot.gameObject);
+        }
+        else
+        {
+            return;
         }
     }
 
@@ -299,6 +301,8 @@ public class S_Field_Of_View_Target : MonoBehaviour
 
                 if (hide != null && hide.playerInside)
                 {
+                    Debug.Log("Player inside");
+
                     return hide;
                 }
             }
