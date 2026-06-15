@@ -13,6 +13,10 @@ public class S_Hide : MonoBehaviour
     public GameObject character;
     public Collider collision;
     public Rigidbody rb;
+    public MeshRenderer lumen;
+    public SpriteRenderer lumenFloor;
+    public Transform lightObj;
+    //public Transform circleObj;
 
     void Start()
     {
@@ -22,6 +26,13 @@ public class S_Hide : MonoBehaviour
         control = GameObject.Find("Character").GetComponent<S_Controller>();
         collision = GameObject.Find("Character").GetComponent<Collider>();
         rb = GameObject.Find("Character").GetComponent<Rigidbody>();
+        lightObj = transform.Find("Light");
+        //circleObj = transform.Find("Circle");
+        lumen = lightObj.GetComponent<MeshRenderer>();
+        //lumenFloor = circleObj.GetComponent<SpriteRenderer>();
+
+        lumen.enabled = false;
+        //lumenFloor.enabled = false; 
     }
 
     void Update()
@@ -41,6 +52,7 @@ public class S_Hide : MonoBehaviour
             control.FlashLightOn = false;
             control.canPress = false;
             isHidden = true;
+            lumen.enabled = true;
 
             character.transform.position = transform.position;
             fovCharacter.viewRadius = 0f;
@@ -52,6 +64,7 @@ public class S_Hide : MonoBehaviour
             control.canMove = true;
             control.canPress = true;
             isHidden = false;
+            lumen.enabled = false;
 
             character.transform.position = transform.position + transform.forward * 1f;
             fovCharacter.viewRadius = 8f;
@@ -63,6 +76,7 @@ public class S_Hide : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             playerInside = true;
+            //lumenFloor.enabled = true;
 
             Debug.Log("Caché");
         }
@@ -73,6 +87,7 @@ public class S_Hide : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             playerInside = false;
+            //lumenFloor.enabled = true;
         }
     }
 }
