@@ -1,11 +1,14 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using TMPro;
 
 public class S_Hide : MonoBehaviour
 {
     public S_Field_Of_View_Target fovTarget;
     public S_Field_Of_View fovCharacter;
     public S_Controller control;
+    [SerializeField] 
+    private TMP_Text hideText;
 
     public bool isHidden;
     public bool playerInside;
@@ -22,6 +25,7 @@ public class S_Hide : MonoBehaviour
         control = GameObject.Find("Character").GetComponent<S_Controller>();
         collision = GameObject.Find("Character").GetComponent<Collider>();
         rb = GameObject.Find("Character").GetComponent<Rigidbody>();
+        hideText.gameObject.SetActive(false);
     }
 
     void Update()
@@ -41,7 +45,8 @@ public class S_Hide : MonoBehaviour
             control.FlashLightOn = false;
             control.canPress = false;
             isHidden = true;
-
+            
+            hideText.gameObject.SetActive(false);
             character.transform.position = transform.position;
             fovCharacter.viewRadius = 0f;
 
@@ -52,6 +57,7 @@ public class S_Hide : MonoBehaviour
             control.canMove = true;
             control.canPress = true;
             isHidden = false;
+            hideText.gameObject.SetActive(false);
 
             character.transform.position = transform.position + transform.forward * 1f;
             fovCharacter.viewRadius = 8f;
@@ -63,8 +69,8 @@ public class S_Hide : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             playerInside = true;
-
-            Debug.Log("Caché");
+            hideText.gameObject.SetActive(true);
+            Debug.Log("Cachette in range");
         }
     }
 
@@ -73,6 +79,7 @@ public class S_Hide : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             playerInside = false;
+            hideText.gameObject.SetActive(false);
         }
     }
 }
