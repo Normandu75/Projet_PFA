@@ -130,6 +130,7 @@ MonoBehaviour:
   fovTarget: {fileID: 0}
   fovCharacter: {fileID: 0}
   control: {fileID: 0}
+  flashLight: {fileID: 0}
   isHidden: 0
   playerInside: 0
   hideText: {fileID: 0}
