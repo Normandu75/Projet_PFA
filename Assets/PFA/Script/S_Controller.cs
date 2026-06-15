@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class S_Controller : MonoBehaviour
 {
@@ -18,6 +19,12 @@ public class S_Controller : MonoBehaviour
 
     public S_Field_Of_View fov;
     public S_FlashLight_Energy energy;
+    [SerializeField] 
+    private Image lightOff;
+    [SerializeField] 
+    private Image lightOn;
+     [SerializeField] 
+    private Image reload;
 
     Vector3 velocity;
 
@@ -32,6 +39,9 @@ public class S_Controller : MonoBehaviour
         energy = GetComponent<S_FlashLight_Energy>();
         canMove = true;
         canPress = true;
+        lightOff.gameObject.SetActive(false);
+        lightOn.gameObject.SetActive(true);
+        reload.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -61,12 +71,15 @@ public class S_Controller : MonoBehaviour
 
                 FlashLightOn = false;
                 energy.Depleting = false;
+                lightOff.gameObject.SetActive(true);
+                lightOn.gameObject.SetActive(false);
             }
             else if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == false)
             {
                 fov.viewRadius = 20;
                 fov.viewAngle = 50;
-
+                lightOff.gameObject.SetActive(false);
+                lightOn.gameObject.SetActive(true);
                 FlashLightOn = true;
                 energy.Depleting = true;
             }
@@ -74,8 +87,20 @@ public class S_Controller : MonoBehaviour
             if (image.fillAmount > 0.5f)
             {
                 mat.color = Color.Lerp(Color.white, Color.white, Mathf.PingPong(Time.time, 1));
+                reload.gameObject.SetActive(false);
+                
 
                 Debug.Log("Energy Resplenished");
+            }
+            if(image.fillAmount == 1f)
+            {
+                lightOff.gameObject.SetActive(true);
+            }
+            if(image.fillAmount < 0.1)
+            {
+                lightOff.gameObject.SetActive(false);
+                lightOn.gameObject.SetActive(false);
+                reload.gameObject.SetActive(true);
             }
         }
     }
