@@ -7,6 +7,7 @@ public class S_Hide : MonoBehaviour
     public S_Field_Of_View_Target fovTarget;
     public S_Field_Of_View fovCharacter;
     public S_Controller control;
+    public S_FlashLight_Energy flashLight;
 
     public bool isHidden;
     public bool playerInside;
@@ -30,13 +31,13 @@ public class S_Hide : MonoBehaviour
         control = GameObject.Find("Character").GetComponent<S_Controller>();
         collision = GameObject.Find("Character").GetComponent<Collider>();
         rb = GameObject.Find("Character").GetComponent<Rigidbody>();
+        flashLight = GameObject.Find("Character").GetComponent<S_FlashLight_Energy>();
+
         lightObj = transform.Find("Light");
-        //circleObj = transform.Find("Circle");
+
         lumen = lightObj.GetComponent<MeshRenderer>();
-        //lumenFloor = circleObj.GetComponent<SpriteRenderer>();
 
         lumen.enabled = false;
-        //lumenFloor.enabled = false; 
 
         hideText.gameObject.SetActive(false);
     }
@@ -61,11 +62,13 @@ public class S_Hide : MonoBehaviour
             control.canPress = false;
             isHidden = true;
             lumen.enabled = true;
+            flashLight.Depleting = false;
 
             hideText.gameObject.SetActive(false);
 
             character.transform.position = transform.position;
             fovCharacter.viewRadius = 0f;
+            fovCharacter.circleRadius = 0f;
 
         }
         else if (Input.GetKeyDown(KeyCode.F) && isHidden)
@@ -81,6 +84,7 @@ public class S_Hide : MonoBehaviour
 
             character.transform.position = transform.position + transform.forward * 2f;
             fovCharacter.viewRadius = 8f;
+            fovCharacter.circleRadius = 2f;
         }
     }
 

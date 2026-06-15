@@ -280,6 +280,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
             hideSpot.rb.isKinematic = false;
 
             hideSpot.fovCharacter.viewRadius = 8f;
+            hideSpot.fovCharacter.circleRadius = 2f;
 
             Destroy(hideSpot.gameObject);
         }
