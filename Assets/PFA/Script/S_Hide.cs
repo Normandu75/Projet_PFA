@@ -7,15 +7,20 @@ public class S_Hide : MonoBehaviour
     public S_Field_Of_View_Target fovTarget;
     public S_Field_Of_View fovCharacter;
     public S_Controller control;
-    [SerializeField] 
-    private TMP_Text hideText;
 
     public bool isHidden;
     public bool playerInside;
 
+    [SerializeField]
+    private TMP_Text hideText;
+
     public GameObject character;
     public Collider collision;
     public Rigidbody rb;
+    public MeshRenderer lumen;
+    public SpriteRenderer lumenFloor;
+    public Transform lightObj;
+    //public Transform circleObj;
 
     void Start()
     {
@@ -25,6 +30,14 @@ public class S_Hide : MonoBehaviour
         control = GameObject.Find("Character").GetComponent<S_Controller>();
         collision = GameObject.Find("Character").GetComponent<Collider>();
         rb = GameObject.Find("Character").GetComponent<Rigidbody>();
+        lightObj = transform.Find("Light");
+        //circleObj = transform.Find("Circle");
+        lumen = lightObj.GetComponent<MeshRenderer>();
+        //lumenFloor = circleObj.GetComponent<SpriteRenderer>();
+
+        lumen.enabled = false;
+        //lumenFloor.enabled = false; 
+
         hideText.gameObject.SetActive(false);
     }
 
@@ -45,8 +58,10 @@ public class S_Hide : MonoBehaviour
             control.FlashLightOn = false;
             control.canPress = false;
             isHidden = true;
-            
+            lumen.enabled = true;
+
             hideText.gameObject.SetActive(false);
+
             character.transform.position = transform.position;
             fovCharacter.viewRadius = 0f;
 
@@ -57,6 +72,8 @@ public class S_Hide : MonoBehaviour
             control.canMove = true;
             control.canPress = true;
             isHidden = false;
+            lumen.enabled = false;
+
             hideText.gameObject.SetActive(false);
 
             character.transform.position = transform.position + transform.forward * 1f;
@@ -69,8 +86,11 @@ public class S_Hide : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             playerInside = true;
+            //lumenFloor.enabled = true;
+
             hideText.gameObject.SetActive(true);
-            Debug.Log("Cachette in range");
+
+            Debug.Log("Caché");
         }
     }
 
@@ -79,6 +99,8 @@ public class S_Hide : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             playerInside = false;
+            //lumenFloor.enabled = true;
+
             hideText.gameObject.SetActive(false);
         }
     }
