@@ -113,7 +113,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 2, y: 1, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2375695596806589371
 MonoBehaviour:
@@ -132,13 +132,12 @@ MonoBehaviour:
   control: {fileID: 0}
   isHidden: 0
   playerInside: 0
+  hideText: {fileID: 0}
   character: {fileID: 0}
   collision: {fileID: 0}
   rb: {fileID: 0}
   lumen: {fileID: 0}
-  lumenFloor: {fileID: 0}
   lightObj: {fileID: 0}
-  circleObj: {fileID: 0}
 --- !u!54 &7835119156453475866
 Rigidbody:
   m_ObjectHideFlags: 0

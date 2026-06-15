@@ -279,6 +279,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
             hide.control.canMove = true;
             hide.control.canPress = true;
             hide.isHidden = false;
+            hide.rb.isKinematic = false;
 
             hide.fovCharacter.viewRadius = 8f;
 

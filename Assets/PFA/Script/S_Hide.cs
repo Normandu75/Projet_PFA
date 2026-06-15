@@ -18,7 +18,7 @@ public class S_Hide : MonoBehaviour
     public Collider collision;
     public Rigidbody rb;
     public MeshRenderer lumen;
-    public SpriteRenderer lumenFloor;
+    //public SpriteRenderer lumenFloor;
     public Transform lightObj;
     //public Transform circleObj;
 
@@ -43,6 +43,8 @@ public class S_Hide : MonoBehaviour
 
     void Update()
     {
+        Debug.Log("control.canMove");
+
         if(Input.GetKeyDown(KeyCode.F) && playerInside && !isHidden)
         {
             Debug.Log("Caché");
@@ -69,6 +71,7 @@ public class S_Hide : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.F) && isHidden)
         {
             collision.enabled = true;
+            rb.isKinematic = false;
             control.canMove = true;
             control.canPress = true;
             isHidden = false;
@@ -76,7 +79,7 @@ public class S_Hide : MonoBehaviour
 
             hideText.gameObject.SetActive(false);
 
-            character.transform.position = transform.position + transform.forward * 1f;
+            character.transform.position = transform.position + transform.forward * 2f;
             fovCharacter.viewRadius = 8f;
         }
     }
