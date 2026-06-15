@@ -64,8 +64,12 @@ public class S_Controller : MonoBehaviour
 
         if (canPress)
         {
+                
             if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == true)
             {
+                // -----------------------------------------
+                // UTILISE LE SON ICI => LUMIERE ETEINTE 
+                // -----------------------------------------
                 fov.viewRadius = 8;
                 fov.viewAngle = 90;
 
@@ -76,6 +80,9 @@ public class S_Controller : MonoBehaviour
             }
             else if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == false)
             {
+                // -----------------------------------------
+                // UTILISE LE SON ICI => LUMIERE ALLUMER 
+                // -----------------------------------------
                 fov.viewRadius = 20;
                 fov.viewAngle = 50;
                 lightOff.gameObject.SetActive(false);
@@ -88,16 +95,24 @@ public class S_Controller : MonoBehaviour
             {
                 mat.color = Color.Lerp(Color.white, Color.white, Mathf.PingPong(Time.time, 1));
                 reload.gameObject.SetActive(false);
-                
+                // -----------------------------------------
+                // UTILISE LE SON ICI => LUMIERE RECHARGER
+                // -----------------------------------------
 
                 Debug.Log("Energy Resplenished");
             }
             if(image.fillAmount == 1f)
             {
+                // -----------------------------------------
+                // UTILISE LE SON ICI => LUMIERE RECHARGER ENTIEREMENT 
+                // -----------------------------------------
                 lightOff.gameObject.SetActive(true);
             }
             if(image.fillAmount < 0.1)
             {
+                // -----------------------------------------
+                // UTILISE LE SON ICI => LUMIERE N'A PLUS DE BATTERIE
+                // -----------------------------------------
                 lightOff.gameObject.SetActive(false);
                 lightOn.gameObject.SetActive(false);
                 reload.gameObject.SetActive(true);

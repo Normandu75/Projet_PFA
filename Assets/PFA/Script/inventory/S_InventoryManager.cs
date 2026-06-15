@@ -18,7 +18,9 @@ public class S_InventoryManager : MonoBehaviour
         
         movement = GameObject.Find("Character").GetComponent<S_Controller>();
     }
-
+    // -----------------------------------------
+    // OUVRE L'INVENTAIRE REF:DEBUG.LOG LIGNE 32
+    // -----------------------------------------
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Tab) && menuActivated)

@@ -41,6 +41,10 @@ public class S_Door : MonoBehaviour
         }
     }
 
+    // -----------------------------------------
+    // OUVRE LA PORTE ICI REF:DEBUG.LOG LIGNE 47
+    // -----------------------------------------
+    
     public bool TryUnlock(string keyName)
     {
         if (keyName != requiredKeyName) return false;

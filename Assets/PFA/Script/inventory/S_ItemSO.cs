@@ -6,6 +6,9 @@ public class S_ItemSO : ScriptableObject
     public StatToChange statToChange = new StatToChange();
     public int amountToChangeStat;
 
+    // -----------------------------------------
+    // UTILISE LE SOIN ICI REF:DEBUG.LOG LIGNE 24
+    // -----------------------------------------
     public bool UseItem()
     {
         if(statToChange == StatToChange.health)
