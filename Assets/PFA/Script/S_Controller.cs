@@ -16,6 +16,7 @@ public class S_Controller : MonoBehaviour
     public bool FlashLightOn;
     public bool canMove;
     public bool canPress;
+    public bool hasFlashLight;
 
     public S_Field_Of_View fov;
     public S_FlashLight_Energy energy;
@@ -62,9 +63,8 @@ public class S_Controller : MonoBehaviour
             }
         }
 
-        if (canPress)
+        if (canPress && hasFlashLight)
         {
-                
             if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == true)
             {
                 // -----------------------------------------

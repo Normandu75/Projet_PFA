@@ -18,7 +18,7 @@ public class S_FlashLight_Energy : MonoBehaviour
         mat = GameObject.Find("View_Visualisation").GetComponent<MeshRenderer>().material;
         fov = GetComponent<S_Field_Of_View>();
         controller = GetComponent<S_Controller>();
-        Depleting = true;
+        Depleting = false;
     }
 
     // Update is called once per frame

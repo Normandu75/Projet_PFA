@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using System;
 using UnityEngine.Assertions.Must;
+using UnityEngine.Tilemaps;
 
 public class S_Field_Of_View : MonoBehaviour
 {
@@ -103,6 +104,7 @@ public class S_Field_Of_View : MonoBehaviour
             {
                 targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = true; //Active les MeshRenderer des targets
                 targetInRange.gameObject.GetComponent<S_Random_Movement>().isInLight = true; //Permet aux ennemis de se dirigiger vers nous
+                targetInRange.gameObject.GetComponent<MeshRenderer>().material.color = Color.Lerp(Color.blue, Color.red, Mathf.PingPong(Time.time, 1));
             }
         }
     }
@@ -131,7 +133,7 @@ public class S_Field_Of_View : MonoBehaviour
         
         for (int i = 0; i < objectsInViewRadius.Length; i++)
         {
-            GameObject objectInRange = objectsInViewRadius[i].gameObject.GetComponent<MeshRenderer>().gameObject; //Permet de récupérer le MeshRenderer de la cible touchée
+            GameObject objectInRange = objectsInViewRadius[i].gameObject; //Permet de récupérer le MeshRenderer de la cible touchée
             bool isVisible = visibleObjects.Contains(objectsInViewRadius[i].transform); //Permet de vérifier s'il y a bien des ennemis dans le tableau visibleTargets 
 
             if (objectInRange != isVisible) //S'il n'y a pas d'ennemis dans notre champs de vision
@@ -299,7 +301,7 @@ public class S_Field_Of_View : MonoBehaviour
     ViewCastInfo ViewCast(float globalAngle)
     {
         Vector3 dir = DirFromAngle(globalAngle, true);
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, dir, viewRadius, obstacleMask | targetMask);
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, dir, viewRadius, obstacleMask);
 
         if (hits.Length > 0)
         {
@@ -311,10 +313,10 @@ public class S_Field_Of_View : MonoBehaviour
                 {
                     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
                 }
-                if (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
+                /*sif (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
                 {
                     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
-                }
+                }*/
             }
         }
 

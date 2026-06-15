@@ -301,8 +301,6 @@ public class S_Field_Of_View_Target : MonoBehaviour
 
                 if (hide != null && hide.playerInside)
                 {
-                    Debug.Log("Player inside");
-
                     return hide;
                 }
             }

@@ -92,6 +92,4 @@ public class S_Random_Movement : MonoBehaviour
             }
         }
     }
-
-        /*agent.SetDestination(col.transform.position);*/
 }
