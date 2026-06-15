@@ -40,8 +40,8 @@ public class S_Controller : MonoBehaviour
         energy = GetComponent<S_FlashLight_Energy>();
         canMove = true;
         canPress = true;
-        lightOff.gameObject.SetActive(false);
-        lightOn.gameObject.SetActive(true);
+        lightOff.gameObject.SetActive(true);
+        lightOn.gameObject.SetActive(false);
         reload.gameObject.SetActive(false);
     }
 
@@ -56,6 +56,15 @@ public class S_Controller : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f)
         {
             image.fillAmount += 0.5f;
+
+            if (FlashLightOn)
+            {
+                lightOn.gameObject.SetActive(true);
+            }
+            else
+            {
+                lightOff.gameObject.SetActive(true);
+            }
 
             if (image.fillAmount == 1f)
             {
@@ -91,9 +100,9 @@ public class S_Controller : MonoBehaviour
                 energy.Depleting = true;
             }
 
-            if (image.fillAmount > 0.5f)
+            if (image.fillAmount >= 0.1f)
             {
-                mat.color = Color.Lerp(Color.white, Color.white, Mathf.PingPong(Time.time, 1));
+                //mat.color = Color.Lerp(Color.white, Color.white, Mathf.PingPong(Time.time, 1));
                 reload.gameObject.SetActive(false);
                 // -----------------------------------------
                 // UTILISE LE SON ICI => LUMIERE RECHARGER
@@ -106,7 +115,6 @@ public class S_Controller : MonoBehaviour
                 // -----------------------------------------
                 // UTILISE LE SON ICI => LUMIERE RECHARGER ENTIEREMENT 
                 // -----------------------------------------
-                lightOff.gameObject.SetActive(true);
             }
             if(image.fillAmount < 0.1)
             {
