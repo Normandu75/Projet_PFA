@@ -228,7 +228,7 @@ MonoBehaviour:
     m_Bits: 64
   objectMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   visibleCharacter: []
   meshResolution: 1
   edgeResolveIterations: 4
@@ -237,7 +237,6 @@ MonoBehaviour:
   checkHide: 0
   isDetecting: 0
   movement: {fileID: 0}
-  hide: {fileID: 0}
 --- !u!1 &6953710108145318492
 GameObject:
   m_ObjectHideFlags: 0

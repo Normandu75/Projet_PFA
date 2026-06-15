@@ -1879,6 +1879,7 @@ MonoBehaviour:
   mat: {fileID: 0}
   FlashLightOn: 1
   canMove: 0
+  canPress: 0
   fov: {fileID: 0}
   energy: {fileID: 0}
 --- !u!54 &400303801
