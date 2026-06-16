@@ -57,9 +57,19 @@ public class S_Random_Movement : MonoBehaviour
 
         if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas))
         {
-            result = hit.position;
-            
-            return true;
+            NavMeshPath path = new NavMeshPath();
+
+            if (hit.distance > 0.5f)
+            {
+                if (agent.CalculatePath(hit.position, path) && path.status == NavMeshPathStatus.PathComplete)
+                {
+                    result = hit.position;
+
+                    return true;
+                }
+            }
+
+
         }
 
         result = Vector3.zero;
@@ -69,7 +79,7 @@ public class S_Random_Movement : MonoBehaviour
 
     public void NearestHide()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 50f, objectMask);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 10f, objectMask);
 
         Transform nearest = null;
         float minDist = Mathf.Infinity;
