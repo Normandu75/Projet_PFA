@@ -56,7 +56,7 @@ public class S_Controller : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f)
         {
             image.fillAmount += 0.5f;
-
+            SoundManager.PlaySound(SoundType.BtrCharge);
             if (FlashLightOn)
             {
                 lightOn.gameObject.SetActive(true);

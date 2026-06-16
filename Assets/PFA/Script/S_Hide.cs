@@ -55,7 +55,7 @@ public class S_Hide : MonoBehaviour
             {
                 character.layer = 0;
             }*/
-
+ 
             collision.enabled = false;
             rb.isKinematic = true;
             control.canMove = false;
@@ -75,6 +75,7 @@ public class S_Hide : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.F) && isHidden)
         {
+            
             collision.enabled = true;
             rb.isKinematic = false;
             control.canMove = true;
@@ -84,7 +85,7 @@ public class S_Hide : MonoBehaviour
             lumen.enabled = false;
 
             hideText.gameObject.SetActive(false);
-
+            
             character.transform.position = transform.position + transform.forward * 2f;
             fovCharacter.viewRadius = 8f;
             fovCharacter.circleRadius = 2f;
