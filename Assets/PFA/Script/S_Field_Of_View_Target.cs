@@ -277,6 +277,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
             hideSpot.control.canMove = true;
             hideSpot.control.canPress = true;
             hideSpot.isHidden = false;
+            hideSpot.inHiding = false;
             hideSpot.rb.isKinematic = false;
 
             hideSpot.fovCharacter.viewRadius = 8f;
@@ -300,7 +301,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
             {
                 S_Hide hide = col.GetComponent<S_Hide>();
 
-                if (hide != null && hide.playerInside)
+                if (hide != null && hide.inHiding)
                 {
                     return hide;
                 }

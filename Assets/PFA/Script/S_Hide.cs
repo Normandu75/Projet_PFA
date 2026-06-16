@@ -11,6 +11,7 @@ public class S_Hide : MonoBehaviour
 
     public bool isHidden;
     public bool playerInside;
+    public bool inHiding;
 
     [SerializeField]
     private TMP_Text hideText;
@@ -61,6 +62,7 @@ public class S_Hide : MonoBehaviour
             control.FlashLightOn = false;
             control.canPress = false;
             isHidden = true;
+            inHiding = true;
             lumen.enabled = true;
             flashLight.Depleting = false;
 
@@ -78,6 +80,7 @@ public class S_Hide : MonoBehaviour
             control.canMove = true;
             control.canPress = true;
             isHidden = false;
+            inHiding = false;
             lumen.enabled = false;
 
             hideText.gameObject.SetActive(false);
