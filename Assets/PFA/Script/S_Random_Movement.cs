@@ -28,6 +28,8 @@ public class S_Random_Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        agent.stoppingDistance = 1.0f;
+
         if (isInLight == false)
         {
             if (agent.remainingDistance <= agent.stoppingDistance)
@@ -68,8 +70,6 @@ public class S_Random_Movement : MonoBehaviour
                     return true;
                 }
             }
-
-
         }
 
         result = Vector3.zero;
@@ -97,9 +97,12 @@ public class S_Random_Movement : MonoBehaviour
             {
                 minDist = dist;
                 nearest = col.transform;
-
-                agent.SetDestination(nearest.transform.position);
             }
+        }
+
+        if (nearest != null)
+        {
+            agent.SetDestination(nearest.transform.position);
         }
     }
 }
