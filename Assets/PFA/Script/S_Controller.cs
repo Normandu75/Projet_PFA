@@ -76,9 +76,7 @@ public class S_Controller : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == true)
             {
-                // -----------------------------------------
-                // UTILISE LE SON ICI => LUMIERE ETEINTE 
-                // -----------------------------------------
+                SoundManager.PlaySound(SoundType.FlashOn);
                 fov.viewRadius = 8;
                 fov.viewAngle = 90;
 
@@ -89,15 +87,14 @@ public class S_Controller : MonoBehaviour
             }
             else if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == false)
             {
-                // -----------------------------------------
-                // UTILISE LE SON ICI => LUMIERE ALLUMER 
-                // -----------------------------------------
+                SoundManager.PlaySound(SoundType.FlashOn);
                 fov.viewRadius = 20;
                 fov.viewAngle = 50;
                 lightOff.gameObject.SetActive(false);
                 lightOn.gameObject.SetActive(true);
                 FlashLightOn = true;
                 energy.Depleting = true;
+               
             }
 
             if (image.fillAmount >= 0.1f)
