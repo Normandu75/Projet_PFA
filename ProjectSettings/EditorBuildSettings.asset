@@ -6,8 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/PFA/Scenes/LVL_POC/LVL_POC.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/PFA/Scenes/LVL_Menu.unity
+    guid: 9468af2fd225d4d44a30efb8d539d522
+  - enabled: 1
+    path: Assets/PFA/Scenes/LD_Hugo.unity
+    guid: 3a3d0596d97c40f4f94b56e0062106b9
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
