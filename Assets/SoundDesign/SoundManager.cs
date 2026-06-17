@@ -9,6 +9,7 @@ public enum SoundType
     LightLd,
     Roaming,
     Chase,
+    Detect,
     Hit, 
     Hide,
     Heal,

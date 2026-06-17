@@ -30,6 +30,7 @@ public class S_Item : MonoBehaviour
     {
         if (playerInRange && Input.GetKeyDown(pickupKey))
         {
+            SoundManager.PlaySound(SoundType.Pick);
             inventoryManager.AddItem(itemName, quantity, icon);
 
             pickUpText.gameObject.SetActive(false);

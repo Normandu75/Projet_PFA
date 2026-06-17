@@ -79,7 +79,7 @@ public class S_Field_Of_View_Target : MonoBehaviour
                     isInSight = true;
                     checkHide = false;
                     isDetecting = false; // on annule la détection
-
+                    SoundManager.PlaySound(SoundType.Detect);
                     Debug.Log("Vu");
                 }
                 else
