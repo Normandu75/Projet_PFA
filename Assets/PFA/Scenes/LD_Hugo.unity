@@ -6285,7 +6285,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2341493567473064156, guid: 72aabadab13fbab408745d4b63dd9b7d, type: 3}
       propertyPath: m_Name
-      value: Plane (1)
+      value: Floor
       objectReference: {fileID: 0}
     - target: {fileID: 2341493567473064156, guid: 72aabadab13fbab408745d4b63dd9b7d, type: 3}
       propertyPath: m_IsActive
@@ -12621,7 +12621,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2341493567473064156, guid: 72aabadab13fbab408745d4b63dd9b7d, type: 3}
       propertyPath: m_Name
-      value: Plane
+      value: Floor
       objectReference: {fileID: 0}
     - target: {fileID: 2341493567473064156, guid: 72aabadab13fbab408745d4b63dd9b7d, type: 3}
       propertyPath: m_IsActive
