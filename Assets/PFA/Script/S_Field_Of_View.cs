@@ -28,6 +28,8 @@ public class S_Field_Of_View : MonoBehaviour
 
     public float maskCutDistance = 0.1f;
 
+    public bool detectionTime;
+
     public MeshFilter viewMeshFilter;
     public MeshFilter circleMeshFilter;
     Mesh viewMesh;
@@ -44,6 +46,8 @@ public class S_Field_Of_View : MonoBehaviour
         circleMesh = new Mesh();
         circleMesh.name = "circleMesh";
         circleMeshFilter.mesh = circleMesh;
+
+        detectionTime = false;
 
         //On lance la coroutine pour détecter les targets
         StartCoroutine(FindTargetsWithDelay(0.2f));
@@ -86,6 +90,8 @@ public class S_Field_Of_View : MonoBehaviour
 
                 if (!Physics.Raycast(transform.position, dirToTarget, disToTarget, obstacleMask)) //Permet de verifier s'il (Raycast) ne touhe pas de d'obstacle 
                 {
+                    StartCoroutine(DetectionTimeCrt());
+
                     visibleTargets.Add(target); //Ajoute la cible dans le tableau
                 }
             }
@@ -99,12 +105,20 @@ public class S_Field_Of_View : MonoBehaviour
             if (targetInRange != isVisible) //S'il n'y a pas d'ennemis dans notre champs de vision
             {
                 targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = false; //Désactive les MeshRenderer des targets
+
+                detectionTime = false;
             }
             else //S'il y a des ennemis dans notre champs de vision
             {
                 targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = true; //Active les MeshRenderer des targets
-                targetInRange.gameObject.GetComponent<S_Random_Movement>().isInLight = true; //Permet aux ennemis de se dirigiger vers nous
                 targetInRange.gameObject.GetComponent<MeshRenderer>().material.color = Color.Lerp(Color.blue, Color.red, Mathf.PingPong(Time.time, 1));
+
+                if (detectionTime)
+                {
+                    targetInRange.gameObject.GetComponent<S_Random_Movement>().isInLight = true; //Permet aux ennemis de se dirigiger vers nous
+
+                    Debug.Log("détecté");
+                }
             }
         }
     }
@@ -384,5 +398,12 @@ public class S_Field_Of_View : MonoBehaviour
             pointA = _pointA;
             pointB = _pointB;
         }
+    }
+
+    IEnumerator DetectionTimeCrt()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        detectionTime = true;
     }
 }
