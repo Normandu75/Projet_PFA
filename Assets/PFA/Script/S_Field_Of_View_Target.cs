@@ -252,6 +252,10 @@ public class S_Field_Of_View_Target : MonoBehaviour
         if (!isInSight)
         {
             movement.isInLight = false;
+            
+            /*---------------------------------*/
+            /*ICI TU PEUX METTRE LE SON QUI SE JOUE QU'UNE SEULE FOIS POUR QUAND IL NE LE DéTECTE PLUS*/
+            /*---------------------------------*/
 
             Debug.Log("Te revois plus");
 
