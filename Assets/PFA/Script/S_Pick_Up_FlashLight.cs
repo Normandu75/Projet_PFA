@@ -7,12 +7,14 @@ public class S_Pick_Up_FlashLight : MonoBehaviour
     public TMP_Text flashLightText;
 
     public bool inRange;
+    public GameObject lightUI;
 
     void Start()
     {
         control = GameObject.Find("Character").GetComponent<S_Controller>();
 
         flashLightText.gameObject.SetActive(false);
+        lightUI.gameObject.SetActive(false);
     }
 
     void Update()
@@ -20,9 +22,8 @@ public class S_Pick_Up_FlashLight : MonoBehaviour
         if (inRange && Input.GetKeyDown(KeyCode.F))
         {
             control.hasFlashLight = true;
-
             flashLightText.gameObject.SetActive(false);
-
+            lightUI.gameObject.SetActive(true);
             Destroy(gameObject);
         }
     }
