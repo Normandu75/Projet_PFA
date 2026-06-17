@@ -15,7 +15,7 @@ public class S_Menu : MonoBehaviour
     {
         anim.SetTrigger("Play");
         
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(6f);
 
         SceneManager.LoadSceneAsync(1);
     }

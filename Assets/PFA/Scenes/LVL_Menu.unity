@@ -256,6 +256,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 17611425}
   m_CullTransparentMesh: 1
+--- !u!4 &284636148 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -859322575320243141, guid: 53f6b67d743112644b1ed453ef9e88ef, type: 3}
+  m_PrefabInstance: {fileID: 1408714637}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &308511904
 GameObject:
   m_ObjectHideFlags: 0
@@ -285,7 +290,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1189850504}
   - {fileID: 1438164681}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -685,7 +689,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 861143418}
         m_TargetAssemblyTypeName: S_Menu, Assembly-CSharp
         m_MethodName: LaunchGame
         m_Mode: 1
@@ -962,18 +966,18 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1189850500}
   m_LocalRotation: {x: 0.15737118, y: -0.68906915, z: 0.15722533, w: 0.6897089}
-  m_LocalPosition: {x: 0, y: 0, z: -81.058}
-  m_LocalScale: {x: 0.00060000014, y: 0.0014, z: 0.00059999997}
+  m_LocalPosition: {x: 0, y: 0, z: 0.020251274}
+  m_LocalScale: {x: 0.0006000002, y: 0.0014, z: 0.00059999997}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 888722322}
   - {fileID: 1690518170}
   - {fileID: 1959998755}
-  m_Father: {fileID: 308511905}
+  m_Father: {fileID: 284636148}
   m_LocalEulerAnglesHint: {x: 25.706, y: -89.947, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -13.898, y: 4.126}
+  m_AnchoredPosition: {x: 0.17122746, y: -0.15462208}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1262660158 stripped
@@ -1335,7 +1339,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1773386351154458972, guid: 53f6b67d743112644b1ed453ef9e88ef, type: 3}
       propertyPath: m_Name
-      value: "Cam\xE9ra_1"
+      value: CamJouer
       objectReference: {fileID: 0}
     - target: {fileID: 1773386351154458972, guid: 53f6b67d743112644b1ed453ef9e88ef, type: 3}
       propertyPath: m_IsActive
@@ -1347,7 +1351,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -859322575320243141, guid: 53f6b67d743112644b1ed453ef9e88ef, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1189850504}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 53f6b67d743112644b1ed453ef9e88ef, type: 3}
       insertIndex: -1
