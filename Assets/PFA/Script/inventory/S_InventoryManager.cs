@@ -12,9 +12,14 @@ public class S_InventoryManager : MonoBehaviour
     public GameObject backgroundBackPack; 
     public GameObject tabUi; 
     private S_Controller movement;
+    public GameObject locked;
+    public GameObject cross;
     
     void Start()
     {
+        
+        cross.SetActive(false);
+        locked.SetActive(false);
         
         movement = GameObject.Find("Character").GetComponent<S_Controller>();
     }
@@ -25,6 +30,8 @@ public class S_InventoryManager : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Tab) && menuActivated)
         {
+            cross.SetActive(false);
+            locked.SetActive(false);
             InventoryMenu.SetActive(false);
             backgroundBackPack.SetActive(false);
             tabUi.SetActive(true);
@@ -36,10 +43,13 @@ public class S_InventoryManager : MonoBehaviour
         {
             InventoryMenu.SetActive(true);
             backgroundBackPack.SetActive(true);
-            tabUi.SetActive(false);
+            cross.SetActive(true);
+            locked.SetActive(true);
+            tabUi.SetActive(true);
             menuActivated = true;
             Debug.Log("FAAAAH");
             movement.speed = 0;
+            
         }
         if (!menuActivated)
         {
