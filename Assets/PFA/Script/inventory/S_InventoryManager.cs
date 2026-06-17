@@ -30,7 +30,7 @@ public class S_InventoryManager : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Tab) && menuActivated)
         {
-            SoundManager.PlaySound(SoundType.Inventory);
+            SoundManager.PlaySound(SoundType.Inventory1);
             cross.SetActive(false);
             locked.SetActive(false);
             InventoryMenu.SetActive(false);
@@ -42,7 +42,7 @@ public class S_InventoryManager : MonoBehaviour
         }
         else if(Input.GetKeyDown(KeyCode.Tab) && !menuActivated)
         {
-            SoundManager.PlaySound(SoundType.Inventory);
+            SoundManager.PlaySound(SoundType.Inventory2);
             InventoryMenu.SetActive(true);
             backgroundBackPack.SetActive(true);
             cross.SetActive(true);
