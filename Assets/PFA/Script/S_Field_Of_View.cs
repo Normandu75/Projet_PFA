@@ -352,10 +352,10 @@ public class S_Field_Of_View : MonoBehaviour
                 {
                     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
                 }
-                if (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
+                /*if (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
                 {
                     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
-                }
+                }*/
             }
         }
 

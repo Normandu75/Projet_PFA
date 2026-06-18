@@ -13439,17 +13439,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: Exit_Door
       objectReference: {fileID: 0}
+    - target: {fileID: 437968373908076356, guid: 9f83f04735739f748b46845f3c233ad9, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 2525542162881029472, guid: 9f83f04735739f748b46845f3c233ad9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.4
+      value: 42.37
       objectReference: {fileID: 0}
     - target: {fileID: 2525542162881029472, guid: 9f83f04735739f748b46845f3c233ad9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.89
+      value: 0.84
       objectReference: {fileID: 0}
     - target: {fileID: 2525542162881029472, guid: 9f83f04735739f748b46845f3c233ad9, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.6
+      value: -12.91
       objectReference: {fileID: 0}
     - target: {fileID: 2525542162881029472, guid: 9f83f04735739f748b46845f3c233ad9, type: 3}
       propertyPath: m_LocalRotation.w

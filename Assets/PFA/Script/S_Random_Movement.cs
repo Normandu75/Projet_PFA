@@ -42,6 +42,8 @@ public class S_Random_Movement : MonoBehaviour
                     Debug.DrawRay(point, Vector3.up, Color.red, 1.0f);
 
                     agent.SetDestination(point);
+
+                    playerDetected = false;
                 }
             }
         }
@@ -86,7 +88,7 @@ public class S_Random_Movement : MonoBehaviour
 
     public void NearestHide()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 10f, objectMask);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 5f, objectMask);
 
         Transform nearest = null;
         float minDist = Mathf.Infinity;
