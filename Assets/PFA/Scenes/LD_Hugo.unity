@@ -9520,7 +9520,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 4f5f46000672ede45b63af33c9a4b7de, type: 3}
   - {fileID: 8300000, guid: aaf34767e7491fc41b4dce6fd1cb3b6d, type: 3}
   - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 8300000, guid: 6d41c470eedb49341982d0f57aeb3be8, type: 3}
 --- !u!82 &1591808435
 AudioSource:
   m_ObjectHideFlags: 0

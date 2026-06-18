@@ -50,12 +50,12 @@ public class S_Hide : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.F) && playerInside && !isHidden)
         {
             Debug.Log("Caché");
-
+            SoundManager.PlaySound(SoundType.Hide);
             /*if (fovTarget.isInSight == false)
             {
                 character.layer = 0;
             }*/
- 
+
             collision.enabled = false;
             rb.isKinematic = true;
             control.canMove = false;
@@ -75,7 +75,7 @@ public class S_Hide : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.F) && isHidden)
         {
-            
+            SoundManager.PlaySound(SoundType.Hide);
             collision.enabled = true;
             rb.isKinematic = false;
             control.canMove = true;
