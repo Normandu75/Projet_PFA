@@ -16,6 +16,7 @@ public class S_Random_Movement : MonoBehaviour
     public LayerMask objectMask;
 
     public bool isInLight;
+    public bool playerDetected;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -48,6 +49,13 @@ public class S_Random_Movement : MonoBehaviour
         else
         {
             agent.SetDestination(Player.position);
+
+            if (!playerDetected)
+            {
+                SoundManager.PlaySound(SoundType.Detect);
+
+                playerDetected = true;
+            }
         }
     }
 
@@ -103,6 +111,10 @@ public class S_Random_Movement : MonoBehaviour
         if (nearest != null)
         {
             agent.SetDestination(nearest.transform.position);
+
+            playerDetected = false;
+
+            Debug.Log(playerDetected);
         }
     }
 }
