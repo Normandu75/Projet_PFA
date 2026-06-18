@@ -102,7 +102,7 @@ public class S_Field_Of_View : MonoBehaviour
             GameObject targetInRange = targetsInViewRadius[i].gameObject; //Permet de récupérer le MeshRenderer de la cible touchée
             bool isVisible = visibleTargets.Contains(targetsInViewRadius[i].transform); //Permet de vérifier s'il y a bien des ennemis dans le tableau visibleTargets 
 
-            if (targetInRange != isVisible) //S'il n'y a pas d'ennemis dans notre champs de vision
+            if (!isVisible) //S'il n'y a pas d'ennemis dans notre champs de vision
             {
                 targetInRange.gameObject.GetComponent<MeshRenderer>().enabled = false; //Désactive les MeshRenderer des targets
 
@@ -315,7 +315,7 @@ public class S_Field_Of_View : MonoBehaviour
     ViewCastInfo ViewCast(float globalAngle)
     {
         Vector3 dir = DirFromAngle(globalAngle, true);
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, dir, viewRadius, obstacleMask);
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, dir, viewRadius, obstacleMask | targetMask);
 
         if (hits.Length > 0)
         {
@@ -327,7 +327,7 @@ public class S_Field_Of_View : MonoBehaviour
                 {
                     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
                 }
-                /*sif (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
+                /*if (((1 << hit.collider.gameObject.layer) & targetMask) != 0)
                 {
                     return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
                 }*/
