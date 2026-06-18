@@ -47,7 +47,8 @@ public class S_Item : MonoBehaviour
             playerInRange = true;
 
             pickUpText.GetComponent<TMP_Text>().text =
-                $"Appuyez sur {pickupKey} pour ramasser {itemName}";
+
+                $"Appuyez sur  ' {pickupKey} ' pour ramasser l'objet : {itemName}";
 
             pickUpText.gameObject.SetActive(true);
         }
