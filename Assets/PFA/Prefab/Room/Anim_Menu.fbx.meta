@@ -1,0 +1,260 @@
+fileFormatVersion: 2
+guid: 6bc928bae2dc0754baac7db1efd1bb5f
+ModelImporter:
+  serializedVersion: 24200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CryoPod
+    second: {fileID: 2100000, guid: e07c2a03c63c2be43a543d75216732f5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GlassCryoPod
+    second: {fileID: 2100000, guid: 192756348cb90fa4f8b1f6ff9d49f17e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Salla
+    second: {fileID: 2100000, guid: 7f1a942d9cfd14149bd544df4eec2b20, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Table
+    second: {fileID: 2100000, guid: 295f4e7ebe1c19749bebf56cc81da1bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Tablette
+    second: {fileID: 2100000, guid: b597fd374cb0c5e4ea4cad777029de66, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Tuyaux
+    second: {fileID: 2100000, guid: 63e10b7fec68b174a8760d2e58ec657f, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: CryoPod_BaseColor
+    second: {fileID: 2800000, guid: abf6f362832cb8f42bf5957057cffa27, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: CryoPod_Metallic
+    second: {fileID: 2800000, guid: 3c394a80c51739c4c8da4cdb1d3c4847, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: CryoPod_Normal
+    second: {fileID: 2800000, guid: d0e0e6e322656c94b9269c04ed4d898a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: CryoPod_Roughness
+    second: {fileID: 2800000, guid: 78fca9aca4e0b8145bb8038b2c5fa5c9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: GlassCryoPod_Alpha
+    second: {fileID: 2800000, guid: 01a32276f5d68ed43b160446d0e2adb7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: GlassCryoPod_BaseColor
+    second: {fileID: 2800000, guid: be99522103a34364481f74efa8db72f1, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: GlassCryoPod_Metallic
+    second: {fileID: 2800000, guid: 21c7cce7571caff4180ed77c859a8843, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: GlassCryoPod_Normal
+    second: {fileID: 2800000, guid: 68b6aa39bb82ae54f8ecedd1657db4f3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: GlassCryoPod_Roughness
+    second: {fileID: 2800000, guid: 72b35291dd8bd8d44b325ef73381de76, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Salla_BaseColor
+    second: {fileID: 2800000, guid: 16d1a6ce868cd844faeb945379256a42, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Salla_Metallic
+    second: {fileID: 2800000, guid: 5d5fddef94cc7b64cb2529e940ef6bde, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Salla_Normal
+    second: {fileID: 2800000, guid: 1d9bec4e308e8884186f1bd4f08b49f2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Salla_Roughness
+    second: {fileID: 2800000, guid: de22e056f1509e24abe8ab1d4c1f27cf, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Table_BaseColor
+    second: {fileID: 2800000, guid: 237c59d9b83e4c0469989e2e376f6e11, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Table_Metallic
+    second: {fileID: 2800000, guid: 6ff3566ed0eada447900be140bd48207, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Table_Normal
+    second: {fileID: 2800000, guid: 2d7514458e8f0824eb653e7ff621fd6c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Table_Roughness
+    second: {fileID: 2800000, guid: db718e9130ecdfb459592a91417abed7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Tablette_BaseColor
+    second: {fileID: 2800000, guid: cd453a9f5d8b20c43bda2d5d2c1f7505, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Tablette_Metallic
+    second: {fileID: 2800000, guid: c246f4f50a2087b4fbc4e15ed314c7c2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Tablette_Normal
+    second: {fileID: 2800000, guid: d3345ae95c688a7478dc9d4ef31cdfa0, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Tablette_Roughness
+    second: {fileID: 2800000, guid: b32a3af1d586e414bb84b4eb18045e89, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Tuyaux_BaseColor
+    second: {fileID: 2800000, guid: 2dfaf77ba97367e4e9c9a73a468015f7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Tuyaux_Metallic
+    second: {fileID: 2800000, guid: 48d31e0264ac1b84fb576b76b32e68e0, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Tuyaux_Normal
+    second: {fileID: 2800000, guid: a8e52bfda2c6eeb40b090d99c8824637, type: 3}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
