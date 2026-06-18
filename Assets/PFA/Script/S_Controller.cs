@@ -24,8 +24,13 @@ public class S_Controller : MonoBehaviour
     private Image lightOff;
     [SerializeField] 
     private Image lightOn;
-     [SerializeField] 
+    [SerializeField] 
     private Image reload;
+    [SerializeField] 
+    private Image reloadInput;
+    [SerializeField] 
+    private Image toggleInput;
+
 
     Vector3 velocity;
 
@@ -43,6 +48,9 @@ public class S_Controller : MonoBehaviour
         lightOff.gameObject.SetActive(true);
         lightOn.gameObject.SetActive(false);
         reload.gameObject.SetActive(false);
+        reloadInput.gameObject.SetActive(false);
+        toggleInput.gameObject.SetActive(true);
+        
     }
 
     // Update is called once per frame
@@ -101,6 +109,8 @@ public class S_Controller : MonoBehaviour
             {
                 //mat.color = Color.Lerp(Color.white, Color.white, Mathf.PingPong(Time.time, 1));
                 reload.gameObject.SetActive(false);
+                reloadInput.gameObject.SetActive(false);
+                toggleInput.gameObject.SetActive(true);
                 // -----------------------------------------
                 // UTILISE LE SON ICI => LUMIERE RECHARGER
                 // -----------------------------------------
@@ -121,6 +131,8 @@ public class S_Controller : MonoBehaviour
                 lightOff.gameObject.SetActive(false);
                 lightOn.gameObject.SetActive(false);
                 reload.gameObject.SetActive(true);
+                reloadInput.gameObject.SetActive(true);
+                toggleInput.gameObject.SetActive(false);
             }
         }
     }
