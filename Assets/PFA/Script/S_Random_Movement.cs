@@ -24,6 +24,9 @@ public class S_Random_Movement : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         Origin = GetComponent<Transform>();
         Player = GameObject.Find("Character").transform;
+
+        agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+        agent.avoidancePriority = 0;
     }
 
     // Update is called once per frame

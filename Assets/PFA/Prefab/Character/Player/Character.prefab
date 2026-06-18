@@ -165,8 +165,16 @@ MonoBehaviour:
   image: {fileID: 0}
   mat: {fileID: 0}
   FlashLightOn: 1
+  canMove: 0
+  canPress: 0
+  hasFlashLight: 0
   fov: {fileID: 0}
   energy: {fileID: 0}
+  lightOff: {fileID: 0}
+  lightOn: {fileID: 0}
+  reload: {fileID: 0}
+  reloadInput: {fileID: 0}
+  toggleInput: {fileID: 0}
 --- !u!114 &8241914072810630857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,6 +190,7 @@ MonoBehaviour:
   viewRadius: 20
   viewAngle: 50
   circleRadius: 2
+  fovTarget: {fileID: 0}
   targetMask:
     serializedVersion: 2
     m_Bits: 128
@@ -197,6 +206,7 @@ MonoBehaviour:
   edgeResolveIterations: 4
   edgeThreshold: 0.5
   maskCutDistance: 0.2
+  detectionTime: 0
   viewMeshFilter: {fileID: 3747409023322277187}
   circleMeshFilter: {fileID: 3266343394814371173}
 --- !u!114 &3316976373161197399
@@ -251,6 +261,8 @@ MonoBehaviour:
   itemSOs: []
   backgroundBackPack: {fileID: 0}
   tabUi: {fileID: 0}
+  locked: {fileID: 0}
+  cross: {fileID: 0}
 --- !u!1 &1923116718100351935
 GameObject:
   m_ObjectHideFlags: 0

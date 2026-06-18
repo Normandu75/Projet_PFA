@@ -160,4 +160,20 @@ public class S_Controller : MonoBehaviour
             energy.Depleting = false;          
         }
     }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Target"))
+        {
+            collision.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Target"))
+        {
+            collision.gameObject.GetComponent<Rigidbody>().isKinematic = false;
+        }  
+    }
 }
