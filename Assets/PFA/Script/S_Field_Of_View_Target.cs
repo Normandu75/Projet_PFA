@@ -23,7 +23,6 @@ public class S_Field_Of_View_Target : MonoBehaviour
     public bool isInSight;
     public bool checkHide;
     public bool isDetecting;
-    public bool playerDetected;
 
     public S_Random_Movement movement;
 
@@ -80,24 +79,11 @@ public class S_Field_Of_View_Target : MonoBehaviour
                     isInSight = true;
                     checkHide = false;
                     isDetecting = false; // on annule la détection
-
-                    if (!playerDetected)
-                    {
-                        SoundManager.PlaySound(SoundType.Detect); //joue le son qu'une fois
-
-                        playerDetected = true;
-
-                        Debug.Log(playerDetected);
-                    }
                     
                     Debug.Log("Vu");
                 }
                 else
                 {
-                    playerDetected = false;
-
-                    Debug.Log(playerDetected);
-
                     if (!isDetecting)
                     {
                         StartCoroutine(DetectionTime());

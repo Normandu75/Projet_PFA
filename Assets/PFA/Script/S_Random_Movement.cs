@@ -43,7 +43,6 @@ public class S_Random_Movement : MonoBehaviour
 
                     agent.SetDestination(point);
                 }
-
             }
         }
         else
