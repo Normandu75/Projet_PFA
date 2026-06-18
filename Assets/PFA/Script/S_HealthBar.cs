@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class S_HealthBar : MonoBehaviour
@@ -61,7 +62,6 @@ public class S_HealthBar : MonoBehaviour
 
         fill.gameObject.SetActive(false); // Efface le reste de la barre de vie lorsque le joueur meurt.
 
-        Debug.Log("GG");
-        
+        SceneManager.LoadSceneAsync(1);
     }
 }
