@@ -17,9 +17,12 @@ public class S_Controller : MonoBehaviour
     public bool canMove;
     public bool canPress;
     public bool hasFlashLight;
+    public bool holdBreath;
 
     public S_Field_Of_View fov;
     public S_FlashLight_Energy energy;
+    public S_Hide hide;
+
     [SerializeField] 
     private Image lightOff;
     [SerializeField] 
@@ -45,17 +48,19 @@ public class S_Controller : MonoBehaviour
         energy = GetComponent<S_FlashLight_Energy>();
         canMove = true;
         canPress = true;
-        lightOff.gameObject.SetActive(true);
+        /*lightOff.gameObject.SetActive(true);
         lightOn.gameObject.SetActive(false);
         reload.gameObject.SetActive(false);
         reloadInput.gameObject.SetActive(false);
-        toggleInput.gameObject.SetActive(true);
+        toggleInput.gameObject.SetActive(true);*/
         
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(hide);
+
         Vector3 mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
         velocity = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized * speed;
 
@@ -64,7 +69,7 @@ public class S_Controller : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) && image.fillAmount < 1f)
         {
             image.fillAmount += 0.5f;
-            SoundManager.PlaySound(SoundType.BtrCharge);
+            /*SoundManager.PlaySound(SoundType.BtrCharge);*/
             if (FlashLightOn)
             {
                 lightOn.gameObject.SetActive(true);
@@ -80,11 +85,24 @@ public class S_Controller : MonoBehaviour
             }
         }
 
+        if (Input.GetKey(KeyCode.Space) && hide != null && hide.isHidden)
+        {
+            Debug.Log("Retient respiraation");
+
+            holdBreath = true;
+        }
+        else if (Input.GetKeyUp(KeyCode.Space) && hide != null && hide.isHidden)
+        {
+            Debug.Log("Respiration relachée");
+
+            holdBreath = false;
+        }
+
         if (canPress && hasFlashLight)
         {
             if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == true)
             {
-                SoundManager.PlaySound(SoundType.FlashOn);
+                /*SoundManager.PlaySound(SoundType.FlashOn);*/
                 fov.viewRadius = 8;
                 fov.viewAngle = 90;
 
@@ -95,22 +113,21 @@ public class S_Controller : MonoBehaviour
             }
             else if (Input.GetKeyDown(KeyCode.Q) && FlashLightOn == false)
             {
-                SoundManager.PlaySound(SoundType.FlashOn);
+                /*SoundManager.PlaySound(SoundType.FlashOn);*/
                 fov.viewRadius = 20;
                 fov.viewAngle = 50;
                 lightOff.gameObject.SetActive(false);
                 lightOn.gameObject.SetActive(true);
                 FlashLightOn = true;
                 energy.Depleting = true;
-               
             }
 
             if (image.fillAmount >= 0.1f)
             {
                 //mat.color = Color.Lerp(Color.white, Color.white, Mathf.PingPong(Time.time, 1));
-                reload.gameObject.SetActive(false);
+                /*reload.gameObject.SetActive(false);
                 reloadInput.gameObject.SetActive(false);
-                toggleInput.gameObject.SetActive(true);
+                toggleInput.gameObject.SetActive(true);*/
                 // -----------------------------------------
                 // UTILISE LE SON ICI => LUMIERE RECHARGER
                 // -----------------------------------------
@@ -128,11 +145,11 @@ public class S_Controller : MonoBehaviour
                 // -----------------------------------------
                 // UTILISE LE SON ICI => LUMIERE N'A PLUS DE BATTERIE
                 // -----------------------------------------
-                lightOff.gameObject.SetActive(false);
+                /*lightOff.gameObject.SetActive(false);
                 lightOn.gameObject.SetActive(false);
                 reload.gameObject.SetActive(true);
                 reloadInput.gameObject.SetActive(true);
-                toggleInput.gameObject.SetActive(false);
+                toggleInput.gameObject.SetActive(false);*/
             }
         }
     }

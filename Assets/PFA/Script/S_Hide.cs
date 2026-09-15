@@ -40,7 +40,7 @@ public class S_Hide : MonoBehaviour
 
         lumen.enabled = false;
 
-        hideText.gameObject.SetActive(false);
+        /*hideText.gameObject.SetActive(false);*/
     }
 
     void Update()
@@ -50,7 +50,7 @@ public class S_Hide : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.F) && playerInside && !isHidden)
         {
             Debug.Log("Caché");
-            SoundManager.PlaySound(SoundType.Hide);
+            /*SoundManager.PlaySound(SoundType.Hide);*/
             /*if (fovTarget.isInSight == false)
             {
                 character.layer = 0;
@@ -66,16 +66,18 @@ public class S_Hide : MonoBehaviour
             lumen.enabled = true;
             flashLight.Depleting = false;
 
-            hideText.gameObject.SetActive(false);
+            Debug.Log("Caché");
 
-            character.transform.position = transform.position;
+            /*hideText.gameObject.SetActive(false);*/
+
+            character.transform.position = transform.position ;
             fovCharacter.viewRadius = 0f;
             fovCharacter.circleRadius = 0f;
 
         }
         else if (Input.GetKeyDown(KeyCode.F) && isHidden)
         {
-            SoundManager.PlaySound(SoundType.Hide);
+            /*SoundManager.PlaySound(SoundType.Hide);*/
             collision.enabled = true;
             rb.isKinematic = false;
             control.canMove = true;
@@ -84,12 +86,13 @@ public class S_Hide : MonoBehaviour
             inHiding = false;
             lumen.enabled = false;
 
-            hideText.gameObject.SetActive(false);
+            /*hideText.gameObject.SetActive(false);*/
             
             character.transform.position = transform.position + transform.forward * 2f;
             fovCharacter.viewRadius = 8f;
             fovCharacter.circleRadius = 2f;
-        }
+        }  
+        
     }
 
     public void OnTriggerEnter(Collider collision)
@@ -99,20 +102,22 @@ public class S_Hide : MonoBehaviour
             playerInside = true;
             //lumenFloor.enabled = true;
 
-            hideText.gameObject.SetActive(true);
+            collision.GetComponent<S_Controller>().hide = this;;
 
-            Debug.Log("Caché");
+            /*hideText.gameObject.SetActive(true);*/
         }
     }
 
     public void OnTriggerExit(Collider collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") && !isHidden)
         {
             playerInside = false;
             //lumenFloor.enabled = true;
 
-            hideText.gameObject.SetActive(false);
+            collision.GetComponent<S_Controller>().hide = null;
+
+            /*hideText.gameObject.SetActive(false);*/
         }
     }
 }

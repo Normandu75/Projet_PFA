@@ -264,9 +264,6 @@ public class S_Field_Of_View_Target : MonoBehaviour
 
     void DestructionHide()
     {
-        if (!isInSight)
-        return; // l’ennemi doit voir le joueur
-
         S_Hide hideSpot = GetPlayerHideSpot();
 
         if (hideSpot == null) return; // le joueur n’est pas dans une cachette

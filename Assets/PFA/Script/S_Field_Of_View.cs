@@ -402,7 +402,7 @@ public class S_Field_Of_View : MonoBehaviour
 
     IEnumerator DetectionTimeCrt()
     {
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(1f);
 
         detectionTime = true;
     }

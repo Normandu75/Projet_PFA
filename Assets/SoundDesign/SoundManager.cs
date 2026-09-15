@@ -38,8 +38,8 @@ public class SoundManager : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
-    public static void PlaySound(SoundType sound, float volume = 1f)
+    /*public static void PlaySound(SoundType sound, float volume = 1f)
     {
         instance.audioSource.PlayOneShot(instance.soundList[(int)sound], volume);
-    }
+    }*/
 }
