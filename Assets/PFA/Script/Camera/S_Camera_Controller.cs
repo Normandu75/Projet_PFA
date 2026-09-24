@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 
 public class S_Camera_Controller : MonoBehaviour
@@ -43,19 +44,27 @@ public class S_Camera_Controller : MonoBehaviour
 
     public void CameraRotation()
     {
-        float rotation = 0;
+        float rotation = 0f;
 
-        if (Input.GetKey(KeyCode.E))
+        if (Keyboard.current != null && Keyboard.current.eKey.isPressed)
         {
             rotation = 1;
-
-            Debug.Log(rotation);
         }
-        else if (Input.GetKey(KeyCode.Q))
+        else if (Keyboard.current != null && Keyboard.current.qKey.isPressed)
         {
             rotation = -1;
+        }
 
-            Debug.Log(rotation);
+        if (Gamepad.current != null)
+        {
+            if (Gamepad.current.rightShoulder.isPressed)
+            {
+                rotation = 1f;
+            }
+            else if (Gamepad.current.leftShoulder.isPressed)
+            {
+                rotation = -1f;
+            }
         }
 
         orbitAngle += rotation * rotationSpeed * Time.deltaTime;

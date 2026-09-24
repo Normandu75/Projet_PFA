@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 public class S_Character_Controller : MonoBehaviour
@@ -17,6 +18,9 @@ public class S_Character_Controller : MonoBehaviour
     [Header("See Through Walls")]
     public float sphereMaxScale = 4.23831606f;
     public float sphereScaleSpeed = 8f;
+
+    [Header("Gamepad")]
+    public float gamepadDeadzone = 0.2f;
     
     void Awake()
     {
@@ -37,6 +41,31 @@ public class S_Character_Controller : MonoBehaviour
 
     public void CursorToCamera()
     {
+        Gamepad gamepad = Gamepad.current;
+        Vector2 rightStick = gamepad != null ? gamepad.rightStick.ReadValue() : Vector2.zero;
+
+        if (rightStick.sqrMagnitude > gamepadDeadzone * gamepadDeadzone)
+        {
+            Vector3 cameraRight = cam.transform.right;
+            Vector3 cameraForward = cam.transform.forward;
+            cameraRight.y = 0f;
+            cameraForward.y = 0f;
+
+            Vector3 gamepadDirection = cameraRight.normalized * rightStick.x + cameraForward.normalized * rightStick.y;
+
+            if (gamepadDirection.sqrMagnitude > 0.001f)
+            {
+                transform.rotation = Quaternion.LookRotation(gamepadDirection);
+            }
+
+            return;
+        }
+
+        if (Mouse.current == null)
+        {
+            return;
+        }
+
         float distanceFromCamera = 0f;
 
         if (!cam.orthographic && Mathf.Abs(cam.transform.forward.y) > 0.001f)
@@ -44,7 +73,8 @@ public class S_Character_Controller : MonoBehaviour
             distanceFromCamera = (transform.position.y - cam.transform.position.y) / cam.transform.forward.y;
         }
 
-        Vector3 mousePosition = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distanceFromCamera));
+        Vector2 mousePositionOnScreen = Mouse.current.position.ReadValue();
+        Vector3 mousePosition = cam.ScreenToWorldPoint(new Vector3(mousePositionOnScreen.x, mousePositionOnScreen.y, distanceFromCamera));
         Vector3 direction = mousePosition - transform.position;
         
         direction.y = 0f;
@@ -57,9 +87,32 @@ public class S_Character_Controller : MonoBehaviour
 
     public void Movement()
     {
-        Vector3 velocity = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized * speed;
+        Vector2 keyboardInput = Vector2.zero;
 
+        if (Keyboard.current != null)
+        {
+            keyboardInput = new Vector2(
+                (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed ? 1f : 0f) -
+                (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed ? 1f : 0f),
+                (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed ? 1f : 0f) -
+                (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed ? 1f : 0f));
+        }
+
+        Vector2 gamepadInput = Gamepad.current != null
+            ? Gamepad.current.leftStick.ReadValue()
+            : Vector2.zero;
+
+        Vector2 input = gamepadInput.sqrMagnitude > keyboardInput.sqrMagnitude
+            ? gamepadInput
+            : keyboardInput;
+
+        Vector3 velocity = new Vector3(input.x, 0f, input.y).normalized * speed;
         rigidBody.MovePosition(rigidBody.position + velocity * Time.fixedDeltaTime);
+    }
+
+    public void InputAction()
+    {
+        S_Camera_Controller.instance.CameraRotation();
     }
 
     public void SeeThroughWalls()
