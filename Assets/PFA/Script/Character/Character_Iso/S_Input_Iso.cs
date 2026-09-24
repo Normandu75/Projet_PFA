@@ -6,6 +6,7 @@ public class S_Input_Iso : MonoBehaviour
     {
         S_Character_Controller.instance.CursorToCamera();
         S_Character_Controller.instance.SeeThroughWalls();
+        S_Camera_Controller.instance.CameraRotation();
     }
 
     void FixedUpdate()

@@ -77,20 +77,13 @@ public class S_Character_Controller : MonoBehaviour
 
         if (distanceToPlayer > 0.001f)
         {
-            RaycastHit[] hits = Physics.RaycastAll(
-                cam.transform.position,
-                toPlayer.normalized,
-                distanceToPlayer,
-                MyLayerMask);
+            RaycastHit[] hits = Physics.RaycastAll( cam.transform.position, toPlayer.normalized, distanceToPlayer, MyLayerMask);
 
             foreach (RaycastHit hit in hits)
             {
                 Transform hitTransform = hit.collider.transform;
 
-                if (!hitTransform.IsChildOf(transform) &&
-                    !hitTransform.IsChildOf(target.transform) &&
-                    hitTransform != transform &&
-                    hitTransform != target.transform)
+                if (!hitTransform.IsChildOf(transform) && !hitTransform.IsChildOf(target.transform) && hitTransform != transform && hitTransform != target.transform)
                 {
                     playerIsBlocked = true;
                     break;
@@ -99,10 +92,7 @@ public class S_Character_Controller : MonoBehaviour
         }
 
         float targetScale = playerIsBlocked ? sphereMaxScale : 0f;
-        float newScale = Mathf.MoveTowards(
-            target.transform.localScale.x,
-            targetScale,
-            sphereScaleSpeed * Time.deltaTime);
+        float newScale = Mathf.MoveTowards( target.transform.localScale.x, targetScale, sphereScaleSpeed * Time.deltaTime);
 
         target.transform.localScale = Vector3.one * newScale;
     }

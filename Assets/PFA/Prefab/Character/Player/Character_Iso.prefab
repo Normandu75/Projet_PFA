@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 243548009200596506}
   - component: {fileID: 5679439692082037498}
   - component: {fileID: 8053121967519160956}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Character_Iso
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37,6 +37,7 @@ Transform:
   m_Children:
   - {fileID: 8532980245577735246}
   - {fileID: 277652618396685082}
+  - {fileID: 7962856037648508102}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1522784599538739657
@@ -173,6 +174,61 @@ MonoBehaviour:
   speed: 6
   rigidBody: {fileID: 0}
   cam: {fileID: 0}
+  target: {fileID: 0}
+  MyLayerMask:
+    serializedVersion: 2
+    m_Bits: 4096
+  sphereMaxScale: 4.238316
+  sphereScaleSpeed: 8
+--- !u!1 &2629269527638401357
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7962856037648508102}
+  - component: {fileID: 8312783471570707224}
+  m_Layer: 9
+  m_Name: Camera_Pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7962856037648508102
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2629269527638401357}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3397048518976672582}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8312783471570707224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2629269527638401357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 448d3feabb46a814cb502c739c743c9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::S_Camera_Controller
+  player: {fileID: 0}
+  cam: {fileID: 0}
+  distance: 0
+  height: 0
+  rotationSpeed: 0
 --- !u!1 &4723410977599509339
 GameObject:
   m_ObjectHideFlags: 0
@@ -185,7 +241,7 @@ GameObject:
   - component: {fileID: 8923350855066479993}
   - component: {fileID: 958225254962283841}
   - component: {fileID: 3146443343359825957}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Debug
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -298,7 +354,8 @@ GameObject:
   - component: {fileID: 277652618396685082}
   - component: {fileID: 5482089893703661899}
   - component: {fileID: 6098274681950863374}
-  m_Layer: 0
+  - component: {fileID: 2107930873340853651}
+  m_Layer: 9
   m_Name: See_Thrg_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -353,7 +410,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: f1da28e4bde92c64db8ba5f51ab8c77d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -377,3 +434,24 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!135 &2107930873340853651
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7953079999113607359}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0
+  m_Center: {x: 0, y: 0, z: 0}
