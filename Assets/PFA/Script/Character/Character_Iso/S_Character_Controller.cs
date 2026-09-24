@@ -106,13 +106,24 @@ public class S_Character_Controller : MonoBehaviour
             ? gamepadInput
             : keyboardInput;
 
-        Vector3 velocity = new Vector3(input.x, 0f, input.y).normalized * speed;
-        rigidBody.MovePosition(rigidBody.position + velocity * Time.fixedDeltaTime);
-    }
+        if (cam == null)
+        {
+            return;
+        }
 
-    public void InputAction()
-    {
-        S_Camera_Controller.instance.CameraRotation();
+        Vector3 cameraForward = cam.transform.forward;
+        Vector3 cameraRight = cam.transform.right;
+
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        Vector3 moveDirection = cameraRight * input.x + cameraForward * input.y;
+        Vector3 velocity = Vector3.ClampMagnitude(moveDirection, 1f) * speed;
+
+        rigidBody.MovePosition(rigidBody.position + velocity * Time.fixedDeltaTime);
     }
 
     public void SeeThroughWalls()
