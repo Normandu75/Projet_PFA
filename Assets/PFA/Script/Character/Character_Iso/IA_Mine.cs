@@ -230,6 +230,17 @@ public partial class @IA_Mine: IInputActionCollection2, IDisposable
                     ""action"": ""Action"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e8f471a5-2d58-4543-b052-3a623e01ac3a"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }

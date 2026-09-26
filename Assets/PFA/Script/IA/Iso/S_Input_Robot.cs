@@ -5,6 +5,13 @@ public class S_Input_Robot : MonoBehaviour
 {
     void Update()
     {
+        if (S_Camera_Controller.instance == null || !S_Camera_Controller.instance.robotMode)
+        {
+            S_Robot_Controller.instance.SetMoveInput(Vector2.zero);
+            S_CamController_Robot.instance.SetLookInput(Vector2.zero, Vector2.zero);
+            return;
+        }
+
         S_Robot_Controller.instance.SetMoveInput(ReadMove());
         S_CamController_Robot.instance.SetLookInput(ReadGamepadLook(), ReadMouseLook());
         S_CamController_Robot.instance.MoveCamera();

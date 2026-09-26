@@ -6,6 +6,7 @@ public class S_CamController_Robot : MonoBehaviour
     public static S_CamController_Robot instance;
 
     [Header("References")]
+    public Transform cam;
     public Transform camPos;
     public Transform orientation;
 
@@ -34,6 +35,11 @@ public class S_CamController_Robot : MonoBehaviour
 
     private void Start()
     {
+        if (cam == null)
+        {
+            cam = FindTransformIncludingInactive("Camera_Robot_Ally");
+        }
+
         if (camPos == null)
         {
             camPos = transform.parent;
@@ -44,24 +50,42 @@ public class S_CamController_Robot : MonoBehaviour
             orientation = camPos;
         }
 
-        if (camPos != null && !transform.IsChildOf(camPos))
+        if (cam == null)
         {
-            transform.SetParent(camPos);
-            transform.localPosition = cameraLocalPosition;
+            Debug.LogError("S_CamController_Robot: Camera_Robot_Ally est introuvable.");
+            return;
         }
 
-        pitch = transform.localEulerAngles.x;
+        if (camPos != null && !cam.IsChildOf(camPos))
+        {
+            cam.SetParent(camPos);
+        }
+
+        if (camPos != null)
+        {
+            cam.position = camPos.position;
+        }
+
+        pitch = cam.localEulerAngles.x;
         if (pitch > 180f)
         {
             pitch -= 360f;
         }
 
-        yaw = orientation != null ? orientation.eulerAngles.y : transform.eulerAngles.y;
+        yaw = orientation != null ? orientation.eulerAngles.y : cam.eulerAngles.y;
     }
 
     public void MoveCamera()
     {
-        transform.position = camPos != null ? camPos.position + camPos.TransformVector(cameraLocalPosition) : transform.position;
+        if (cam == null)
+        {
+            return;
+        }
+
+        if (camPos != null)
+        {
+            cam.position = camPos.position;
+        }
 
         if (lookInput.sqrMagnitude < 0.0001f)
         {
@@ -76,8 +100,23 @@ public class S_CamController_Robot : MonoBehaviour
             orientation.rotation = Quaternion.Euler(0f, yaw, 0f);
         }
 
-        transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+        cam.rotation = Quaternion.Euler(pitch, yaw, 0f);
         lookInput = Vector2.zero;
+    }
+
+    private Transform FindTransformIncludingInactive(string objectName)
+    {
+        Transform[] transforms = FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (Transform candidate in transforms)
+        {
+            if (candidate.name == objectName)
+            {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 
     public void SetLookInput(Vector2 gamepadInput, Vector2 mouseInput)

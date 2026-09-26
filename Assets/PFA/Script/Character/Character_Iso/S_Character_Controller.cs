@@ -8,6 +8,7 @@ public class S_Character_Controller : MonoBehaviour
 
     [Header("Movement")]
     public float speed = 6f;
+    public bool canMove = true;
 
     [Header("Components")]
     public Rigidbody rigidBody;
@@ -86,40 +87,44 @@ public class S_Character_Controller : MonoBehaviour
     }
 
     public void Movement()
-    {
-        Vector2 keyboardInput = Vector2.zero;
-
-        if (Keyboard.current != null)
+    { if (canMove)
         {
-            keyboardInput = new Vector2(
-                (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed ? 1f : 0f) -
-                (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed ? 1f : 0f),
-                (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed ? 1f : 0f) -
-                (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed ? 1f : 0f));
-        }
-
-        Vector2 gamepadInput = Gamepad.current != null? Gamepad.current.leftStick.ReadValue() : Vector2.zero;
-    
-        Vector2 input = gamepadInput.sqrMagnitude > keyboardInput.sqrMagnitude? gamepadInput : keyboardInput;
             
-        if (cam == null)
-        {
-            return;
+
+            Vector2 keyboardInput = Vector2.zero;
+
+            if (Keyboard.current != null)
+            {
+                keyboardInput = new Vector2(
+                    (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed ? 1f : 0f) -
+                    (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed ? 1f : 0f),
+                    (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed ? 1f : 0f) -
+                    (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed ? 1f : 0f));
+            }
+
+            Vector2 gamepadInput = Gamepad.current != null? Gamepad.current.leftStick.ReadValue() : Vector2.zero;
+        
+            Vector2 input = gamepadInput.sqrMagnitude > keyboardInput.sqrMagnitude? gamepadInput : keyboardInput;
+                
+            if (cam == null)
+            {
+                return;
+            }
+
+            Vector3 cameraForward = cam.transform.forward;
+            Vector3 cameraRight = cam.transform.right;
+
+            cameraForward.y = 0f;
+            cameraRight.y = 0f;
+
+            cameraForward.Normalize();
+            cameraRight.Normalize();
+
+            Vector3 moveDirection = cameraRight * input.x + cameraForward * input.y;
+            Vector3 velocity = Vector3.ClampMagnitude(moveDirection, 1f) * speed;
+
+            rigidBody.MovePosition(rigidBody.position + velocity * Time.fixedDeltaTime);
         }
-
-        Vector3 cameraForward = cam.transform.forward;
-        Vector3 cameraRight = cam.transform.right;
-
-        cameraForward.y = 0f;
-        cameraRight.y = 0f;
-
-        cameraForward.Normalize();
-        cameraRight.Normalize();
-
-        Vector3 moveDirection = cameraRight * input.x + cameraForward * input.y;
-        Vector3 velocity = Vector3.ClampMagnitude(moveDirection, 1f) * speed;
-
-        rigidBody.MovePosition(rigidBody.position + velocity * Time.fixedDeltaTime);
     }
 
     public void SeeThroughWalls()

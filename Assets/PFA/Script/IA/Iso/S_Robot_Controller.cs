@@ -18,6 +18,7 @@ public class S_Robot_Controller : MonoBehaviour
 
     [Header("Movement")]
     public float moveSpeed = 5f;
+    public bool canMove = false;
     public float groundDrag = 5f;
     public float airMultiplier;
 
@@ -93,6 +94,13 @@ public class S_Robot_Controller : MonoBehaviour
 
     public void Move()
     {
+        if (!canMove)
+        {
+            moveInput = Vector2.zero;
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            return;
+        }
+
         MovePlayer();
         SpeedControl();
     }
