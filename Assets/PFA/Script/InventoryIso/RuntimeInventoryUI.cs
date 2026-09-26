@@ -909,7 +909,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         if (Keyboard.current != null &&
             Mouse.current != null)
         {
-            if (Mouse.current.rightButton.wasPressedThisFrame)
+            if (Mouse.current.leftButton.wasPressedThisFrame)
             {
                 EquipSelected();
             }
@@ -923,7 +923,6 @@ public class RuntimeInventoryUI : MonoBehaviour
             }
         }
     }
-
     private void EquipSelected()
     {
         if (selectedIndex < 0)
@@ -935,6 +934,8 @@ public class RuntimeInventoryUI : MonoBehaviour
         InventoryManager.Instance.SetQuickSlot(
             selectedIndex
         );
+
+        CloseWheel();
     }
 
     // =========================================================
@@ -976,7 +977,7 @@ public class RuntimeInventoryUI : MonoBehaviour
             return;
 
         Vector2 stick =
-            Gamepad.current.rightStick.ReadValue();
+            Gamepad.current.leftStick.ReadValue();
 
         if (stick.magnitude < 0.25f)
             return;
@@ -1208,48 +1209,43 @@ public class RuntimeInventoryUI : MonoBehaviour
 
     private void ToggleWheel()
     {
-        isOpen =
-            !isOpen;
-
-        wheelRoot.SetActive(
-            isOpen
-        );
-
         if (isOpen)
-        {
-            selectedIndex = -1;
-
-            Cursor.visible =
-                true;
-
-            Cursor.lockState =
-                CursorLockMode.None;
-
-            Time.timeScale =
-                0f;
-
-            RefreshInventory();
-        }
+            CloseWheel();
         else
-        {
-            Cursor.visible =
-                false;
+            OpenWheel();
+    }
 
-            Cursor.lockState =
-                CursorLockMode.Locked;
+    private void OpenWheel()
+    {
+        isOpen = true;
 
-            Time.timeScale =
-                1f;
-        }
+        wheelRoot.SetActive(true);
+
+        selectedIndex = -1;
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        Time.timeScale = 0f;
+
+        RefreshInventory();
+    }
+
+    private void CloseWheel()
+    {
+        isOpen = false;
+
+        wheelRoot.SetActive(false);
+
+        Time.timeScale = 1f;
     }
 
     private void HideWheel()
     {
-        isOpen =
-            false;
+        isOpen = false;
 
-        wheelRoot.SetActive(
-            false
-        );
+        wheelRoot.SetActive(false);
+
+        Time.timeScale = 1f;
     }
 }
