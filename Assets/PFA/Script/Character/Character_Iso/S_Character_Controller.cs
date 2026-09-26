@@ -98,14 +98,10 @@ public class S_Character_Controller : MonoBehaviour
                 (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed ? 1f : 0f));
         }
 
-        Vector2 gamepadInput = Gamepad.current != null
-            ? Gamepad.current.leftStick.ReadValue()
-            : Vector2.zero;
-
-        Vector2 input = gamepadInput.sqrMagnitude > keyboardInput.sqrMagnitude
-            ? gamepadInput
-            : keyboardInput;
-
+        Vector2 gamepadInput = Gamepad.current != null? Gamepad.current.leftStick.ReadValue() : Vector2.zero;
+    
+        Vector2 input = gamepadInput.sqrMagnitude > keyboardInput.sqrMagnitude? gamepadInput : keyboardInput;
+            
         if (cam == null)
         {
             return;
