@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyDetection))]
@@ -15,9 +16,10 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Patrouille")]
     [SerializeField] private List<PatrolWaypoint> waypoints;
+    private Camera mainCamera;
 
 
-    private float attackTimer;
+    private float attackTimer = 0f;
 
     [Header("Poursuite / Attaque")]
     [SerializeField] private float attackRange = 1.5f;
@@ -48,6 +50,9 @@ public class EnemyAI : MonoBehaviour
     [Header("Lecture seule")]
     [SerializeField] private EnemyState currentStateReadOnly;
     [SerializeField] private Light detectionLight;
+    [Header("Barre d'attaque")]
+    [SerializeField] private Slider attackProgressBar;
+    private bool isPreparingAttack = false;
     [Header("Lumière de vision")]
     [SerializeField] private Color chasingLightColor = new Color(1f, 0.25f, 0.25f);
     [SerializeField] private Color surveillanceLightColor = Color.yellow;
@@ -90,6 +95,15 @@ public class EnemyAI : MonoBehaviour
 
     private void Start()
     {
+
+        mainCamera = Camera.main;
+        if (attackProgressBar != null)
+        {
+            attackProgressBar.minValue = 0f;
+            attackProgressBar.maxValue = 1f;
+            attackProgressBar.value = 0f;
+            attackProgressBar.gameObject.SetActive(false);
+        }
         StartPatrol();
     }
 
@@ -114,6 +128,24 @@ public class EnemyAI : MonoBehaviour
 
             // Surveillance et BreakingLocker sont pilotés entièrement par coroutine.
         }
+    }
+    private void LateUpdate()
+    {
+        if (attackProgressBar == null)
+            return; 
+
+        if (!attackProgressBar.gameObject.activeSelf)
+            return; 
+
+        if (mainCamera == null)
+            return; 
+
+        Transform canvas = attackProgressBar.transform.parent;  
+
+        canvas.LookAt(
+            canvas.position + mainCamera.transform.forward,
+            mainCamera.transform.up
+        );
     }
 
     // ------------------------------------------------------------------
@@ -246,13 +278,16 @@ public class EnemyAI : MonoBehaviour
 
     private void TickChasing()
     {
-        if (_detection.Player == null) return;
+        if (_detection.Player == null)
+        {
+            ResetAttackProgressBar();
+            return;
+        }
 
         if (_detection.CanSeePlayer(out Vector3 currentPos))
         {
             _loseTargetTimer = 0f;
             _lastKnownPlayerPosition = currentPos;
-            _agent.SetDestination(_lastKnownPlayerPosition);
 
             float distance = Vector3.Distance(transform.position, currentPos);
 
@@ -260,19 +295,34 @@ public class EnemyAI : MonoBehaviour
             {
                 _agent.isStopped = true;
 
-                attackTimer -= Time.deltaTime;
+                // Commence la préparation de l'attaque
+                isPreparingAttack = true;
 
-                if (attackTimer <= 0f)
+                if (attackProgressBar != null)
+                {
+                    attackProgressBar.gameObject.SetActive(true);
+                }
+
+                attackTimer += Time.deltaTime;
+
+                UpdateAttackProgressBar();
+
+                // Attaque lorsque la barre est pleine
+                if (attackTimer >= attackAnimDuration)
                 {
                     PlayAttackAnimation();
                     DealDamageToPlayer();
 
-                    attackTimer = attackCooldown;
+                    ResetAttackProgressBar();
                 }
             }
             else
             {
                 _agent.isStopped = false;
+
+                ResetAttackProgressBar();
+
+                _agent.SetDestination(currentPos);
             }
 
             return;
@@ -283,8 +333,11 @@ public class EnemyAI : MonoBehaviour
 
         if (playerHidden)
         {
+            ResetAttackProgressBar();
             return;
         }
+
+        ResetAttackProgressBar();
 
         _loseTargetTimer += Time.deltaTime;
 
@@ -476,6 +529,24 @@ public class EnemyAI : MonoBehaviour
             .OrderBy(l => Vector3.Distance(transform.position, l.Position))
             .Distinct()
             .ToList();
+    }
+    private void UpdateAttackProgressBar()
+    {
+        if (attackProgressBar == null)
+            return;
+
+        attackProgressBar.value = attackTimer / attackAnimDuration;
+    }
+    private void ResetAttackProgressBar()
+    {
+        attackTimer = 0f;
+        isPreparingAttack = false;
+
+        if (attackProgressBar != null)
+        {
+            attackProgressBar.value = 0f;
+            attackProgressBar.gameObject.SetActive(false);
+        }
     }
 
     // ------------------------------------------------------------------
