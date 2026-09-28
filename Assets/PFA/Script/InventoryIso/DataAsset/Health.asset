@@ -18,4 +18,7 @@ MonoBehaviour:
   maxStack: 5
   healAmount: 50
   energyAmount: 25
+  inventoryName: Soin
+  inventoryDescription: 'Soigne 50% de vos HP. '
+  inventoryAction: Consomable
   grenadePrefab: {fileID: 0}

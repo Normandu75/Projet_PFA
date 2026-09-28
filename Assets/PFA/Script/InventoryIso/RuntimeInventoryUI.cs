@@ -8,6 +8,9 @@ public class RuntimeInventoryUI : MonoBehaviour
     [Header("Wheel")]
     [SerializeField]
     private float outerRadius = 300f;
+    [Header("Quick Slot")]
+    [SerializeField]
+    private Sprite quickSlotButtonIcon;
 
     [SerializeField]
     private float innerRadius = 125f;
@@ -841,44 +844,39 @@ public class RuntimeInventoryUI : MonoBehaviour
             );
 
         GameObject keyObject =
-            new GameObject(
-                "Quick Key"
-            );
+    new GameObject("Quick Key");
 
-        keyObject.transform.SetParent(
-            quickSlotRoot.transform,
-            false
+    keyObject.transform.SetParent(
+        quickSlotRoot.transform,
+        false
+    );
+    
+    Image keyImage =
+        keyObject.AddComponent<Image>();
+    
+    keyImage.sprite =
+        quickSlotButtonIcon;
+    
+    keyImage.preserveAspect =
+        true;
+    
+    keyImage.raycastTarget =
+        false;
+    
+    RectTransform keyRect =
+        keyImage.GetComponent<RectTransform>();
+    
+    keyRect.sizeDelta =
+        new Vector2(
+            40f,
+            30f
         );
-
-        TMP_Text key =
-            keyObject.AddComponent<TextMeshProUGUI>();
-
-        key.text =
-            "X";
-
-        key.fontSize =
-            16;
-
-        key.alignment =
-            TextAlignmentOptions.Center;
-
-        key.color =
-            selectedColor;
-
-        RectTransform keyRect =
-            key.GetComponent<RectTransform>();
-
-        keyRect.sizeDelta =
-            new Vector2(
-                40f,
-                30f
-            );
-
-        keyRect.anchoredPosition =
-            new Vector2(
-                -48f,
-                -48f
-            );
+    
+    keyRect.anchoredPosition =
+    new Vector2(
+        -48f,
+        -48f
+    );
     }
 
     // =========================================================
@@ -1076,16 +1074,14 @@ public class RuntimeInventoryUI : MonoBehaviour
             return;
         }
 
-        centerName.text =
-            slot.item.itemName;
+    centerName.text =
+    slot.item.inventoryName;
 
-        centerDescription.text =
-            "+" +
-            slot.item.healAmount +
-            " HP";
+    centerDescription.text =
+    slot.item.inventoryDescription;
 
-        centerAction.text =
-            "A  EQUIP";
+    centerAction.text =
+    slot.item.inventoryAction;
     }
 
     // =========================================================

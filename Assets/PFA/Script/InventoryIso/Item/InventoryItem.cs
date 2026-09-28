@@ -30,6 +30,13 @@ public class InventoryItem : ScriptableObject
 
     [Header("Energy")]
     public int energyAmount = 25;
+    [Header("Inventory Display")]
+    public string inventoryName;
+
+    [TextArea(2, 5)]
+    public string inventoryDescription;
+
+    public string inventoryAction;
 
     [Header("Grenade")]
     public GameObject grenadePrefab;
