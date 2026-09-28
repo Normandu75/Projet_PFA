@@ -4,7 +4,7 @@ public enum InventoryItemType
 {
     Health,
     Grenade,
-    EnergyDrink
+    SpeedBoost
 }
 
 [CreateAssetMenu(

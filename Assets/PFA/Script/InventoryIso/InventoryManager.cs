@@ -164,11 +164,28 @@ public class InventoryManager : MonoBehaviour
         return slots[quickSlotIndex].amount;
     }
 
-    public bool UseQuickItem(PlayerHealth playerHealth)
+    public void UseQuickItem(S_HealthBar healthBar)
     {
-        if (playerHealth == null)
-            return false;
-
+        if (healthBar == null)
+            return;
+    
+        InventoryItem item = GetQuickItem();
+    
+        if (item == null)
+            return;
+    
+        if (GetQuickItemAmount() <= 0)
+            return;
+    
+        bool healed = healthBar.AddHealth(item.healAmount);
+    
+        if (!healed)
+            return;
+    
+        RemoveQuickItem();
+    }
+    public bool RemoveQuickItem()
+    {
         if (!IsValidIndex(quickSlotIndex))
             return false;
 
@@ -177,24 +194,25 @@ public class InventoryManager : MonoBehaviour
         if (slot.IsEmpty)
             return false;
 
-        InventoryItem item = slot.item;
+        slot.amount--;
 
-        switch (item.itemType)
+        if (slot.amount <= 0)
         {
-            case InventoryItemType.Health:
+            slot.Clear();
 
-                bool healed = playerHealth.Heal(item.healAmount);
-
-                if (healed)
-                {
-                    RemoveItem(quickSlotIndex, 1);
-                    return true;
-                }
-
-                break;
+            quickSlotIndex = -1;
+            OnQuickSlotChanged?.Invoke(quickSlotIndex);
+        }
+        else
+        {
+            // Le même objet reste équipé,
+            // mais sa quantité a diminué.
+            OnQuickSlotChanged?.Invoke(quickSlotIndex);
         }
 
-        return false;
+        NotifyInventoryChanged();
+
+        return true;
     }
 
     public InventorySlotData GetSlot(int index)

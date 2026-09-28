@@ -44,16 +44,28 @@ public class S_HealthBar : MonoBehaviour
 
         Debug.Log("Damage : -" + damage);
     }
-    public void AddHealth(int heal) // Ajoute en appuyant sur T la vie.
+   public bool AddHealth(int healAmount)
     {
-        currentHealth += heal;
-
+        if (currentHealth >= maxHealth)
+        {
+            Debug.Log("Vie déjà au maximum.");
+            return false;
+        }
+    
+        int oldHealth = currentHealth;
+    
+        currentHealth += healAmount;
+    
         if (currentHealth > maxHealth)
         {
             currentHealth = maxHealth;
         }
-
-        Debug.Log("Heal : " + heal);
+    
+        int realHeal = currentHealth - oldHealth;
+    
+        Debug.Log("Heal : +" + realHeal);
+    
+        return true;
     }
     
     void Dead()
