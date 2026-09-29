@@ -1239,7 +1239,6 @@ public class RuntimeInventoryUI : MonoBehaviour
 
         Cursor.visible = true; 
 
-
         selectedIndex = -1; }
 
     private void HideWheel()
