@@ -13,8 +13,6 @@ public class S_Field_Of_View : MonoBehaviour
     public float viewAngle;
     public float circleRadius;
 
-    public S_Field_Of_View_Target fovTarget;
-
     public LayerMask targetMask;
     public LayerMask obstacleMask;
     public LayerMask objectMask;

@@ -62,9 +62,12 @@ public class S_Robot_Controller : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         playerCollider = GetComponent<Collider>();
 
-        if (rb != null)
+        if (rb != null && playerCollider != null)
         {
             rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.isKinematic = true;
+
+            playerCollider.isTrigger = true;
         }
 
         if (orientation == null)
@@ -103,6 +106,8 @@ public class S_Robot_Controller : MonoBehaviour
         {
             moveInput = Vector2.zero;
             velocityNoAdd = Vector2.zero;
+            UpdateVelocity();
+            return;
         }
 
         if (Time.time - lastSurfaceContactTime > surfaceGraceTime)

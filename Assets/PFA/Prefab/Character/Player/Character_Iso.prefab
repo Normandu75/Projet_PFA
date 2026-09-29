@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 243548009200596506}
   - component: {fileID: 5679439692082037498}
   - component: {fileID: 8053121967519160956}
+  - component: {fileID: 7489973132760183995}
   m_Layer: 9
   m_Name: Character_Iso
   m_TagString: Untagged
@@ -38,6 +39,7 @@ Transform:
   - {fileID: 8532980245577735246}
   - {fileID: 277652618396685082}
   - {fileID: 7962856037648508102}
+  - {fileID: 801212589449445742}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1522784599538739657
@@ -172,6 +174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Character_Controller
   speed: 6
+  canMove: 1
   rigidBody: {fileID: 0}
   cam: {fileID: 0}
   target: {fileID: 0}
@@ -180,6 +183,50 @@ MonoBehaviour:
     m_Bits: 4096
   sphereMaxScale: 4.238316
   sphereScaleSpeed: 8
+  gamepadDeadzone: 0.2
+  pickUp: 0
+--- !u!114 &7489973132760183995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2414152876157648358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: c259b0849d604254596d15c7ae8f5ccc, type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e08dc2a1-59a3-496f-8a06-a1e14c6bd4e1
+    m_ActionName: 'Player/Move[/Keyboard/z,/Keyboard/s,/Keyboard/a,/Keyboard/d,/XInputControllerWindows/leftStick]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 93dfb6af-8333-448d-a5a9-ac2d1f58e01f
+    m_ActionName: 'Player/Look[/Mouse/delta,/XInputControllerWindows/rightStick]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 707a575b-b6c7-4453-b32d-07121e99eb4c
+    m_ActionName: 'Player/Action[/XInputControllerWindows/leftShoulder,/XInputControllerWindows/rightShoulder]'
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &2629269527638401357
 GameObject:
   m_ObjectHideFlags: 0
@@ -226,9 +273,42 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::S_Camera_Controller
   player: {fileID: 0}
   cam: {fileID: 0}
+  robotCam: {fileID: 0}
   distance: 0
   height: 0
-  rotationSpeed: 0
+  rotationSpeed: 50
+  orbitAngle: 0
+--- !u!1 &2731426471197467379
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 801212589449445742}
+  m_Layer: 9
+  m_Name: Robot_Pos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &801212589449445742
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2731426471197467379}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3397048518976672582}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4723410977599509339
 GameObject:
   m_ObjectHideFlags: 0
