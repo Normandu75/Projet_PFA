@@ -4,31 +4,25 @@ using UnityEngine.InputSystem;
 public class QuickItemController : MonoBehaviour
 {
     [SerializeField]
-    private PlayerHealth playerHealth;
+    private S_HealthBar healthBar;
 
     private void Update()
     {
         bool useItem = false;
 
+        // Clavier : F
         if (Keyboard.current != null)
         {
-            if (Keyboard.current.eKey.wasPressedThisFrame)
+            if (Keyboard.current.fKey.wasPressedThisFrame)
             {
                 useItem = true;
             }
         }
 
-        if (Gamepad.current != null)
-        {
-            if (Gamepad.current.buttonWest.wasPressedThisFrame)
-            {
-                useItem = true;
-            }
-        }
-
+        // Souris : bouton latéral avant
         if (Mouse.current != null)
         {
-            if (Mouse.current.leftButton.wasPressedThisFrame)
+            if (Mouse.current.forwardButton.wasPressedThisFrame)
             {
                 useItem = true;
             }
@@ -40,9 +34,9 @@ public class QuickItemController : MonoBehaviour
         if (InventoryManager.Instance == null)
             return;
 
-        InventoryManager.Instance.UseQuickItem(
-            playerHealth
-        );
+        if (healthBar == null)
+            return;
+
+        InventoryManager.Instance.UseQuickItem(healthBar);
     }
 }
-

@@ -3,14 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
-/// <summary>
-/// Machine à états de l'ennemi : patrouille, détection, poursuite, alerte des
-/// autres ennemis, surveillance des casiers, casse de casier.
-/// Aucun élément visuel de gameplay lié à l'IA (pas de cône affiché, pas d'UI) :
-/// seul le modèle de l'ennemi est visible. Le cône de détection reste dessiné
-/// en Gizmo dans l'éditeur (EnemyDetection.OnDrawGizmosSelected), jamais en jeu.
-/// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyDetection))]
 public class EnemyAI : MonoBehaviour
@@ -22,10 +16,17 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Patrouille")]
     [SerializeField] private List<PatrolWaypoint> waypoints;
+    private Camera mainCamera;
+
+
+    private float attackTimer = 0f;
 
     [Header("Poursuite / Attaque")]
     [SerializeField] private float attackRange = 1.5f;
     [SerializeField] private float attackAnimDuration = 1f;
+    
+    [SerializeField] private int attackDamage = 10;
+    [SerializeField] private float attackCooldown = 1f;
 
     [Tooltip("Temps (secondes) sans revoir le joueur dans le cône avant que " +
              "l'ennemi arrête de le détecter et retourne en patrouille.")]
@@ -48,6 +49,16 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Lecture seule")]
     [SerializeField] private EnemyState currentStateReadOnly;
+    [SerializeField] private Light detectionLight;
+    [Header("Barre d'attaque")]
+    [SerializeField] private Slider attackProgressBar;
+    private bool isPreparingAttack = false;
+    [Header("Lumière de vision")]
+    [SerializeField] private Color chasingLightColor = new Color(1f, 0.25f, 0.25f);
+    [SerializeField] private Color surveillanceLightColor = Color.yellow;
+
+    [SerializeField] private Color roamingLightColor = new Color(1f, 0.2f, 0.2f);
+    [SerializeField] private float lightIntensity = 3f;
 
     private NavMeshAgent _agent;
     private EnemyDetection _detection;
@@ -84,6 +95,15 @@ public class EnemyAI : MonoBehaviour
 
     private void Start()
     {
+
+        mainCamera = Camera.main;
+        if (attackProgressBar != null)
+        {
+            attackProgressBar.minValue = 0f;
+            attackProgressBar.maxValue = 1f;
+            attackProgressBar.value = 0f;
+            attackProgressBar.gameObject.SetActive(false);
+        }
         StartPatrol();
     }
 
@@ -108,6 +128,24 @@ public class EnemyAI : MonoBehaviour
 
             // Surveillance et BreakingLocker sont pilotés entièrement par coroutine.
         }
+    }
+    private void LateUpdate()
+    {
+        if (attackProgressBar == null)
+            return; 
+
+        if (!attackProgressBar.gameObject.activeSelf)
+            return; 
+
+        if (mainCamera == null)
+            return; 
+
+        Transform canvas = attackProgressBar.transform.parent;  
+
+        canvas.LookAt(
+            canvas.position + mainCamera.transform.forward,
+            mainCamera.transform.up
+        );
     }
 
     // ------------------------------------------------------------------
@@ -240,32 +278,69 @@ public class EnemyAI : MonoBehaviour
 
     private void TickChasing()
     {
-        if (_detection.Player == null) return;
+        if (_detection.Player == null)
+        {
+            ResetAttackProgressBar();
+            return;
+        }
 
         if (_detection.CanSeePlayer(out Vector3 currentPos))
         {
             _loseTargetTimer = 0f;
             _lastKnownPlayerPosition = currentPos;
-            _agent.SetDestination(_lastKnownPlayerPosition);
 
             float distance = Vector3.Distance(transform.position, currentPos);
+
             if (distance <= attackRange)
             {
-                PlayAttackAnimation();
+                _agent.isStopped = true;
+
+                // Commence la préparation de l'attaque
+                isPreparingAttack = true;
+
+                if (attackProgressBar != null)
+                {
+                    attackProgressBar.gameObject.SetActive(true);
+                }
+
+                attackTimer += Time.deltaTime;
+
+                UpdateAttackProgressBar();
+
+                // Attaque lorsque la barre est pleine
+                if (attackTimer >= attackAnimDuration)
+                {
+                    PlayAttackAnimation();
+                    DealDamageToPlayer();
+
+                    ResetAttackProgressBar();
+                }
             }
+            else
+            {
+                _agent.isStopped = false;
+
+                ResetAttackProgressBar();
+
+                _agent.SetDestination(currentPos);
+            }
+
             return;
         }
 
-        bool playerHidden = PlayerStealth.Instance != null && PlayerStealth.Instance.IsHidden;
+        bool playerHidden = PlayerStealth.Instance != null &&
+                            PlayerStealth.Instance.IsHidden;
+
         if (playerHidden)
         {
-            // Cas géré séparément par HandlePlayerHidden (casier) : on ne décompte
-            // pas le timer ici, la disparition est due à la cachette, pas à la distance.
+            ResetAttackProgressBar();
             return;
         }
 
-        // Le joueur n'est plus dans le cône (et n'est pas caché) : décompte avant abandon.
+        ResetAttackProgressBar();
+
         _loseTargetTimer += Time.deltaTime;
+
         if (_loseTargetTimer >= loseTargetTime)
         {
             ReturnToPatrol();
@@ -276,6 +351,25 @@ public class EnemyAI : MonoBehaviour
     {
         if (animator != null)
             animator.SetTrigger(AttackTrigger);
+    }
+    private void DealDamageToPlayer()
+    {
+        if (_detection.Player == null)
+            return;
+
+        S_HealthBar playerHealth =
+            _detection.Player.GetComponentInParent<S_HealthBar>();
+
+        if (playerHealth != null)
+        {
+            playerHealth.TakeDamage(attackDamage);
+
+            Debug.Log("Enemy attacks player : -" + attackDamage);
+        }
+        else
+        {
+            Debug.LogWarning("S_HealthBar introuvable sur le Player.");
+        }
     }
 
     private void BroadcastAlert()
@@ -292,6 +386,35 @@ public class EnemyAI : MonoBehaviour
             var beam = beamObj.GetComponent<EnemyAlertBeam>();
             Vector3 alertPosition = _lastKnownPlayerPosition;
             beam.Launch(other.transform, alertBeamSpeed, () => other.OnAlerted(alertPosition));
+        }
+    }
+    private void UpdateDetectionLight(EnemyState state)
+    {
+        if (detectionLight == null)
+            return;
+
+        detectionLight.intensity = lightIntensity;
+
+        switch (state)
+        {
+            case EnemyState.Chasing:
+                detectionLight.enabled = true;
+                detectionLight.color = chasingLightColor;
+                break;
+
+            case EnemyState.Surveillance:
+                detectionLight.enabled = true;
+                detectionLight.color = surveillanceLightColor;
+                break;
+
+            case EnemyState.Roaming:
+                detectionLight.enabled = true;
+                detectionLight.color = roamingLightColor;
+                break;
+
+            default:
+                detectionLight.enabled = false;
+                break;
         }
     }
 
@@ -407,6 +530,24 @@ public class EnemyAI : MonoBehaviour
             .Distinct()
             .ToList();
     }
+    private void UpdateAttackProgressBar()
+    {
+        if (attackProgressBar == null)
+            return;
+
+        attackProgressBar.value = attackTimer / attackAnimDuration;
+    }
+    private void ResetAttackProgressBar()
+    {
+        attackTimer = 0f;
+        isPreparingAttack = false;
+
+        if (attackProgressBar != null)
+        {
+            attackProgressBar.value = 0f;
+            attackProgressBar.gameObject.SetActive(false);
+        }
+    }
 
     // ------------------------------------------------------------------
     // UTILITAIRES
@@ -415,5 +556,7 @@ public class EnemyAI : MonoBehaviour
     private void SetState(EnemyState newState)
     {
         _state = newState;
+
+        UpdateDetectionLight(newState);
     }
 }
