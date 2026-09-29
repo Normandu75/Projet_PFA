@@ -42,7 +42,7 @@ public class S_CamController_Robot : MonoBehaviour
 
         if (camPos == null)
         {
-            camPos = transform.parent;
+            camPos = transform;
         }
 
         if (orientation == null && camPos != null)
@@ -62,9 +62,7 @@ public class S_CamController_Robot : MonoBehaviour
         }
 
         if (camPos != null)
-        {
-            cam.position = camPos.position;
-        }
+            cam.localPosition = cameraLocalPosition;
 
         pitch = cam.localEulerAngles.x;
         if (pitch > 180f)
@@ -72,7 +70,9 @@ public class S_CamController_Robot : MonoBehaviour
             pitch -= 360f;
         }
 
-        yaw = orientation != null ? orientation.eulerAngles.y : cam.eulerAngles.y;
+        yaw = orientation != null ? orientation.localEulerAngles.y : cam.localEulerAngles.y;
+        if (yaw > 180f)
+            yaw -= 360f;
     }
 
     public void MoveCamera()
@@ -80,11 +80,6 @@ public class S_CamController_Robot : MonoBehaviour
         if (cam == null)
         {
             return;
-        }
-
-        if (camPos != null)
-        {
-            cam.position = camPos.position;
         }
 
         if (lookInput.sqrMagnitude < 0.0001f)
@@ -97,10 +92,10 @@ public class S_CamController_Robot : MonoBehaviour
 
         if (orientation != null)
         {
-            orientation.rotation = Quaternion.Euler(0f, yaw, 0f);
+            orientation.localRotation = Quaternion.Euler(0f, yaw, 0f);
         }
 
-        cam.rotation = Quaternion.Euler(pitch, yaw, 0f);
+        cam.localRotation = Quaternion.Euler(pitch, 0f, 0f);
         lookInput = Vector2.zero;
     }
 
@@ -122,5 +117,12 @@ public class S_CamController_Robot : MonoBehaviour
     public void SetLookInput(Vector2 gamepadInput, Vector2 mouseInput)
     {
         lookInput = gamepadInput + mouseInput * mouseLookSensitivity;
+    }
+
+    public void AdjustYawForBodyTurn(float bodyYawDelta)
+    {
+        yaw = Mathf.DeltaAngle(0f, yaw - bodyYawDelta);
+        if (orientation != null)
+            orientation.localRotation = Quaternion.Euler(0f, yaw, 0f);
     }
 }
