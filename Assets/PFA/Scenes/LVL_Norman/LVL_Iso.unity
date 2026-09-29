@@ -1056,9 +1056,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1280897702}
     m_Modifications:
+    - target: {fileID: 985729102966412677, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 1937869954476672063, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
       propertyPath: m_Name
       value: Robot_Ally
+      objectReference: {fileID: 0}
+    - target: {fileID: 1937869954476672063, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4397222433282891793, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 5709371694495971632, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
       propertyPath: m_IsTrigger
@@ -1103,6 +1115,10 @@ PrefabInstance:
     - target: {fileID: 6834704761444267503, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7553266108190718073, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -1169,8 +1185,42 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2414152876157648358, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      insertIndex: 7
+      addedObject: {fileID: 1578026799135768023}
   m_SourcePrefab: {fileID: 100100000, guid: 42a3ac84d712974409a7256def885807, type: 3}
+--- !u!1 &1578026799135768015 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2414152876157648358, guid: 42a3ac84d712974409a7256def885807, type: 3}
+  m_PrefabInstance: {fileID: 1578026799135768014}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1578026799135768023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578026799135768015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f11d6a488534a874d977da901b2f317e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::S_Field_Of_View
+  viewRadius: 15
+  viewAngle: 57
+  viewDirection: {fileID: 0}
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 128
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 64
+  objectMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  visibleTargets: []
+  visibleObjects: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

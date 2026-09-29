@@ -4,7 +4,7 @@ using TMPro;
 
 public class S_Hide : MonoBehaviour
 {
-    public S_Field_Of_View_Target fovTarget;
+    /*public S_Field_Of_View_Target fovTarget;*/
     public S_Field_Of_View fovCharacter;
     public S_Controller control;
     public S_FlashLight_Energy flashLight;
@@ -26,7 +26,7 @@ public class S_Hide : MonoBehaviour
 
     void Start()
     {
-        fovTarget = GameObject.Find("Target").GetComponent<S_Field_Of_View_Target>();
+        /*fovTarget = GameObject.Find("Target").GetComponent<S_Field_Of_View_Target>();*/
         fovCharacter = GameObject.Find("Character").GetComponent<S_Field_Of_View>();
         character = GameObject.Find("Character");
         control = GameObject.Find("Character").GetComponent<S_Controller>();
@@ -72,7 +72,7 @@ public class S_Hide : MonoBehaviour
 
             character.transform.position = transform.position ;
             fovCharacter.viewRadius = 0f;
-            fovCharacter.circleRadius = 0f;
+            /*fovCharacter.circleRadius = 0f;*/
 
         }
         else if (Input.GetKeyDown(KeyCode.F) && isHidden)
@@ -90,7 +90,7 @@ public class S_Hide : MonoBehaviour
             
             character.transform.position = transform.position + transform.forward * 2f;
             fovCharacter.viewRadius = 8f;
-            fovCharacter.circleRadius = 2f;
+            /*fovCharacter.circleRadius = 2f;*/
         }  
         
     }
