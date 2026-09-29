@@ -50,6 +50,10 @@ private int _currentPatrolIndex = 0;
 [SerializeField] private float attackCooldown = 1f;
 
 [Tooltip("Vitesse de rotation pendant la préparation de l'attaque.")]
+
+[Header("Rotation")]
+
+[SerializeField] private float detectionRotationSpeed = 720f;
 [SerializeField] private float attackRotationSpeed = 720f;
 
 [Tooltip(
@@ -63,6 +67,7 @@ private int _currentPatrolIndex = 0;
     "après avoir perdu le joueur."
 )]
 [SerializeField] private float loseTargetTime = 3f;
+
 
 private float attackTimer;
 private float attackCooldownTimer;
@@ -291,12 +296,17 @@ private void TickRoaming()
         return;
     }
 
-    // Détection par zone autour de l'ennemi
     if (IsPlayerInDetectionRadius(
-        out Vector3 nearbyPlayerPos))
-    {
-        OnPlayerDetected(nearbyPlayerPos);
-    }
+    out Vector3 nearbyPlayerPos))
+{
+    // On tourne immédiatement vers le joueur
+    RotateTowardsPosition(
+        nearbyPlayerPos,
+        detectionRotationSpeed
+    );
+
+    OnPlayerDetected(nearbyPlayerPos);
+}
 }
 
 private bool IsPlayerInDetectionRadius(
@@ -468,6 +478,28 @@ private IEnumerator PatrolRoutine()
     _behaviourRoutine = null;
     }
 }
+private void RotateTowardsPosition(
+    Vector3 targetPosition,
+    float rotationSpeed)
+{
+    Vector3 direction =
+        targetPosition - transform.position;
+
+    direction.y = 0f;
+
+    if (direction.sqrMagnitude < 0.001f)
+        return;
+
+    Quaternion targetRotation =
+        Quaternion.LookRotation(direction);
+
+    transform.rotation =
+        Quaternion.RotateTowards(
+            transform.rotation,
+            targetRotation,
+            rotationSpeed * Time.deltaTime
+        );
+}
 
 
 private void ReturnToPatrol()
@@ -537,18 +569,21 @@ private void BeginChase(
     SetState(EnemyState.Chasing);
 
     _agent.isStopped = false;
-
-    // IMPORTANT :
-    // Le NavMeshAgent gère normalement la rotation
-    // pendant la poursuite.
     _agent.updateRotation = true;
 
     if (_agent.isOnNavMesh)
     {
+        _agent.ResetPath();
+
         _agent.SetDestination(
             playerPosition
         );
     }
+
+    // Rotation immédiate vers le joueur
+    RotateTowardsPositionInstant(
+        playerPosition
+    );
 
     SubscribeToPlayer();
 
@@ -556,6 +591,20 @@ private void BeginChase(
     {
         BroadcastAlert();
     }
+}
+private void RotateTowardsPositionInstant(
+    Vector3 targetPosition)
+{
+    Vector3 direction =
+        targetPosition - transform.position;
+
+    direction.y = 0f;
+
+    if (direction.sqrMagnitude < 0.001f)
+        return;
+
+    transform.rotation =
+        Quaternion.LookRotation(direction);
 }
 
 // =====================================================================
@@ -1102,6 +1151,21 @@ private void OnDrawGizmosSelected()
         transform.position,
         attackRange
     );
+
 }
+public void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            Rigidbody rgb = GameObject.Find("Enemy").GetComponent<Rigidbody>();
+            rgb.isKinematic = true;
+            Debug.Log("ZIZI PUANT");
+        }
+    }
+public void OnCollisionExit (Collision other)
+    {
+        Rigidbody rgb = GameObject.Find("Enemy").GetComponent<Rigidbody>();
+        rgb.isKinematic = false;
+    }
 
 }

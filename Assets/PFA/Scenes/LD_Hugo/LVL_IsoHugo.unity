@@ -292,12 +292,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RuntimeInventoryUI
   outerRadius: 300
   quickSlotButtonIcon: {fileID: 21300000, guid: 1839ff15860eb2a4d8392797c76c791e, type: 3}
+  aimButtonIcon: {fileID: 0}
   innerRadius: 125
-  slotGap: 3
   normalColor: {r: 0.015, g: 0.055, b: 0.1, a: 0.96}
   selectedColor: {r: 0.05, g: 0.55, b: 1, a: 1}
   maxColor: {r: 1, g: 0.72, b: 0.05, a: 1}
   centerColor: {r: 0.005, g: 0.018, b: 0.035, a: 0.98}
+  mouseAimIcon: {fileID: 0}
+  gamepadAimIcon: {fileID: 0}
 --- !u!1 &180211430
 GameObject:
   m_ObjectHideFlags: 0
@@ -1776,7 +1778,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 96
   m_CollisionDetection: 0
 --- !u!114 &1235374055
 MonoBehaviour:
@@ -1798,26 +1800,24 @@ MonoBehaviour:
   - {fileID: 585846535}
   - {fileID: 762571064}
   - {fileID: 1903752994}
+  detectionRadius: 3
+  showDetectionGizmo: 1
   attackRange: 1.5
   attackAnimDuration: 1
   attackDamage: 10
   attackCooldown: 1
+  detectionRotationSpeed: 360
+  attackRotationSpeed: 720
+  attackMoveTolerance: 1
   loseTargetTime: 3
   alertBeamSpeed: 15
   alertBeamColor: {r: 1, g: 0, b: 0, a: 1}
-  surveillanceRadius: 8
-  lockerCheckDuration: 1.2
-  lockerLayer:
-    serializedVersion: 2
-    m_Bits: 0
   debugForceRoaming: 0
   debugForceChasing: 0
-  debugForceSurveillance: 0
   currentStateReadOnly: 0
   detectionLight: {fileID: 2052407936}
   attackProgressBar: {fileID: 2118197801}
-  chasingLightColor: {r: 1, g: 0.25, b: 0.25, a: 1}
-  surveillanceLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chasingLightColor: {r: 0.98378414, g: 1, b: 0.111320674, a: 1}
   roamingLightColor: {r: 1, g: 0.23529412, b: 0.05882353, a: 1}
   lightIntensity: 30
 --- !u!195 &1235374056
