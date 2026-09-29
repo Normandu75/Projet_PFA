@@ -103,7 +103,7 @@ public class S_Camera_Controller : MonoBehaviour
 
     public void SwitchCamera()
     {
-        bool switchRequested = Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame;
+        bool switchRequested = Keyboard.current != null && Keyboard.current.iKey.wasPressedThisFrame;
         if (Gamepad.current != null)
             switchRequested |= Gamepad.current.buttonSouth.wasPressedThisFrame;
 
