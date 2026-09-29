@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -9,554 +8,1100 @@ using UnityEngine.UI;
 [RequireComponent(typeof(EnemyDetection))]
 public class EnemyAI : MonoBehaviour
 {
-    [Header("Références")]
-    [SerializeField] private Animator animator;
-    [SerializeField] private GameObject alertBeamPrefab;
-    [SerializeField] private Transform alertLaunchPoint;
+// =====================================================================
+// RÉFÉRENCES
+// =====================================================================
 
-    [Header("Patrouille")]
-    [SerializeField] private List<PatrolWaypoint> waypoints;
-    private Camera mainCamera;
+[Header("Références")]
+[SerializeField] private Animator animator;
+[SerializeField] private GameObject alertBeamPrefab;
+[SerializeField] private Transform alertLaunchPoint;
+private int _currentPatrolIndex = 0;
 
+// =====================================================================
+// PATROUILLE
+// =====================================================================
 
-    private float attackTimer = 0f;
+[Header("Patrouille")]
+[SerializeField] private List<PatrolWaypoint> waypoints;
 
-    [Header("Poursuite / Attaque")]
-    [SerializeField] private float attackRange = 1.5f;
-    [SerializeField] private float attackAnimDuration = 1f;
-    
-    [SerializeField] private int attackDamage = 10;
-    [SerializeField] private float attackCooldown = 1f;
+// =====================================================================
+// DÉTECTION
+// =====================================================================
 
-    [Tooltip("Temps (secondes) sans revoir le joueur dans le cône avant que " +
-             "l'ennemi arrête de le détecter et retourne en patrouille.")]
-    [SerializeField] private float loseTargetTime = 3f;
+[Header("Détection")]
+[Tooltip("Rayon de détection autour de l'ennemi.")]
+[SerializeField] private float detectionRadius = 3f;
 
-    [Header("Alerte")]
-    [SerializeField] private float alertBeamSpeed = 15f;
-    [SerializeField] private Color alertBeamColor = Color.red;
+[SerializeField] private bool showDetectionGizmo = true;
 
-    [Header("Surveillance")]
-    [SerializeField] private float surveillanceRadius = 8f;
-    [SerializeField] private float lockerCheckDuration = 1.2f;
-    [SerializeField] private LayerMask lockerLayer;
+// =====================================================================
+// POURSUITE / ATTAQUE
+// =====================================================================
 
-    [Header("Debug — forcer un état en Play Mode")]
-    [Tooltip("Activer un toggle force l'état correspondant et désactive les autres.")]
-    [SerializeField] private bool debugForceRoaming;
-    [SerializeField] private bool debugForceChasing;
-    [SerializeField] private bool debugForceSurveillance;
+[Header("Poursuite / Attaque")]
+[SerializeField] private float attackRange = 1.5f;
 
-    [Header("Lecture seule")]
-    [SerializeField] private EnemyState currentStateReadOnly;
-    [SerializeField] private Light detectionLight;
-    [Header("Barre d'attaque")]
-    [SerializeField] private Slider attackProgressBar;
-    private bool isPreparingAttack = false;
-    [Header("Lumière de vision")]
-    [SerializeField] private Color chasingLightColor = new Color(1f, 0.25f, 0.25f);
-    [SerializeField] private Color surveillanceLightColor = Color.yellow;
+[Tooltip("Temps de préparation avant de déclencher l'attaque.")]
+[SerializeField] private float attackAnimDuration = 1f;
 
-    [SerializeField] private Color roamingLightColor = new Color(1f, 0.2f, 0.2f);
-    [SerializeField] private float lightIntensity = 3f;
+[SerializeField] private int attackDamage = 10;
 
-    private NavMeshAgent _agent;
-    private EnemyDetection _detection;
+[SerializeField] private float attackCooldown = 1f;
 
-    private EnemyState _state = EnemyState.Roaming;
-    private bool _isOriginalDetector;
-    private Vector3 _lastKnownPlayerPosition;
-    private Coroutine _behaviourRoutine;
-    private float _loseTargetTimer;
+[Tooltip("Vitesse de rotation pendant la préparation de l'attaque.")]
+[SerializeField] private float attackRotationSpeed = 720f;
 
-    private bool _prevDebugRoaming, _prevDebugChasing, _prevDebugSurveillance;
+[Tooltip(
+    "Distance supplémentaire que le joueur peut parcourir " +
+    "pendant la préparation de l'attaque."
+)]
+[SerializeField] private float attackMoveTolerance = 1f;
 
-    private static readonly int AttackTrigger = Animator.StringToHash("Attack");
-    private static readonly int WalkSpeedParam = Animator.StringToHash("Speed");
+[Tooltip(
+    "Temps pendant lequel l'ennemi continue sa poursuite " +
+    "après avoir perdu le joueur."
+)]
+[SerializeField] private float loseTargetTime = 3f;
 
-    private void Awake()
+private float attackTimer;
+private float attackCooldownTimer;
+
+private bool isPreparingAttack;
+
+private Transform attackTarget;
+
+// =====================================================================
+// ALERTE
+// =====================================================================
+
+[Header("Alerte")]
+[SerializeField] private float alertBeamSpeed = 15f;
+[SerializeField] private Color alertBeamColor = Color.red;
+
+// =====================================================================
+// DEBUG
+// =====================================================================
+
+[Header("Debug — forcer un état en Play Mode")]
+[SerializeField] private bool debugForceRoaming;
+[SerializeField] private bool debugForceChasing;
+
+// =====================================================================
+// LECTURE SEULE
+// =====================================================================
+
+[Header("Lecture seule")]
+[SerializeField] private EnemyState currentStateReadOnly;
+
+[SerializeField] private Light detectionLight;
+
+// =====================================================================
+// BARRE D'ATTAQUE
+// =====================================================================
+
+[Header("Barre d'attaque")]
+[SerializeField] private Slider attackProgressBar;
+
+// =====================================================================
+// LUMIÈRE
+// =====================================================================
+
+[Header("Lumière de vision")]
+[SerializeField] private Color chasingLightColor =
+    new Color(1f, 0.25f, 0.25f);
+
+[SerializeField] private Color roamingLightColor =
+    new Color(1f, 0.2f, 0.2f);
+
+[SerializeField] private float lightIntensity = 3f;
+
+// =====================================================================
+// VARIABLES INTERNES
+// =====================================================================
+
+private NavMeshAgent _agent;
+private EnemyDetection _detection;
+
+private EnemyState _state = EnemyState.Roaming;
+
+private bool _isOriginalDetector;
+
+private Vector3 _lastKnownPlayerPosition;
+
+private Coroutine _behaviourRoutine;
+
+private float _loseTargetTimer;
+
+private bool _prevDebugRoaming;
+private bool _prevDebugChasing;
+
+private bool _isSubscribedToPlayer;
+
+// =====================================================================
+// ANIMATOR HASH
+// =====================================================================
+
+private static readonly int AttackTrigger =
+    Animator.StringToHash("Attack");
+
+private static readonly int WalkSpeedParam =
+    Animator.StringToHash("Speed");
+
+// =====================================================================
+// UNITY
+// =====================================================================
+
+private void Awake()
+{
+    _agent = GetComponent<NavMeshAgent>();
+    _detection = GetComponent<EnemyDetection>();
+
+    if (alertLaunchPoint == null)
+        alertLaunchPoint = transform;
+}
+
+private void OnEnable()
+{
+    EnemyManager.Instance?.Register(this);
+}
+
+private void OnDisable()
+{
+    EnemyManager.Instance?.Unregister(this);
+
+    UnsubscribeFromPlayer();
+
+    StopBehaviourRoutine();
+}
+
+private void Start()
+{
+    if (attackProgressBar != null)
     {
-        _agent = GetComponent<NavMeshAgent>();
-        _detection = GetComponent<EnemyDetection>();
-
-        if (alertLaunchPoint == null) alertLaunchPoint = transform;
+        attackProgressBar.minValue = 0f;
+        attackProgressBar.maxValue = 1f;
+        attackProgressBar.value = 0f;
+        attackProgressBar.gameObject.SetActive(false);
     }
 
-    private void OnEnable()
+    attackCooldownTimer = 0f;
+
+    StartPatrol();
+}
+
+private void Update()
+{
+    HandleDebugToggles();
+
+    if (attackCooldownTimer > 0f)
     {
-        EnemyManager.Instance?.Register(this);
+        attackCooldownTimer -= Time.deltaTime;
+
+        if (attackCooldownTimer < 0f)
+            attackCooldownTimer = 0f;
     }
 
-    private void OnDisable()
+    if (animator != null)
     {
-        EnemyManager.Instance?.Unregister(this);
-        UnsubscribeFromPlayer();
-    }
-
-    private void Start()
-    {
-
-        mainCamera = Camera.main;
-        if (attackProgressBar != null)
-        {
-            attackProgressBar.minValue = 0f;
-            attackProgressBar.maxValue = 1f;
-            attackProgressBar.value = 0f;
-            attackProgressBar.gameObject.SetActive(false);
-        }
-        StartPatrol();
-    }
-
-    private void Update()
-    {
-        HandleDebugToggles();
-
-        if (animator != null)
-            animator.SetFloat(WalkSpeedParam, _agent.velocity.magnitude);
-
-        currentStateReadOnly = _state;
-
-        switch (_state)
-        {
-            case EnemyState.Roaming:
-                TickRoaming();
-                break;
-
-            case EnemyState.Chasing:
-                TickChasing();
-                break;
-
-            // Surveillance et BreakingLocker sont pilotés entièrement par coroutine.
-        }
-    }
-    private void LateUpdate()
-    {
-        if (attackProgressBar == null)
-            return; 
-
-        if (!attackProgressBar.gameObject.activeSelf)
-            return; 
-
-        if (mainCamera == null)
-            return; 
-
-        Transform canvas = attackProgressBar.transform.parent;  
-
-        canvas.LookAt(
-            canvas.position + mainCamera.transform.forward,
-            mainCamera.transform.up
+        animator.SetFloat(
+            WalkSpeedParam,
+            _agent.velocity.magnitude
         );
     }
 
-    // ------------------------------------------------------------------
-    // DEBUG — TOGGLES D'ÉTAT
-    // ------------------------------------------------------------------
+    currentStateReadOnly = _state;
 
-    private void HandleDebugToggles()
+    switch (_state)
     {
-        if (debugForceRoaming && !_prevDebugRoaming)
-        {
-            debugForceChasing = false;
-            debugForceSurveillance = false;
-            ReturnToPatrol();
-        }
-        else if (debugForceChasing && !_prevDebugChasing)
-        {
-            debugForceRoaming = false;
-            debugForceSurveillance = false;
+        case EnemyState.Roaming:
+            TickRoaming();
+            break;
 
-            Vector3 target = _detection.Player != null ? _detection.Player.position : transform.position;
-            _isOriginalDetector = true;
-            BeginChase(target);
-        }
-        else if (debugForceSurveillance && !_prevDebugSurveillance)
-        {
-            debugForceRoaming = false;
-            debugForceChasing = false;
-
-            if (_behaviourRoutine != null) StopCoroutine(_behaviourRoutine);
-            _behaviourRoutine = StartCoroutine(SurveillanceRoutine(transform.position));
-        }
-
-        _prevDebugRoaming = debugForceRoaming;
-        _prevDebugChasing = debugForceChasing;
-        _prevDebugSurveillance = debugForceSurveillance;
+        case EnemyState.Chasing:
+            TickChasing();
+            break;
     }
+}
 
-    // ------------------------------------------------------------------
-    // ROAMING / PATROUILLE
-    // ------------------------------------------------------------------
+private void LateUpdate()
+{
+    if (attackProgressBar == null)
+        return;
 
-    private void TickRoaming()
+    if (!attackProgressBar.gameObject.activeSelf)
+        return;
+
+    Camera mainCamera = Camera.main;
+
+    if (mainCamera == null)
+        return;
+
+    Transform canvas = attackProgressBar.transform.parent;
+
+    if (canvas == null)
+        return;
+
+    canvas.LookAt(
+        canvas.position + mainCamera.transform.forward,
+        mainCamera.transform.up
+    );
+}
+
+// =====================================================================
+// DEBUG
+// =====================================================================
+
+private void HandleDebugToggles()
+{
+    if (debugForceRoaming && !_prevDebugRoaming)
     {
-        if (_detection.CanSeePlayer(out Vector3 playerPos))
-        {
-            OnPlayerDetected(playerPos);
-        }
+        debugForceChasing = false;
+
+        ReturnToPatrol();
     }
-
-    private void StartPatrol()
+    else if (debugForceChasing && !_prevDebugChasing)
     {
-        SetState(EnemyState.Roaming);
+        debugForceRoaming = false;
 
-        if (_behaviourRoutine != null) StopCoroutine(_behaviourRoutine);
-        _behaviourRoutine = StartCoroutine(PatrolRoutine());
-    }
-
-    private IEnumerator PatrolRoutine()
-    {
-        if (waypoints == null || waypoints.Count == 0)
-            yield break;
-
-        int index = 0;
-        while (_state == EnemyState.Roaming)
-        {
-            PatrolWaypoint wp = waypoints[index];
-
-            _agent.SetDestination(wp.transform.position);
-
-            while (_state == EnemyState.Roaming &&
-                   (_agent.pathPending || _agent.remainingDistance > _agent.stoppingDistance))
-            {
-                yield return null;
-            }
-
-            if (_state != EnemyState.Roaming) yield break;
-
-            yield return new WaitForSeconds(wp.waitTime);
-
-            index = (index + 1) % waypoints.Count;
-        }
-    }
-
-    private void ReturnToPatrol()
-    {
-        UnsubscribeFromPlayer();
-        _loseTargetTimer = 0f;
-        StartPatrol();
-    }
-
-    // ------------------------------------------------------------------
-    // DÉTECTION -> POURSUITE -> ALERTE
-    // ------------------------------------------------------------------
-
-    private void OnPlayerDetected(Vector3 playerPosition)
-    {
-        if (_state == EnemyState.Chasing) return;
+        Vector3 target =
+            _detection.Player != null
+                ? _detection.Player.position
+                : transform.position;
 
         _isOriginalDetector = true;
-        BeginChase(playerPosition);
+
+        BeginChase(target);
     }
 
-    /// <summary>Appelé par le rayon d'alerte d'un autre ennemi.</summary>
-    public void OnAlerted(Vector3 lastKnownPlayerPosition)
-    {
-        if (_state == EnemyState.Chasing) return;
+    _prevDebugRoaming = debugForceRoaming;
+    _prevDebugChasing = debugForceChasing;
+}
 
-        _isOriginalDetector = false;
-        BeginChase(lastKnownPlayerPosition);
+// =====================================================================
+// ROAMING
+// =====================================================================
+
+private void TickRoaming()
+{
+    // Détection par cône de vision
+    if (_detection.CanSeePlayer(out Vector3 playerPos))
+    {
+        OnPlayerDetected(playerPos);
+        return;
     }
 
-    private void BeginChase(Vector3 playerPosition)
+    // Détection par zone autour de l'ennemi
+    if (IsPlayerInDetectionRadius(
+        out Vector3 nearbyPlayerPos))
     {
-        if (_behaviourRoutine != null) StopCoroutine(_behaviourRoutine);
+        OnPlayerDetected(nearbyPlayerPos);
+    }
+}
 
-        _lastKnownPlayerPosition = playerPosition;
-        _loseTargetTimer = 0f;
-        SetState(EnemyState.Chasing);
+private bool IsPlayerInDetectionRadius(
+    out Vector3 playerPosition)
+{
+    playerPosition = Vector3.zero;
+
+    if (_detection.Player == null)
+        return false;
+
+    playerPosition = _detection.Player.position;
+
+    float distance = Vector3.Distance(
+        transform.position,
+        playerPosition
+    );
+
+    return distance <= detectionRadius;
+}
+
+// =====================================================================
+// PATROUILLE
+// =====================================================================
+
+private void StartPatrol()
+{
+    StopBehaviourRoutine();
+
+    ResetAttackProgressBar();
+
+    attackTarget = null;
+
+    _loseTargetTimer = 0f;
+
+    _agent.isStopped = false;
+    _agent.updateRotation = true;
+
+    SetState(EnemyState.Roaming);
+
+    // On lance la patrouille
+    _behaviourRoutine = StartCoroutine(PatrolRoutine());
+}
+
+private IEnumerator PatrolRoutine()
+{
+    {
+    if (waypoints == null || waypoints.Count == 0)
+    {
+        Debug.LogWarning(
+            $"[EnemyAI] {name} n'a aucun waypoint."
+        );
+
+        _behaviourRoutine = null;
+        yield break;
+    }
+
+    while (_state == EnemyState.Roaming)
+    {
+        // Sécurité
+        if (_currentPatrolIndex >= waypoints.Count)
+            _currentPatrolIndex = 0;
+
+        PatrolWaypoint wp =
+            waypoints[_currentPatrolIndex];
+
+        if (wp == null)
+        {
+            _currentPatrolIndex++;
+
+            if (_currentPatrolIndex >= waypoints.Count)
+                _currentPatrolIndex = 0;
+
+            yield return null;
+            continue;
+        }
+
+        // --------------------------------------------------------------
+        // Préparation de l'agent
+        // --------------------------------------------------------------
+
         _agent.isStopped = false;
-        _agent.SetDestination(playerPosition);
+        _agent.updateRotation = true;
 
-        SubscribeToPlayer();
-
-        // Seul l'ennemi qui a détecté le joueur en premier alerte les autres.
-        if (_isOriginalDetector)
+        if (!_agent.isOnNavMesh)
         {
-            BroadcastAlert();
+            yield return null;
+            continue;
         }
+
+        // --------------------------------------------------------------
+        // ENVOI VERS LE WAYPOINT
+        // --------------------------------------------------------------
+
+        _agent.ResetPath();
+
+        bool destinationSet =
+            _agent.SetDestination(
+                wp.transform.position
+            );
+
+        if (!destinationSet)
+        {
+            Debug.LogWarning(
+                $"[EnemyAI] {name} ne peut pas définir la destination " +
+                $"vers {wp.name}."
+            );
+
+            yield return null;
+            continue;
+        }
+
+        // --------------------------------------------------------------
+        // ATTENTE DE L'ARRIVÉE
+        // --------------------------------------------------------------
+
+        while (_state == EnemyState.Roaming)
+        {
+            if (_agent.pathPending)
+            {
+                yield return null;
+                continue;
+            }
+
+            if (_agent.pathStatus ==
+                NavMeshPathStatus.PathInvalid)
+            {
+                Debug.LogWarning(
+                    $"[EnemyAI] {name} chemin invalide vers {wp.name}."
+                );
+
+                break;
+            }
+
+            if (_agent.remainingDistance <=
+                _agent.stoppingDistance + 0.15f)
+            {
+                break;
+            }
+
+            yield return null;
+        }
+
+        // Si l'ennemi a détecté le joueur pendant le trajet,
+        // on sort immédiatement de la patrouille.
+        if (_state != EnemyState.Roaming)
+            yield break;
+
+        // --------------------------------------------------------------
+        // ATTENTE SUR LE WAYPOINT
+        // --------------------------------------------------------------
+
+        if (wp.waitTime > 0f)
+        {
+            yield return new WaitForSeconds(
+                wp.waitTime
+            );
+        }
+
+        // --------------------------------------------------------------
+        // WAYPOINT SUIVANT
+        // --------------------------------------------------------------
+
+        _currentPatrolIndex++;
+
+        if (_currentPatrolIndex >= waypoints.Count)
+            _currentPatrolIndex = 0;
     }
 
-    private void TickChasing()
+    _behaviourRoutine = null;
+    }
+}
+
+
+private void ReturnToPatrol()
+{
+    UnsubscribeFromPlayer();
+
+    _loseTargetTimer = 0f;
+
+    ResetAttackProgressBar();
+
+    attackTarget = null;
+
+    // On remet l'agent dans un état propre
+    _agent.isStopped = false;
+    _agent.updateRotation = true;
+
+    // On repasse explicitement en roaming
+    SetState(EnemyState.Roaming);
+
+    // On arrête l'ancienne coroutine
+    StopBehaviourRoutine();
+
+    // On relance la patrouille
+    _behaviourRoutine =
+        StartCoroutine(PatrolRoutine());
+}
+// =====================================================================
+// DÉTECTION / CHASE
+// =====================================================================
+
+private void OnPlayerDetected(
+    Vector3 playerPosition)
+{
+    if (_state == EnemyState.Chasing)
+        return;
+
+    _isOriginalDetector = true;
+
+    BeginChase(playerPosition);
+}
+
+public void OnAlerted(
+    Vector3 lastKnownPlayerPosition)
+{
+    if (_state == EnemyState.Chasing)
+        return;
+
+    _isOriginalDetector = false;
+
+    BeginChase(lastKnownPlayerPosition);
+}
+
+private void BeginChase(
+    Vector3 playerPosition)
+{
+    StopBehaviourRoutine();
+
+    ResetAttackProgressBar();
+
+    attackTarget = null;
+
+    _lastKnownPlayerPosition =
+        playerPosition;
+
+    _loseTargetTimer = 0f;
+
+    SetState(EnemyState.Chasing);
+
+    _agent.isStopped = false;
+
+    // IMPORTANT :
+    // Le NavMeshAgent gère normalement la rotation
+    // pendant la poursuite.
+    _agent.updateRotation = true;
+
+    if (_agent.isOnNavMesh)
     {
-        if (_detection.Player == null)
-        {
-            ResetAttackProgressBar();
-            return;
-        }
+        _agent.SetDestination(
+            playerPosition
+        );
+    }
 
-        if (_detection.CanSeePlayer(out Vector3 currentPos))
-        {
-            _loseTargetTimer = 0f;
-            _lastKnownPlayerPosition = currentPos;
+    SubscribeToPlayer();
 
-            float distance = Vector3.Distance(transform.position, currentPos);
+    if (_isOriginalDetector)
+    {
+        BroadcastAlert();
+    }
+}
 
-            if (distance <= attackRange)
-            {
-                _agent.isStopped = true;
+// =====================================================================
+// CHASING
+// =====================================================================
 
-                // Commence la préparation de l'attaque
-                isPreparingAttack = true;
+private void TickChasing()
+{
+    if (_detection.Player == null)
+    {
+        ResetAttackProgressBar();
+        return;
+    }
 
-                if (attackProgressBar != null)
-                {
-                    attackProgressBar.gameObject.SetActive(true);
-                }
+    Transform player =
+        _detection.Player;
 
-                attackTimer += Time.deltaTime;
+    // --------------------------------------------------------------
+    // ATTAQUE EN COURS
+    // --------------------------------------------------------------
 
-                UpdateAttackProgressBar();
+    if (isPreparingAttack)
+    {
+        TickAttackPreparation(player);
+        return;
+    }
 
-                // Attaque lorsque la barre est pleine
-                if (attackTimer >= attackAnimDuration)
-                {
-                    PlayAttackAnimation();
-                    DealDamageToPlayer();
+    // --------------------------------------------------------------
+    // JOUEUR VISIBLE PAR LE CÔNE
+    // --------------------------------------------------------------
 
-                    ResetAttackProgressBar();
-                }
-            }
-            else
-            {
-                _agent.isStopped = false;
+    if (_detection.CanSeePlayer(
+        out Vector3 currentPos))
+    {
+        HandlePlayerDetectedWhileChasing(
+            player,
+            currentPos
+        );
 
-                ResetAttackProgressBar();
+        return;
+    }
 
-                _agent.SetDestination(currentPos);
-            }
+    // --------------------------------------------------------------
+    // JOUEUR DANS LE RAYON DE PROXIMITÉ
+    // --------------------------------------------------------------
 
-            return;
-        }
+    if (IsPlayerInDetectionRadius(
+        out Vector3 nearbyPlayerPos))
+    {
+        HandlePlayerDetectedWhileChasing(
+            player,
+            nearbyPlayerPos
+        );
 
-        bool playerHidden = PlayerStealth.Instance != null &&
-                            PlayerStealth.Instance.IsHidden;
+        return;
+    }
 
-        if (playerHidden)
-        {
-            ResetAttackProgressBar();
-            return;
-        }
+    // --------------------------------------------------------------
+    // JOUEUR PERDU
+    // --------------------------------------------------------------
+
+    bool playerHidden =
+        PlayerStealth.Instance != null &&
+        PlayerStealth.Instance.IsHidden;
+
+    if (playerHidden)
+    {
+        ResetAttackProgressBar();
+        return;
+    }
+
+    ResetAttackProgressBar();
+
+    _loseTargetTimer += Time.deltaTime;
+
+    if (_loseTargetTimer >= loseTargetTime)
+    {
+        ReturnToPatrol();
+    }
+}
+
+private void HandlePlayerDetectedWhileChasing(
+    Transform player,
+    Vector3 playerPosition)
+{
+    _loseTargetTimer = 0f;
+
+    _lastKnownPlayerPosition =
+        playerPosition;
+
+    float distance =
+        Vector3.Distance(
+            transform.position,
+            playerPosition
+        );
+
+    // --------------------------------------------------------------
+    // ATTACK
+    // --------------------------------------------------------------
+
+    if (distance <= attackRange &&
+        attackCooldownTimer <= 0f)
+    {
+        BeginAttackPreparation(player);
+
+        return;
+    }
+
+    // --------------------------------------------------------------
+    // CHASE
+    // --------------------------------------------------------------
+
+    _agent.isStopped = false;
+
+    _agent.updateRotation = true;
+
+    ResetAttackProgressBar();
+
+    if (_agent.isOnNavMesh)
+    {
+        _agent.SetDestination(
+            playerPosition
+        );
+    }
+}
+
+// =====================================================================
+// ATTAQUE
+// =====================================================================
+
+private void BeginAttackPreparation(
+    Transform player)
+{
+    if (player == null)
+        return;
+
+    if (isPreparingAttack)
+        return;
+
+    if (attackCooldownTimer > 0f)
+        return;
+
+    isPreparingAttack = true;
+
+    attackTarget = player;
+
+    attackTimer = 0f;
+
+    _agent.isStopped = true;
+
+    // On désactive temporairement la rotation automatique
+    // uniquement pendant la préparation.
+    _agent.updateRotation = false;
+
+    if (attackProgressBar != null)
+    {
+        attackProgressBar.gameObject.SetActive(
+            true
+        );
+    }
+
+    RotateTowardsPlayer(player);
+}
+
+private void TickAttackPreparation(
+    Transform player)
+{
+    if (attackTarget == null)
+    {
+        CancelAttackPreparation();
+        return;
+    }
+
+    _agent.isStopped = true;
+
+    // Rotation manuelle uniquement pendant l'attaque.
+    RotateTowardsPlayer(
+        attackTarget
+    );
+
+    float distance =
+        Vector3.Distance(
+            transform.position,
+            attackTarget.position
+        );
+
+    // Le joueur doit réellement s'éloigner
+    // pour annuler l'attaque.
+    if (distance >
+        attackRange + attackMoveTolerance)
+    {
+        CancelAttackPreparation();
+
+        _agent.isStopped = false;
+
+        _agent.updateRotation = true;
+
+        return;
+    }
+
+    attackTimer += Time.deltaTime;
+
+    UpdateAttackProgressBar();
+
+    if (attackTimer >= attackAnimDuration)
+    {
+        PlayAttackAnimation();
+
+        DealDamageToPlayer();
+
+        attackCooldownTimer =
+            attackCooldown;
 
         ResetAttackProgressBar();
 
-        _loseTargetTimer += Time.deltaTime;
+        // ----------------------------------------------------------
+        // TRÈS IMPORTANT :
+        // on rend immédiatement la rotation au NavMeshAgent.
+        // ----------------------------------------------------------
 
-        if (_loseTargetTimer >= loseTargetTime)
-        {
-            ReturnToPatrol();
-        }
-    }
+        _agent.updateRotation = true;
 
-    private void PlayAttackAnimation()
-    {
-        if (animator != null)
-            animator.SetTrigger(AttackTrigger);
-    }
-    private void DealDamageToPlayer()
-    {
-        if (_detection.Player == null)
-            return;
-
-        S_HealthBar playerHealth =
-            _detection.Player.GetComponentInParent<S_HealthBar>();
-
-        if (playerHealth != null)
-        {
-            playerHealth.TakeDamage(attackDamage);
-
-            Debug.Log("Enemy attacks player : -" + attackDamage);
-        }
-        else
-        {
-            Debug.LogWarning("S_HealthBar introuvable sur le Player.");
-        }
-    }
-
-    private void BroadcastAlert()
-    {
-        if (EnemyManager.Instance == null || alertBeamPrefab == null) return;
-
-        foreach (EnemyAI other in EnemyManager.Instance.GetOtherEnemies(this))
-        {
-            GameObject beamObj = Instantiate(alertBeamPrefab, alertLaunchPoint.position, Quaternion.identity);
-
-            var renderer = beamObj.GetComponentInChildren<Renderer>();
-            if (renderer != null) renderer.material.color = alertBeamColor;
-
-            var beam = beamObj.GetComponent<EnemyAlertBeam>();
-            Vector3 alertPosition = _lastKnownPlayerPosition;
-            beam.Launch(other.transform, alertBeamSpeed, () => other.OnAlerted(alertPosition));
-        }
-    }
-    private void UpdateDetectionLight(EnemyState state)
-    {
-        if (detectionLight == null)
-            return;
-
-        detectionLight.intensity = lightIntensity;
-
-        switch (state)
-        {
-            case EnemyState.Chasing:
-                detectionLight.enabled = true;
-                detectionLight.color = chasingLightColor;
-                break;
-
-            case EnemyState.Surveillance:
-                detectionLight.enabled = true;
-                detectionLight.color = surveillanceLightColor;
-                break;
-
-            case EnemyState.Roaming:
-                detectionLight.enabled = true;
-                detectionLight.color = roamingLightColor;
-                break;
-
-            default:
-                detectionLight.enabled = false;
-                break;
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // GESTION DU JOUEUR QUI SE CACHE
-    // ------------------------------------------------------------------
-
-    private void SubscribeToPlayer()
-    {
-        if (PlayerStealth.Instance != null)
-            PlayerStealth.Instance.OnPlayerHidden += HandlePlayerHidden;
-    }
-
-    private void UnsubscribeFromPlayer()
-    {
-        if (PlayerStealth.Instance != null)
-            PlayerStealth.Instance.OnPlayerHidden -= HandlePlayerHidden;
-    }
-
-    private void HandlePlayerHidden(HidingLocker locker)
-    {
-        if (_state != EnemyState.Chasing) return;
-
-        bool lockerVisible = _detection.IsPointInCone(locker.Position) && _detection.HasLineOfSight(locker.Position);
-
-        if (lockerVisible)
-        {
-            if (_behaviourRoutine != null) StopCoroutine(_behaviourRoutine);
-            _behaviourRoutine = StartCoroutine(BreakLockerRoutine(locker));
-        }
-        else if (_isOriginalDetector)
-        {
-            if (_behaviourRoutine != null) StopCoroutine(_behaviourRoutine);
-            _behaviourRoutine = StartCoroutine(SurveillanceRoutine(_lastKnownPlayerPosition));
-        }
-        else
-        {
-            ReturnToPatrol();
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // CASSE DE CASIER
-    // ------------------------------------------------------------------
-
-    private IEnumerator BreakLockerRoutine(HidingLocker locker)
-    {
-        SetState(EnemyState.BreakingLocker);
-        _agent.isStopped = true;
-
-        Vector3 lookDir = locker.Position - transform.position;
-        lookDir.y = 0f;
-        if (lookDir.sqrMagnitude > 0.001f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(lookDir);
-            float t = 0f;
-            while (t < 0.3f)
-            {
-                t += Time.deltaTime;
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, t / 0.3f);
-                yield return null;
-            }
-        }
-
-        PlayAttackAnimation();
-        yield return new WaitForSeconds(attackAnimDuration);
-
-        locker.Break();
-
-        yield return new WaitForSeconds(1f);
-        _agent.isStopped = false;
-        ReturnToPatrol();
-    }
-
-    // ------------------------------------------------------------------
-    // SURVEILLANCE
-    // ------------------------------------------------------------------
-
-    private IEnumerator SurveillanceRoutine(Vector3 zoneCenter)
-    {
-        SetState(EnemyState.Surveillance);
         _agent.isStopped = false;
 
-        List<HidingLocker> lockers = FindNearbyLockers(zoneCenter);
-
-        foreach (HidingLocker locker in lockers)
+        // Si le joueur est toujours là,
+        // on repart immédiatement vers lui.
+        if (_detection.Player != null)
         {
-            if (locker == null || locker.IsBroken) continue;
-
-            _agent.SetDestination(locker.Position);
-            while (_agent.pathPending || _agent.remainingDistance > _agent.stoppingDistance + 0.1f)
-                yield return null;
-
-            yield return new WaitForSeconds(lockerCheckDuration);
-
-            if (locker.IsOccupied)
-            {
-                yield return StartCoroutine(BreakLockerRoutine(locker));
-                yield break;
-            }
-        }
-
-        ReturnToPatrol();
-    }
-
-    private List<HidingLocker> FindNearbyLockers(Vector3 center)
-    {
-        Collider[] hits = Physics.OverlapSphere(center, surveillanceRadius, lockerLayer);
-        return hits
-            .Select(h => h.GetComponentInParent<HidingLocker>())
-            .Where(l => l != null)
-            .OrderBy(l => Vector3.Distance(transform.position, l.Position))
-            .Distinct()
-            .ToList();
-    }
-    private void UpdateAttackProgressBar()
-    {
-        if (attackProgressBar == null)
-            return;
-
-        attackProgressBar.value = attackTimer / attackAnimDuration;
-    }
-    private void ResetAttackProgressBar()
-    {
-        attackTimer = 0f;
-        isPreparingAttack = false;
-
-        if (attackProgressBar != null)
-        {
-            attackProgressBar.value = 0f;
-            attackProgressBar.gameObject.SetActive(false);
+            _agent.SetDestination(
+                _detection.Player.position
+            );
         }
     }
+}
 
-    // ------------------------------------------------------------------
-    // UTILITAIRES
-    // ------------------------------------------------------------------
+private void CancelAttackPreparation()
+{
+    ResetAttackProgressBar();
 
-    private void SetState(EnemyState newState)
+    attackTarget = null;
+
+    _agent.updateRotation = true;
+}
+
+private void RotateTowardsPlayer(
+    Transform target)
+{
+    if (target == null)
+        return;
+
+    Vector3 direction =
+        target.position -
+        transform.position;
+
+    direction.y = 0f;
+
+    if (direction.sqrMagnitude <
+        0.001f)
     {
-        _state = newState;
-
-        UpdateDetectionLight(newState);
+        return;
     }
+
+    Quaternion targetRotation =
+        Quaternion.LookRotation(
+            direction
+        );
+
+    transform.rotation =
+        Quaternion.RotateTowards(
+            transform.rotation,
+            targetRotation,
+            attackRotationSpeed *
+            Time.deltaTime
+        );
+}
+
+private void PlayAttackAnimation()
+{
+    if (animator != null)
+    {
+        animator.SetTrigger(
+            AttackTrigger
+        );
+    }
+}
+
+private void DealDamageToPlayer()
+{
+    Transform target =
+        attackTarget != null
+            ? attackTarget
+            : _detection.Player;
+
+    if (target == null)
+        return;
+
+    S_HealthBar playerHealth =
+        target.GetComponentInParent<S_HealthBar>();
+
+    if (playerHealth != null)
+    {
+        playerHealth.TakeDamage(
+            attackDamage
+        );
+
+        Debug.Log(
+            "Enemy attacks player : -" +
+            attackDamage
+        );
+    }
+    else
+    {
+        Debug.LogWarning(
+            "S_HealthBar introuvable sur le Player."
+        );
+    }
+}
+
+// =====================================================================
+// ALERTE
+// =====================================================================
+
+private void BroadcastAlert()
+{
+    if (EnemyManager.Instance == null ||
+        alertBeamPrefab == null)
+    {
+        return;
+    }
+
+    foreach (
+        EnemyAI other
+        in EnemyManager.Instance.GetOtherEnemies(this))
+    {
+        if (other == null)
+            continue;
+
+        GameObject beamObj =
+            Instantiate(
+                alertBeamPrefab,
+                alertLaunchPoint.position,
+                Quaternion.identity
+            );
+
+        Renderer renderer =
+            beamObj.GetComponentInChildren<Renderer>();
+
+        if (renderer != null)
+        {
+            renderer.material.color =
+                alertBeamColor;
+        }
+
+        EnemyAlertBeam beam =
+            beamObj.GetComponent<EnemyAlertBeam>();
+
+        if (beam == null)
+            continue;
+
+        Vector3 alertPosition =
+            _lastKnownPlayerPosition;
+
+        beam.Launch(
+            other.transform,
+            alertBeamSpeed,
+            () => other.OnAlerted(
+                alertPosition
+            )
+        );
+    }
+}
+
+// =====================================================================
+// GESTION DU JOUEUR CACHÉ
+// =====================================================================
+
+private void SubscribeToPlayer()
+{
+    if (_isSubscribedToPlayer)
+        return;
+
+    if (PlayerStealth.Instance == null)
+        return;
+
+    PlayerStealth.Instance.OnPlayerHidden +=
+        HandlePlayerHidden;
+
+    _isSubscribedToPlayer = true;
+}
+
+private void UnsubscribeFromPlayer()
+{
+    if (!_isSubscribedToPlayer)
+        return;
+
+    if (PlayerStealth.Instance != null)
+    {
+        PlayerStealth.Instance.OnPlayerHidden -=
+            HandlePlayerHidden;
+    }
+
+    _isSubscribedToPlayer = false;
+}
+
+private void HandlePlayerHidden(
+    HidingLocker locker)
+{
+    if (_state != EnemyState.Chasing)
+        return;
+
+    // Il n'y a plus de système de Surveillance.
+    // Lorsque le joueur se cache, l'ennemi perd simplement
+    // progressivement sa cible.
+
+    ResetAttackProgressBar();
+}
+
+// =====================================================================
+// BARRE D'ATTAQUE
+// =====================================================================
+
+private void UpdateAttackProgressBar()
+{
+    if (attackProgressBar == null)
+        return;
+
+    if (attackAnimDuration <= 0f)
+    {
+        attackProgressBar.value = 1f;
+        return;
+    }
+
+    attackProgressBar.value =
+        Mathf.Clamp01(
+            attackTimer /
+            attackAnimDuration
+        );
+}
+
+private void ResetAttackProgressBar()
+{
+    attackTimer = 0f;
+
+    isPreparingAttack = false;
+
+    attackTarget = null;
+
+    if (attackProgressBar != null)
+    {
+        attackProgressBar.value = 0f;
+
+        attackProgressBar.gameObject.SetActive(
+            false
+        );
+    }
+}
+
+// =====================================================================
+// COROUTINE
+// =====================================================================
+
+private void StopBehaviourRoutine()
+{
+    if (_behaviourRoutine == null)
+        return;
+
+    StopCoroutine(
+        _behaviourRoutine
+    );
+
+    _behaviourRoutine = null;
+}
+
+// =====================================================================
+// ÉTAT
+// =====================================================================
+
+private void SetState(
+    EnemyState newState)
+{
+    _state = newState;
+
+    UpdateDetectionLight(
+        newState
+    );
+}
+
+private void UpdateDetectionLight(
+    EnemyState state)
+{
+    if (detectionLight == null)
+        return;
+
+    detectionLight.intensity =
+        lightIntensity;
+
+    switch (state)
+    {
+        case EnemyState.Chasing:
+
+            detectionLight.enabled = true;
+
+            detectionLight.color =
+                chasingLightColor;
+
+            break;
+
+        case EnemyState.Roaming:
+
+            detectionLight.enabled = true;
+
+            detectionLight.color =
+                roamingLightColor;
+
+            break;
+
+        default:
+
+            detectionLight.enabled = false;
+
+            break;
+    }
+}
+
+// =====================================================================
+// GIZMOS
+// =====================================================================
+
+private void OnDrawGizmosSelected()
+{
+    if (showDetectionGizmo)
+    {
+        Gizmos.color = Color.yellow;
+
+        Gizmos.DrawWireSphere(
+            transform.position,
+            detectionRadius
+        );
+    }
+
+    Gizmos.color = Color.red;
+
+    Gizmos.DrawWireSphere(
+        transform.position,
+        attackRange
+    );
+}
+
 }
