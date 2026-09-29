@@ -27,6 +27,8 @@ public class QuickItemController : MonoBehaviour
                 useItem = true;
             }
         }
+        // Manette : X 
+        if (Gamepad.current != null) { if (Gamepad.current.buttonWest.wasPressedThisFrame) { useItem = true; } }
 
         if (!useItem)
             return;

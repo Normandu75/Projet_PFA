@@ -11,12 +11,12 @@ public class RuntimeInventoryUI : MonoBehaviour
     [Header("Quick Slot")]
     [SerializeField]
     private Sprite quickSlotButtonIcon;
+    [SerializeField]
+    private Sprite aimButtonIcon;
+    private Image aimButtonImage;
 
     [SerializeField]
     private float innerRadius = 125f;
-
-    [SerializeField]
-    private float slotGap = 3f;
 
     [Header("Colors")]
     [SerializeField]
@@ -34,14 +34,17 @@ public class RuntimeInventoryUI : MonoBehaviour
     [SerializeField]
     private Color centerColor =
         new Color(0.005f, 0.018f, 0.035f, 0.98f);
+    [SerializeField]
+    private Sprite mouseAimIcon;
+
+    [SerializeField]
+    private Sprite gamepadAimIcon;
 
     private Canvas canvas;
 
     private GameObject wheelRoot;
 
     private RectTransform wheelRect;
-
-    private RadialSegment[] segments;
 
     private Image[] icons;
 
@@ -189,8 +192,6 @@ public class RuntimeInventoryUI : MonoBehaviour
 
         CreateWheelBackground();
 
-        segments =
-            new RadialSegment[SlotCount];
 
         icons =
             new Image[SlotCount];
@@ -302,37 +303,11 @@ public class RuntimeInventoryUI : MonoBehaviour
                 outerRadius * 2f
             );
 
-        RadialSegment segment =
-            slot.AddComponent<RadialSegment>();
 
         float centerAngle =
             90f -
             index * anglePerSlot;
 
-        float startAngle =
-            centerAngle -
-            anglePerSlot / 2f +
-            slotGap;
-
-        float endAngle =
-            centerAngle +
-            anglePerSlot / 2f -
-            slotGap;
-
-        segment.Setup(
-            startAngle,
-            endAngle,
-            innerRadius,
-            outerRadius
-        );
-
-        segment.color =
-            normalColor;
-
-        segment.raycastTarget = false;
-
-        segments[index] =
-            segment;
 
         CreateSlotContent(
             slot.transform,
@@ -851,6 +826,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         false
     );
     
+    
     Image keyImage =
         keyObject.AddComponent<Image>();
     
@@ -877,6 +853,38 @@ public class RuntimeInventoryUI : MonoBehaviour
         -48f,
         -48f
     );
+
+    GameObject aimObject =
+    new GameObject("Aim Key");
+
+    aimObject.transform.SetParent(
+        quickSlotRoot.transform,
+        false
+    );
+
+    aimButtonImage =
+        aimObject.AddComponent<Image>();
+
+    aimButtonImage.sprite =
+        aimButtonIcon;
+
+    aimButtonImage.preserveAspect =
+        true;
+
+    aimButtonImage.raycastTarget =
+        false;
+
+    RectTransform aimRect =
+        aimButtonImage.GetComponent<RectTransform>();
+
+    aimRect.sizeDelta =
+        new Vector2(40f, 30f);
+
+    aimRect.anchoredPosition =
+        new Vector2(
+            -48f,
+            -82f
+        );
     }
 
     // =========================================================
@@ -1025,13 +1033,9 @@ public class RuntimeInventoryUI : MonoBehaviour
         {
             if (i == selectedIndex)
             {
-                segments[i].color =
-                    selectedColor;
             }
             else
             {
-                segments[i].color =
-                    normalColor;
             }
         }
 
@@ -1166,37 +1170,41 @@ public class RuntimeInventoryUI : MonoBehaviour
 
     private void RefreshQuickSlot()
     {
-        if (InventoryManager.Instance == null)
-            return;
+       if (InventoryManager.Instance == null)
+           return;
 
-        InventoryItem item =
-            InventoryManager.Instance
-                .GetQuickItem();
+       InventoryItem item =
+           InventoryManager.Instance.GetQuickItem();
 
-        int amount =
-            InventoryManager.Instance
-                .GetQuickItemAmount();
+       int amount =
+           InventoryManager.Instance.GetQuickItemAmount();
 
-        if (item == null)
-        {
-            quickIcon.enabled =
-                false;
+       if (item == null)
+       {
+           quickIcon.enabled = false;
+           quickAmount.text = "";
 
-            quickAmount.text =
-                "";
+           if (aimButtonImage != null)
+               aimButtonImage.enabled = false;
 
-            return;
-        }
+           return;
+       }
 
-        quickIcon.enabled =
-            true;
+       quickIcon.enabled = true;
+       quickIcon.sprite = item.icon;
 
-        quickIcon.sprite =
-            item.icon;
+       quickAmount.text =
+           "x" + amount;
 
-        quickAmount.text =
-            "x" +
-            amount;
+       bool isGrenade =
+           item.itemType ==
+           InventoryItemType.Grenade;
+
+       if (aimButtonImage != null)
+       {
+           aimButtonImage.enabled =
+               isGrenade;
+       }
     }
 
     // =========================================================
@@ -1211,37 +1219,33 @@ public class RuntimeInventoryUI : MonoBehaviour
             OpenWheel();
     }
 
-    private void OpenWheel()
-    {
-        isOpen = true;
+    private void OpenWheel() 
+    { 
+        isOpen = true; 
 
-        wheelRoot.SetActive(true);
+        wheelRoot.SetActive(true); selectedIndex = -1; 
 
-        selectedIndex = -1;
+        Cursor.visible = true; 
 
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState = CursorLockMode.None; 
 
-        Time.timeScale = 0f;
+        RefreshInventory(); }
 
-        RefreshInventory();
-    }
+    private void CloseWheel() 
+    { 
+        isOpen = false; 
 
-    private void CloseWheel()
-    {
-        isOpen = false;
+        wheelRoot.SetActive(false); 
 
-        wheelRoot.SetActive(false);
+        Cursor.visible = true; 
 
-        Time.timeScale = 1f;
-    }
+
+        selectedIndex = -1; }
 
     private void HideWheel()
     {
         isOpen = false;
 
         wheelRoot.SetActive(false);
-
-        Time.timeScale = 1f;
     }
 }
