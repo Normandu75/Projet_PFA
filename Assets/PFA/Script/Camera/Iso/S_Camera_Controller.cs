@@ -104,12 +104,20 @@ public class S_Camera_Controller : MonoBehaviour
     public void SwitchCamera()
     {
         bool switchRequested = Keyboard.current != null && Keyboard.current.iKey.wasPressedThisFrame;
+
+        Rigidbody robot = GameObject.Find("Robot_Ally").GetComponent<Rigidbody>();
+        Collider robotCol = GameObject.Find("Robot_Ally").GetComponent<Collider>();
+
         if (Gamepad.current != null)
             switchRequested |= Gamepad.current.buttonSouth.wasPressedThisFrame;
 
         if (switchRequested)
         {
-            SetCameraMode(!robotMode);
+            bool useRobotCamera = !robotMode;
+            robot.isKinematic = !useRobotCamera;
+            robotCol.isTrigger = !useRobotCamera;
+
+            SetCameraMode(useRobotCamera);
         }
     }
 
@@ -130,6 +138,11 @@ public class S_Camera_Controller : MonoBehaviour
         if (S_Character_Controller.instance != null)
         {
             S_Character_Controller.instance.canMove = !robotMode;
+
+            if (robotMode)
+            {
+                S_Character_Controller.instance.pickedUp = false;
+            }
         }
 
         if (S_Robot_Controller.instance != null)

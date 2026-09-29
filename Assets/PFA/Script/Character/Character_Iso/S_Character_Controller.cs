@@ -22,6 +22,8 @@ public class S_Character_Controller : MonoBehaviour
 
     [Header("Gamepad")]
     public float gamepadDeadzone = 0.2f;
+    public bool detected;
+    public bool pickedUp;
     
     void Awake()
     {
@@ -160,5 +162,22 @@ public class S_Character_Controller : MonoBehaviour
         float newScale = Mathf.MoveTowards( target.transform.localScale.x, targetScale, sphereScaleSpeed * Time.deltaTime);
 
         target.transform.localScale = Vector3.one * newScale;
+    }
+
+    public void PickUpRobotAlly()
+    {
+        if (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame || Keyboard.current.fKey.wasPressedThisFrame)
+            pickedUp = true;
+
+        if (!pickedUp)
+            return;
+
+        GameObject robot = GameObject.Find("Robot_Ally");
+        Transform robotPos = GameObject.Find("Robot_Pos")?.transform;
+
+        if (robot == null || robotPos == null)
+            return;
+
+        robot.transform.position = robotPos.position;
     }
 }
