@@ -49,8 +49,6 @@ private int _currentPatrolIndex = 0;
 
 [SerializeField] private float attackCooldown = 1f;
 
-[Tooltip("Vitesse de rotation pendant la préparation de l'attaque.")]
-
 [Header("Rotation")]
 
 [SerializeField] private float detectionRotationSpeed = 720f;
@@ -126,6 +124,7 @@ private Transform attackTarget;
 // =====================================================================
 
 private NavMeshAgent _agent;
+private Rigidbody _body;
 private EnemyDetection _detection;
 
 private EnemyState _state = EnemyState.Roaming;
@@ -160,6 +159,7 @@ private static readonly int WalkSpeedParam =
 private void Awake()
 {
     _agent = GetComponent<NavMeshAgent>();
+    _body = GetComponent<Rigidbody>();
     _detection = GetComponent<EnemyDetection>();
 
     if (alertLaunchPoint == null)
@@ -182,13 +182,7 @@ private void OnDisable()
 
 private void Start()
 {
-    if (attackProgressBar != null)
-    {
-        attackProgressBar.minValue = 0f;
-        attackProgressBar.maxValue = 1f;
-        attackProgressBar.value = 0f;
-        attackProgressBar.gameObject.SetActive(false);
-    }
+    ConfigureAttackProgressBar();
 
     attackCooldownTimer = 0f;
 
@@ -199,13 +193,8 @@ private void Update()
 {
     HandleDebugToggles();
 
-    if (attackCooldownTimer > 0f)
-    {
-        attackCooldownTimer -= Time.deltaTime;
-
-        if (attackCooldownTimer < 0f)
-            attackCooldownTimer = 0f;
-    }
+    attackCooldownTimer =
+        Mathf.Max(0f, attackCooldownTimer - Time.deltaTime);
 
     if (animator != null)
     {
@@ -289,24 +278,17 @@ private void HandleDebugToggles()
 
 private void TickRoaming()
 {
-    // Détection par cône de vision
     if (_detection.CanSeePlayer(out Vector3 playerPos))
     {
         OnPlayerDetected(playerPos);
         return;
     }
 
-    if (IsPlayerInDetectionRadius(
-    out Vector3 nearbyPlayerPos))
-{
-    // On tourne immédiatement vers le joueur
-    RotateTowardsPosition(
-        nearbyPlayerPos,
-        detectionRotationSpeed
-    );
+    if (!IsPlayerInDetectionRadius(out Vector3 nearbyPlayerPos))
+        return;
 
+    RotateTowardsPosition(nearbyPlayerPos, detectionRotationSpeed);
     OnPlayerDetected(nearbyPlayerPos);
-}
 }
 
 private bool IsPlayerInDetectionRadius(
@@ -337,12 +319,8 @@ private void StartPatrol()
 
     ResetAttackProgressBar();
 
-    attackTarget = null;
-
     _loseTargetTimer = 0f;
-
-    _agent.isStopped = false;
-    _agent.updateRotation = true;
+    SetAgentMovement(true, true);
 
     SetState(EnemyState.Roaming);
 
@@ -352,7 +330,6 @@ private void StartPatrol()
 
 private IEnumerator PatrolRoutine()
 {
-    {
     if (waypoints == null || waypoints.Count == 0)
     {
         Debug.LogWarning(
@@ -383,22 +360,13 @@ private IEnumerator PatrolRoutine()
             continue;
         }
 
-        // --------------------------------------------------------------
-        // Préparation de l'agent
-        // --------------------------------------------------------------
-
-        _agent.isStopped = false;
-        _agent.updateRotation = true;
+        SetAgentMovement(true, true);
 
         if (!_agent.isOnNavMesh)
         {
             yield return null;
             continue;
         }
-
-        // --------------------------------------------------------------
-        // ENVOI VERS LE WAYPOINT
-        // --------------------------------------------------------------
 
         _agent.ResetPath();
 
@@ -417,10 +385,6 @@ private IEnumerator PatrolRoutine()
             yield return null;
             continue;
         }
-
-        // --------------------------------------------------------------
-        // ATTENTE DE L'ARRIVÉE
-        // --------------------------------------------------------------
 
         while (_state == EnemyState.Roaming)
         {
@@ -449,14 +413,8 @@ private IEnumerator PatrolRoutine()
             yield return null;
         }
 
-        // Si l'ennemi a détecté le joueur pendant le trajet,
-        // on sort immédiatement de la patrouille.
         if (_state != EnemyState.Roaming)
             yield break;
-
-        // --------------------------------------------------------------
-        // ATTENTE SUR LE WAYPOINT
-        // --------------------------------------------------------------
 
         if (wp.waitTime > 0f)
         {
@@ -465,10 +423,6 @@ private IEnumerator PatrolRoutine()
             );
         }
 
-        // --------------------------------------------------------------
-        // WAYPOINT SUIVANT
-        // --------------------------------------------------------------
-
         _currentPatrolIndex++;
 
         if (_currentPatrolIndex >= waypoints.Count)
@@ -476,8 +430,14 @@ private IEnumerator PatrolRoutine()
     }
 
     _behaviourRoutine = null;
-    }
 }
+
+private void SetAgentMovement(bool moving, bool automaticRotation)
+{
+    _agent.isStopped = !moving;
+    _agent.updateRotation = automaticRotation;
+}
+
 private void RotateTowardsPosition(
     Vector3 targetPosition,
     float rotationSpeed)
@@ -510,19 +470,13 @@ private void ReturnToPatrol()
 
     ResetAttackProgressBar();
 
-    attackTarget = null;
-
-    // On remet l'agent dans un état propre
-    _agent.isStopped = false;
-    _agent.updateRotation = true;
+    SetAgentMovement(true, true);
 
     // On repasse explicitement en roaming
     SetState(EnemyState.Roaming);
 
-    // On arrête l'ancienne coroutine
     StopBehaviourRoutine();
 
-    // On relance la patrouille
     _behaviourRoutine =
         StartCoroutine(PatrolRoutine());
 }
@@ -559,8 +513,6 @@ private void BeginChase(
 
     ResetAttackProgressBar();
 
-    attackTarget = null;
-
     _lastKnownPlayerPosition =
         playerPosition;
 
@@ -568,8 +520,7 @@ private void BeginChase(
 
     SetState(EnemyState.Chasing);
 
-    _agent.isStopped = false;
-    _agent.updateRotation = true;
+    SetAgentMovement(true, true);
 
     if (_agent.isOnNavMesh)
     {
@@ -628,7 +579,7 @@ private void TickChasing()
 
     if (isPreparingAttack)
     {
-        TickAttackPreparation(player);
+        TickAttackPreparation();
         return;
     }
 
@@ -717,9 +668,7 @@ private void HandlePlayerDetectedWhileChasing(
     // CHASE
     // --------------------------------------------------------------
 
-    _agent.isStopped = false;
-
-    _agent.updateRotation = true;
+    SetAgentMovement(true, true);
 
     ResetAttackProgressBar();
 
@@ -753,11 +702,7 @@ private void BeginAttackPreparation(
 
     attackTimer = 0f;
 
-    _agent.isStopped = true;
-
-    // On désactive temporairement la rotation automatique
-    // uniquement pendant la préparation.
-    _agent.updateRotation = false;
+    SetAgentMovement(false, false);
 
     if (attackProgressBar != null)
     {
@@ -769,8 +714,7 @@ private void BeginAttackPreparation(
     RotateTowardsPlayer(player);
 }
 
-private void TickAttackPreparation(
-    Transform player)
+private void TickAttackPreparation()
 {
     if (attackTarget == null)
     {
@@ -778,7 +722,7 @@ private void TickAttackPreparation(
         return;
     }
 
-    _agent.isStopped = true;
+    SetAgentMovement(false, false);
 
     // Rotation manuelle uniquement pendant l'attaque.
     RotateTowardsPlayer(
@@ -798,9 +742,7 @@ private void TickAttackPreparation(
     {
         CancelAttackPreparation();
 
-        _agent.isStopped = false;
-
-        _agent.updateRotation = true;
+        SetAgentMovement(true, true);
 
         return;
     }
@@ -820,14 +762,7 @@ private void TickAttackPreparation(
 
         ResetAttackProgressBar();
 
-        // ----------------------------------------------------------
-        // TRÈS IMPORTANT :
-        // on rend immédiatement la rotation au NavMeshAgent.
-        // ----------------------------------------------------------
-
-        _agent.updateRotation = true;
-
-        _agent.isStopped = false;
+        SetAgentMovement(true, true);
 
         // Si le joueur est toujours là,
         // on repart immédiatement vers lui.
@@ -843,10 +778,6 @@ private void TickAttackPreparation(
 private void CancelAttackPreparation()
 {
     ResetAttackProgressBar();
-
-    attackTarget = null;
-
-    _agent.updateRotation = true;
 }
 
 private void RotateTowardsPlayer(
@@ -1026,6 +957,16 @@ private void HandlePlayerHidden(
 // BARRE D'ATTAQUE
 // =====================================================================
 
+private void ConfigureAttackProgressBar()
+{
+    if (attackProgressBar == null)
+        return;
+
+    attackProgressBar.minValue = 0f;
+    attackProgressBar.maxValue = 1f;
+    ResetAttackProgressBar();
+}
+
 private void UpdateAttackProgressBar()
 {
     if (attackProgressBar == null)
@@ -1153,19 +1094,17 @@ private void OnDrawGizmosSelected()
     );
 
 }
-public void OnCollisionEnter(Collision other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
-            Rigidbody rgb = GameObject.Find("Enemy").GetComponent<Rigidbody>();
-            rgb.isKinematic = true;
-            Debug.Log("ZIZI PUANT");
-        }
-    }
-public void OnCollisionExit (Collision other)
-    {
-        Rigidbody rgb = GameObject.Find("Enemy").GetComponent<Rigidbody>();
-        rgb.isKinematic = false;
-    }
+
+private void OnCollisionEnter(Collision other)
+{
+    if (other.gameObject.CompareTag("Player") && _body != null)
+        _body.isKinematic = true;
+}
+
+private void OnCollisionExit(Collision other)
+{
+    if (other.gameObject.CompareTag("Player") && _body != null)
+        _body.isKinematic = false;
+}
 
 }

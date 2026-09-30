@@ -1,10 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Gère le cône de vision de l'ennemi : angle, distance, et occlusion par raycast.
-/// Les méthodes IsPointInCone / HasLineOfSight sont génériques : elles servent
-/// aussi bien à détecter le joueur qu'à vérifier si un casier est visible.
-/// </summary>
+
 public class EnemyDetection : MonoBehaviour
 {
     [Header("Cône de détection")]
@@ -54,10 +50,7 @@ public class EnemyDetection : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// Détection "standard" du joueur pendant la patrouille : ne détecte jamais
-    /// un joueur actuellement caché dans un casier (il n'est pas visible du tout).
-    /// </summary>
+
     public bool CanSeePlayer(out Vector3 playerPosition)
     {
         playerPosition = default;
@@ -73,10 +66,6 @@ public class EnemyDetection : MonoBehaviour
 
     public Transform Player => _player;
 
-    // ------------------------------------------------------------------
-    // DEBUG — visible uniquement dans la Scene view de l'éditeur, jamais
-    // en Game view ni dans un build. Rien n'est instancié/rendu en jeu.
-    // ------------------------------------------------------------------
 
     private void OnDrawGizmosSelected()
     {
