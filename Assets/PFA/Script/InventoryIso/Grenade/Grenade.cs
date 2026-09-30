@@ -1,67 +1,77 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class Grenade : MonoBehaviour
 {
-    [Header("Explosion Prefab")]
-    [SerializeField] private float explosionDelay = 3f; 
-    // [SerializeField] private float explosionForce = 700f;
-    // [SerializeField] private float explosionRadius = 5f;
-    private float countDown;
-    private bool hasExploded = false;
-    private bool enemyInRange = false;
-    public Transform target;
+    [Header("Leurre")]
+    [SerializeField] private float explosionDelay = 3f;
+    [SerializeField] private float distractionRadius = 8f;
+    [SerializeField] private LayerMask enemyLayers = ~0;
+    [Tooltip("Temps pendant lequel l'ennemi reste sur le leurre.")]
+    [Min(0f)]
+    [SerializeField] private float investigationTime = 3f;
 
-    public NavMeshAgent agent;
-    
-    void Awake()
+    private float countdown;
+    private bool hasExploded;
+
+    private void Start()
     {
-        agent = GameObject.Find("Enemy").GetComponent<NavMeshAgent>();
-    }
-    void Start()
-    {
-        countDown = explosionDelay;
+        countdown = explosionDelay;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (!hasExploded)
+        if (hasExploded)
+            return;
+
+        countdown -= Time.deltaTime;
+
+        if (countdown <= 0f)
+            Explode();
+    }
+
+    private void Explode()
+    {
+        if (hasExploded)
+            return;
+
+        hasExploded = true;
+
+        Collider[] colliders = Physics.OverlapSphere(
+            transform.position,
+            distractionRadius,
+            enemyLayers,
+            QueryTriggerInteraction.Collide
+        );
+
+        // Évite de notifier plusieurs fois un ennemi ayant plusieurs colliders.
+        HashSet<EnemyAI> affectedEnemies = new HashSet<EnemyAI>();
+
+        foreach (Collider col in colliders)
         {
-            countDown -= Time.deltaTime;
-            if(countDown <= 0f)
-            {
-                Explode();
-                hasExploded = true;
-            }
+            if (col == null)
+                continue;
+
+            EnemyAI enemy = col.GetComponentInParent<EnemyAI>();
+
+            if (enemy == null || !affectedEnemies.Add(enemy))
+                continue;
+
+            enemy.InvestigateDecoy(
+                transform.position,
+                investigationTime
+            );
         }
+
+        Destroy(gameObject);
     }
-    void OnTriggerEnter(Collider other)
+
+    private void OnDrawGizmosSelected()
     {
-        if (other.gameObject.CompareTag("Enemy"))
-        {
-            Debug.Log(@"Triste");
-            enemyInRange = true;
-
-        }
-    }
-    void Explode()
-    {
-        if(enemyInRange == true)
-        {
-
-        NavMeshHit hit;
-
-        if (NavMesh.SamplePosition(
-            target.position,
-            out hit,
-            5f,
-            NavMesh.AllAreas))
-            {
-                agent.SetDestination(hit.position);
-            }
-
-        }
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(
+            transform.position,
+            distractionRadius
+        );
     }
 }
