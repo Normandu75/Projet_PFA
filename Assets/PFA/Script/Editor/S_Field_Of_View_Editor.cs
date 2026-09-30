@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 using UnityEditor;
 
 [CustomEditor (typeof (S_Field_Of_View))]
@@ -8,24 +7,35 @@ public class S_Field_Of_View_Editor : Editor
     void OnSceneGUI()
     {
         S_Field_Of_View fow = (S_Field_Of_View)target;
+        Vector3 origin = fow.transform.position;
+        Vector3 forward = fow.ViewDirection.normalized;
+        Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
+
+        if (right.sqrMagnitude < 0.001f)
+        {
+            right = Vector3.Cross(Vector3.forward, forward).normalized;
+        }
+
+        Vector3 up = Vector3.Cross(forward, right).normalized;
+        float halfAngle = Mathf.Clamp(fow.viewAngle, 0f, 179f) * 0.5f * Mathf.Deg2Rad;
+        float endRadius = Mathf.Tan(halfAngle) * fow.viewRadius;
 
         Handles.color = Color.white;
-        Handles.DrawWireArc(fow.transform.position, Vector3.up, Vector3.forward, 360, fow.viewRadius);
-        Handles.DrawWireArc(fow.transform.position, Vector3.up, Vector3.forward, 360, fow.circleRadius);
+        Handles.DrawWireDisc(origin + forward * (fow.viewRadius * 0.5f), forward, endRadius * 0.5f);
+        Handles.DrawWireDisc(origin + forward * fow.viewRadius, forward, endRadius);
 
-        Vector3 viewAngleA = fow.DirFromAngle(-fow.viewAngle / 2, false);
-        Vector3 viewAngleB = fow.DirFromAngle(fow.viewAngle / 2, false);
-
-        Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleA * fow.viewRadius);
-        Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleB * fow.viewRadius);
-        Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleA * fow.circleRadius);
-        Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleB * fow.circleRadius);
+        for (int i = 0; i < 8; i++)
+        {
+            float angle = i * Mathf.PI / 4f;
+            Vector3 rimDirection = right * Mathf.Cos(angle) + up * Mathf.Sin(angle);
+            Handles.DrawLine(origin, origin + forward * fow.viewRadius + rimDirection * endRadius);
+        }
 
         Handles.color = Color.red;
 
         foreach (Transform visibleTarget in fow.visibleTargets)
         {
-            Handles.DrawLine(fow.transform.position, visibleTarget.position);
+            Handles.DrawLine(origin, visibleTarget.position);
         }
     }
 }
