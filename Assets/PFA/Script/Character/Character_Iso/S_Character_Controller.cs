@@ -179,5 +179,6 @@ public class S_Character_Controller : MonoBehaviour
             return;
 
         robot.transform.position = robotPos.position;
+        robot.transform.rotation = transform.rotation;
     }
 }

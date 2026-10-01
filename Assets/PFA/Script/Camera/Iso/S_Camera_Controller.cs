@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using Unity.VisualScripting;
 
 public class S_Camera_Controller : MonoBehaviour
 {
@@ -109,7 +110,7 @@ public class S_Camera_Controller : MonoBehaviour
         Collider robotCol = GameObject.Find("Robot_Ally").GetComponent<Collider>();
 
         if (Gamepad.current != null)
-            switchRequested |= Gamepad.current.buttonSouth.wasPressedThisFrame;
+            switchRequested |= Gamepad.current.dpad.down.wasPressedThisFrame;
 
         if (switchRequested)
         {
