@@ -8,6 +8,7 @@ public class RuntimeInventoryUI : MonoBehaviour
     [Header("Wheel")]
     [SerializeField]
     private float outerRadius = 300f;
+    
     [Header("Quick Slot")]
     [SerializeField]
     private Sprite quickSlotButtonIcon;
@@ -17,6 +18,10 @@ public class RuntimeInventoryUI : MonoBehaviour
 
     [SerializeField]
     private float innerRadius = 125f;
+    [Header("Center")]
+
+    [SerializeField]
+    private float centerSize = 220f;
 
     [Header("Colors")]
     [SerializeField]
@@ -47,7 +52,31 @@ public class RuntimeInventoryUI : MonoBehaviour
     private RectTransform wheelRect;
 
     private Image[] icons;
+    private RadialSegmentGraphic[] segments;
 
+    private Color segmentNormalColor =
+        new Color(
+            0.055f,
+            0.065f,
+            0.08f,
+            0.94f
+        );
+
+    private Color segmentEmptyColor =
+        new Color(
+            0.035f,
+            0.04f,
+            0.05f,
+            0.86f
+        );
+
+    private Color segmentSelectedColor =
+        new Color(
+            0.04f,
+            0.42f,
+            0.85f,
+            0.98f
+        );
     private TMP_Text[] amountTexts;
 
     private TMP_Text[] maxTexts;
@@ -190,8 +219,9 @@ public class RuntimeInventoryUI : MonoBehaviour
                 outerRadius * 2.5f
             );
 
-        CreateWheelBackground();
-
+        // IMPORTANT :
+        // On ne crée plus le gros fond rectangulaire.
+        // CreateWheelBackground();
 
         icons =
             new Image[SlotCount];
@@ -204,6 +234,9 @@ public class RuntimeInventoryUI : MonoBehaviour
 
         maxBorders =
             new Image[SlotCount];
+
+        segments =
+            new RadialSegmentGraphic[SlotCount];
 
         float anglePerSlot =
             360f / SlotCount;
@@ -218,7 +251,6 @@ public class RuntimeInventoryUI : MonoBehaviour
 
         CreateCenter();
     }
-
     // =========================================================
     // BACKGROUND
     // =========================================================
@@ -272,47 +304,97 @@ public class RuntimeInventoryUI : MonoBehaviour
     // =========================================================
 
     private void CreateSlot(
-        int index,
-        float anglePerSlot)
+    int index,
+    float anglePerSlot)
     {
+        // =========================================
+        // SLOT
+        // =========================================    
+
         GameObject slot =
             new GameObject(
-                "Slot " + index
-            );
+                "Slot " + index,
+                typeof(RectTransform),
+                typeof(CanvasRenderer)
+            );  
 
         slot.transform.SetParent(
             wheelRect,
             false
-        );
+        );  
 
         RectTransform rect =
-            slot.AddComponent<RectTransform>();
+            slot.GetComponent<RectTransform>(); 
 
         rect.anchorMin =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(0.5f, 0.5f);    
 
         rect.anchorMax =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(0.5f, 0.5f);    
 
         rect.pivot =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(0.5f, 0.5f);    
+
+        rect.anchoredPosition =
+            Vector2.zero;   
 
         rect.sizeDelta =
             new Vector2(
                 outerRadius * 2f,
                 outerRadius * 2f
-            );
+            );  
 
+        // =========================================
+        // ANGLE
+        // =========================================    
 
         float centerAngle =
             90f -
-            index * anglePerSlot;
+            index * anglePerSlot;   
 
+        // =========================================
+        // SEGMENT GRAPHIC
+        // =========================================    
+
+        RadialSegmentGraphic segment =
+            slot.AddComponent<RadialSegmentGraphic>();  
+
+        segment.Setup(
+            innerRadius,
+            outerRadius,
+            anglePerSlot,
+            5f
+        );  
+
+        // ROUGE TEMPORAIRE !
+        // Pour être absolument certain de le voir.
+        segment.color = normalColor;
+
+        segment.raycastTarget =
+            false;  
+
+        segments[index] =
+            segment;    
+
+        // =========================================
+        // ROTATION DU SEGMENT
+        // =========================================    
+
+        rect.localRotation =
+            Quaternion.Euler(
+                0f,
+                0f,
+                centerAngle
+            );  
+
+        // =========================================
+        // CONTENT
+        // =========================================    
 
         CreateSlotContent(
             slot.transform,
             index,
-            centerAngle
+            0f
         );
     }
 
@@ -321,13 +403,14 @@ public class RuntimeInventoryUI : MonoBehaviour
     // =========================================================
 
     private void CreateSlotContent(
-        Transform parent,
-        int index,
-        float angle)
+    Transform parent,
+    int index,
+    float unusedAngle)
     {
         GameObject content =
             new GameObject(
-                "Content"
+                "Content",
+                typeof(RectTransform)
             );
 
         content.transform.SetParent(
@@ -336,7 +419,16 @@ public class RuntimeInventoryUI : MonoBehaviour
         );
 
         RectTransform contentRect =
-            content.AddComponent<RectTransform>();
+            content.GetComponent<RectTransform>();
+
+        contentRect.anchorMin =
+            new Vector2(0.5f, 0.5f);
+
+        contentRect.anchorMax =
+            new Vector2(0.5f, 0.5f);
+
+        contentRect.pivot =
+            new Vector2(0.5f, 0.5f);
 
         contentRect.sizeDelta =
             new Vector2(
@@ -344,16 +436,27 @@ public class RuntimeInventoryUI : MonoBehaviour
                 140f
             );
 
-        float radians =
-            angle * Mathf.Deg2Rad;
-
-        float radius =
-            (innerRadius + outerRadius) / 2f;
+        // Le mesh du segment pointe vers la droite.
+        // On place donc le contenu vers la droite.
+        float contentRadius =
+            Mathf.Lerp(
+                innerRadius,
+                outerRadius,
+                0.55f
+            );
 
         contentRect.anchoredPosition =
             new Vector2(
-                Mathf.Cos(radians) * radius,
-                Mathf.Sin(radians) * radius
+                contentRadius,
+                0f
+            );
+
+        // Le parent est tourné.
+        // On applique la rotation inverse pour que
+        // l'icône reste droite.
+        contentRect.localRotation =
+            Quaternion.Inverse(
+                parent.localRotation
             );
 
         CreateIcon(
@@ -587,31 +690,54 @@ public class RuntimeInventoryUI : MonoBehaviour
     {
         GameObject center =
             new GameObject(
-                "Center"
+                "Center",
+                typeof(RectTransform),
+                typeof(CanvasRenderer)
             );
-
+    
         center.transform.SetParent(
             wheelRect,
             false
         );
-
+    
         RectTransform rect =
-            center.AddComponent<RectTransform>();
-
+            center.GetComponent<RectTransform>();
+    
+        rect.anchorMin =
+            new Vector2(0.5f, 0.5f);
+    
+        rect.anchorMax =
+            new Vector2(0.5f, 0.5f);
+    
+        rect.pivot =
+            new Vector2(0.5f, 0.5f);
+    
+        rect.anchoredPosition =
+            Vector2.zero;
+    
         rect.sizeDelta =
             new Vector2(
-                innerRadius * 1.55f,
-                innerRadius * 1.55f
+                centerSize,
+                centerSize
             );
-
-        Image image =
-            center.AddComponent<Image>();
-
-        image.color =
+    
+        // ==============================
+        // CERCLE
+        // ==============================
+    
+        UICircleGraphic circle =
+            center.AddComponent<UICircleGraphic>();
+    
+        circle.color =
             centerColor;
-
-        image.raycastTarget = false;
-
+    
+        circle.raycastTarget =
+            false;
+    
+        // ==============================
+        // TEXTES
+        // ==============================
+    
         centerName =
             CreateCenterText(
                 center.transform,
@@ -621,7 +747,7 @@ public class RuntimeInventoryUI : MonoBehaviour
                     35f
                 )
             );
-
+    
         centerDescription =
             CreateCenterText(
                 center.transform,
@@ -631,7 +757,7 @@ public class RuntimeInventoryUI : MonoBehaviour
                     0f
                 )
             );
-
+    
         centerAction =
             CreateCenterText(
                 center.transform,
@@ -641,7 +767,7 @@ public class RuntimeInventoryUI : MonoBehaviour
                     -40f
                 )
             );
-
+    
         centerName.color =
             selectedColor;
     }
@@ -965,8 +1091,17 @@ public class RuntimeInventoryUI : MonoBehaviour
         Vector2 direction =
             mouse - center;
 
-        if (direction.magnitude < 70f)
+        if (direction.magnitude < innerRadius)
+        {
+            selectedIndex = -1;
             return;
+        }
+
+        if (direction.magnitude > outerRadius + 100f)
+        {
+            selectedIndex = -1;
+            return;
+        }
 
         SelectFromDirection(
             direction
@@ -1029,13 +1164,49 @@ public class RuntimeInventoryUI : MonoBehaviour
 
     private void RefreshSelection()
     {
+        if (InventoryManager.Instance == null)
+            return;
+
         for (int i = 0; i < SlotCount; i++)
         {
-            if (i == selectedIndex)
+            if (segments[i] == null)
+                continue;
+
+            InventorySlotData slot =
+                InventoryManager.Instance.GetSlot(i);
+
+            bool hasItem =
+                slot != null &&
+                !slot.IsEmpty;
+
+            bool isSelected =
+                i == selectedIndex;
+
+            if (isSelected)
             {
+                // Le curseur pointe ce segment.
+                segments[i].color =
+                    selectedColor;
+
+                segments[i].transform.localScale =
+                    Vector3.one * 1.035f;
             }
             else
             {
+                // Les emplacements vides sont
+                // légèrement plus transparents.
+                segments[i].color =
+                    hasItem
+                        ? normalColor
+                        : new Color(
+                            normalColor.r,
+                            normalColor.g,
+                            normalColor.b,
+                            0.65f
+                        );
+
+                segments[i].transform.localScale =
+                    Vector3.one;
             }
         }
 
