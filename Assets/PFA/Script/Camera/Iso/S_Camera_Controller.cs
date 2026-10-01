@@ -166,4 +166,9 @@ public class S_Camera_Controller : MonoBehaviour
 
         return null;
     }
+
+    public void RemoveMouseCursor()
+    {
+        Cursor.visible = false;
+    }
 }

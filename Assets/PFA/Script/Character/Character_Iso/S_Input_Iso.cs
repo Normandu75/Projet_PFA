@@ -14,6 +14,7 @@ public class S_Input_Iso : MonoBehaviour
         S_Character_Controller.instance.SeeThroughWalls();
         S_Character_Controller.instance.PickUpRobotAlly();
         S_Camera_Controller.instance.CameraRotation();
+        S_Camera_Controller.instance.RemoveMouseCursor();
     }
 
     void FixedUpdate()
