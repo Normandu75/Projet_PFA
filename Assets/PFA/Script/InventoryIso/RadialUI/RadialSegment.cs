@@ -1,89 +1,92 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RadialSegment : Graphic
+[RequireComponent(typeof(CanvasRenderer))]
+public class RadialSegmentGraphic : MaskableGraphic
 {
-    private float innerRadius;
-    private float outerRadius;
+    private float innerRadius = 175f;
+    private float outerRadius = 350f;
+    private float segmentAngle = 45f;
+    private float gapAngle = 5f;
 
-    private float startAngle;
-    private float endAngle;
-
-    private int subdivisions = 20;
+    private const int Resolution = 20;
 
     public void Setup(
-        float startAngle,
-        float endAngle,
-        float innerRadius,
-        float outerRadius)
+        float inner,
+        float outer,
+        float angle,
+        float gap)
     {
-        this.startAngle = startAngle;
-        this.endAngle = endAngle;
-        this.innerRadius = innerRadius;
-        this.outerRadius = outerRadius;
+        innerRadius = inner;
+        outerRadius = outer;
+        segmentAngle = angle;
+        gapAngle = gap;
 
-        SetVerticesDirty();
+        SetAllDirty();
     }
 
     protected override void OnPopulateMesh(VertexHelper vh)
     {
         vh.Clear();
 
-        int count = subdivisions;
+        float angleSize =
+            segmentAngle - gapAngle;
 
-        for (int i = 0; i <= count; i++)
+        float startAngle =
+            -angleSize * 0.5f;
+
+        for (int i = 0; i <= Resolution; i++)
         {
-            float t = (float)i / count;
+            float t =
+                (float)i / Resolution;
 
-            float angle = Mathf.Lerp(
-                startAngle,
-                endAngle,
-                t
-            );
+            float angle =
+                startAngle +
+                angleSize * t;
 
-            float radians =
+            float rad =
                 angle * Mathf.Deg2Rad;
 
-            Vector2 outer =
-                new Vector2(
-                    Mathf.Cos(radians) * outerRadius,
-                    Mathf.Sin(radians) * outerRadius
-                );
+            float cos = Mathf.Cos(rad);
+            float sin = Mathf.Sin(rad);
 
             Vector2 inner =
                 new Vector2(
-                    Mathf.Cos(radians) * innerRadius,
-                    Mathf.Sin(radians) * innerRadius
+                    cos * innerRadius,
+                    sin * innerRadius
                 );
 
-            vh.AddVert(
-                outer,
-                color,
-                Vector2.zero
-            );
+            Vector2 outer =
+                new Vector2(
+                    cos * outerRadius,
+                    sin * outerRadius
+                );
 
-            vh.AddVert(
-                inner,
-                color,
-                Vector2.zero
-            );
+            UIVertex v1 =
+                UIVertex.simpleVert;
+
+            v1.position = inner;
+            v1.color = color;
+
+            UIVertex v2 =
+                UIVertex.simpleVert;
+
+            v2.position = outer;
+            v2.color = color;
+
+            vh.AddVert(v1);
+            vh.AddVert(v2);
         }
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < Resolution; i++)
         {
-            int index = i * 2;
+            int a = i * 2;
+            int b = a + 1;
+            int c = a + 2;
+            int d = a + 3;
 
-            vh.AddTriangle(
-                index,
-                index + 2,
-                index + 1
-            );
-
-            vh.AddTriangle(
-                index + 1,
-                index + 2,
-                index + 3
-            );
+            vh.AddTriangle(a, b, d);
+            vh.AddTriangle(a, d, c);
         }
     }
 }
