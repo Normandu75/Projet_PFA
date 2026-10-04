@@ -1213,20 +1213,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::S_Field_Of_Vew
   viewRadius: 20
   viewAngle: 90
-  circleRadius: 0
+  viewDirection: {fileID: 0}
   targetMask:
     serializedVersion: 2
     m_Bits: 128
   obstacleMask:
     serializedVersion: 2
     m_Bits: 64
+  objectMask:
+    serializedVersion: 2
+    m_Bits: 0
   visibleTargets: []
-  meshResolution: 1
-  edgeResolveIterations: 4
-  edgeThreshold: 0.5
-  maskCutDistance: 0.2
-  viewMeshFilter: {fileID: 231750053}
-  circleMeshFilter: {fileID: 0}
+  visibleObjects: []
 --- !u!114 &400303800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1243,8 +1241,18 @@ MonoBehaviour:
   image: {fileID: 0}
   mat: {fileID: 0}
   FlashLightOn: 0
+  canMove: 0
+  canPress: 0
+  hasFlashLight: 0
+  holdBreath: 0
   fov: {fileID: 0}
   energy: {fileID: 0}
+  hide: {fileID: 0}
+  lightOff: {fileID: 0}
+  lightOn: {fileID: 0}
+  reload: {fileID: 0}
+  reloadInput: {fileID: 0}
+  toggleInput: {fileID: 0}
 --- !u!54 &400303801
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1420,6 +1428,8 @@ MonoBehaviour:
   itemSOs: []
   backgroundBackPack: {fileID: 0}
   tabUi: {fileID: 0}
+  locked: {fileID: 0}
+  cross: {fileID: 0}
 --- !u!1 &407024975
 GameObject:
   m_ObjectHideFlags: 0
@@ -2805,6 +2815,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7cbec9be2411a6b49b94e5dc592cd631, type: 2}
   backgroundBackPack: {fileID: 0}
   tabUi: {fileID: 0}
+  locked: {fileID: 0}
+  cross: {fileID: 0}
 --- !u!1 &1720033241
 GameObject:
   m_ObjectHideFlags: 0
