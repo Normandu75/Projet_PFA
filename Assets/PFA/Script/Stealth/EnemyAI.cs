@@ -8,8 +8,6 @@ using UnityEngine.AI;
 
 using UnityEngine.UI;
 
-
-
 [RequireComponent(typeof(NavMeshAgent))]
 
 [RequireComponent(typeof(EnemyDetection))]
@@ -31,16 +29,12 @@ public class EnemyAI : MonoBehaviour
 
     private int _currentPatrolIndex = 0;
 
-
-
     // =====================================================================
     // PATROUILLE
     // =====================================================================
     [Header("Patrouille")]
 
     [SerializeField] private List<PatrolWaypoint> waypoints;
-
-
 
     // =====================================================================
     // DÉTECTION
@@ -51,11 +45,7 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] private float detectionRadius = 3f;
 
-
-
     [SerializeField] private bool showDetectionGizmo = true;
-
-
 
     // =====================================================================
     // POURSUITE / ATTAQUE
@@ -64,31 +54,19 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] private float attackRange = 1.5f;
 
-
-
     [Tooltip("Temps de préparation avant de déclencher l'attaque.")]
 
     [SerializeField] private float attackAnimDuration = 1f;
 
-
-
     [SerializeField] private int attackDamage = 10;
-
-
 
     [SerializeField] private float attackCooldown = 1f;
 
-
-
     [Header("Rotation")]
-
-
 
     [SerializeField] private float detectionRotationSpeed = 720f;
 
     [SerializeField] private float attackRotationSpeed = 720f;
-
-
 
     [Tooltip(
 
@@ -100,8 +78,6 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] private float attackMoveTolerance = 1f;
 
-
-
     [Tooltip(
 
         "Temps pendant lequel l'ennemi continue sa poursuite " +
@@ -112,23 +88,13 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] private float loseTargetTime = 3f;
 
-
-
-
-
     private float attackTimer;
 
     private float attackCooldownTimer;
 
-
-
     private bool isPreparingAttack;
 
-
-
     private Transform attackTarget;
-
-
 
     // =====================================================================
     // ALERTE
@@ -139,8 +105,6 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] private Color alertBeamColor = Color.red;
 
-
-
     // =====================================================================
     // DEBUG
     // =====================================================================
@@ -150,8 +114,6 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] private bool debugForceChasing;
 
-
-
     // =====================================================================
     // LECTURE SEULE
     // =====================================================================
@@ -159,11 +121,7 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] private EnemyState currentStateReadOnly;
 
-
-
     [SerializeField] private Light detectionLight;
-
-
 
     // =====================================================================
     // BARRE D'ATTAQUE
@@ -171,8 +129,6 @@ public class EnemyAI : MonoBehaviour
     [Header("Barre d'attaque")]
 
     [SerializeField] private Slider attackProgressBar;
-
-
 
     // =====================================================================
     // LUMIÈRE
@@ -184,18 +140,12 @@ public class EnemyAI : MonoBehaviour
 
         new Color(1f, 0.25f, 0.25f);
 
-
-
     [SerializeField]
     private Color roamingLightColor =
 
         new Color(1f, 0.2f, 0.2f);
 
-
-
     [SerializeField] private float lightIntensity = 3f;
-
-
 
     // =====================================================================
     // VARIABLES INTERNES
@@ -206,19 +156,11 @@ public class EnemyAI : MonoBehaviour
 
     private EnemyDetection _detection;
 
-
-
     private EnemyState _state = EnemyState.Roaming;
-
-
 
     private bool _isOriginalDetector;
 
-
-
     private Vector3 _lastKnownPlayerPosition;
-
-
 
     private Coroutine _behaviourRoutine;
 
@@ -229,21 +171,13 @@ public class EnemyAI : MonoBehaviour
     private Coroutine _decoyRoutine;
     private bool _isInvestigatingDecoy;
 
-
-
     private float _loseTargetTimer;
-
-
 
     private bool _prevDebugRoaming;
 
     private bool _prevDebugChasing;
 
-
-
     private bool _isSubscribedToPlayer;
-
-
 
     // =====================================================================
     // ANIMATOR HASH
@@ -252,13 +186,9 @@ public class EnemyAI : MonoBehaviour
 
         Animator.StringToHash("Attack");
 
-
-
     private static readonly int WalkSpeedParam =
 
         Animator.StringToHash("Speed");
-
-
 
     // =====================================================================
     // UNITY
@@ -273,15 +203,11 @@ public class EnemyAI : MonoBehaviour
 
         _detection = GetComponent<EnemyDetection>();
 
-
-
         if (alertLaunchPoint == null)
 
             alertLaunchPoint = transform;
 
     }
-
-
 
     private void OnEnable()
 
@@ -291,25 +217,17 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     private void OnDisable()
 
     {
 
         EnemyManager.Instance?.Unregister(this);
 
-
-
         UnsubscribeFromPlayer();
-
-
 
         StopBehaviourRoutine();
 
     }
-
-
 
     private void Start()
 
@@ -317,17 +235,11 @@ public class EnemyAI : MonoBehaviour
 
         ConfigureAttackProgressBar();
 
-
-
         attackCooldownTimer = 0f;
-
-
 
         StartPatrol();
 
     }
-
-
 
     private void Update()
 
@@ -335,13 +247,9 @@ public class EnemyAI : MonoBehaviour
 
         HandleDebugToggles();
 
-
-
         attackCooldownTimer =
 
             Mathf.Max(0f, attackCooldownTimer - Time.deltaTime);
-
-
 
         if (animator != null)
 
@@ -357,11 +265,7 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         currentStateReadOnly = _state;
-
-
 
         switch (_state)
 
@@ -373,8 +277,6 @@ public class EnemyAI : MonoBehaviour
 
                 break;
 
-
-
             case EnemyState.Chasing:
 
                 TickChasing();
@@ -385,8 +287,6 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     private void LateUpdate()
 
     {
@@ -395,33 +295,21 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
         if (!attackProgressBar.gameObject.activeSelf)
 
             return;
 
-
-
         Camera mainCamera = Camera.main;
-
-
 
         if (mainCamera == null)
 
             return;
 
-
-
         Transform canvas = attackProgressBar.transform.parent;
-
-
 
         if (canvas == null)
 
             return;
-
-
 
         canvas.LookAt(
 
@@ -432,8 +320,6 @@ public class EnemyAI : MonoBehaviour
         );
 
     }
-
-
 
     // =====================================================================
     // DEBUG
@@ -448,8 +334,6 @@ public class EnemyAI : MonoBehaviour
 
             debugForceChasing = false;
 
-
-
             ReturnToPatrol();
 
         }
@@ -460,8 +344,6 @@ public class EnemyAI : MonoBehaviour
 
             debugForceRoaming = false;
 
-
-
             Vector3 target =
 
                 _detection.Player != null
@@ -470,25 +352,17 @@ public class EnemyAI : MonoBehaviour
 
                     : transform.position;
 
-
-
             _isOriginalDetector = true;
-
-
 
             BeginChase(target);
 
         }
-
-
 
         _prevDebugRoaming = debugForceRoaming;
 
         _prevDebugChasing = debugForceChasing;
 
     }
-
-
 
     // =====================================================================
     // ROAMING
@@ -500,7 +374,6 @@ public class EnemyAI : MonoBehaviour
         if (_isInvestigatingDecoy)
             return;
 
-
         if (_detection.CanSeePlayer(out Vector3 playerPos))
 
         {
@@ -511,21 +384,15 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         if (!IsPlayerInDetectionRadius(out Vector3 nearbyPlayerPos))
 
             return;
-
-
 
         RotateTowardsPosition(nearbyPlayerPos, detectionRotationSpeed);
 
         OnPlayerDetected(nearbyPlayerPos);
 
     }
-
-
 
     private bool IsPlayerInDetectionRadius(
 
@@ -535,17 +402,11 @@ public class EnemyAI : MonoBehaviour
 
         playerPosition = Vector3.zero;
 
-
-
         if (_detection.Player == null)
 
             return false;
 
-
-
         playerPosition = _detection.Player.position;
-
-
 
         float distance = Vector3.Distance(
 
@@ -555,13 +416,9 @@ public class EnemyAI : MonoBehaviour
 
         );
 
-
-
         return distance <= detectionRadius;
 
     }
-
-
 
     // =====================================================================
     // PATROUILLE
@@ -572,26 +429,17 @@ public class EnemyAI : MonoBehaviour
 
         StopBehaviourRoutine();
 
-
-
         ResetAttackProgressBar();
-
-
 
         _loseTargetTimer = 0f;
 
         SetAgentMovement(true, true);
 
-
-
         SetState(EnemyState.Roaming);
-
 
         _behaviourRoutine = StartCoroutine(PatrolRoutine());
 
     }
-
-
 
     private IEnumerator PatrolRoutine()
 
@@ -607,15 +455,11 @@ public class EnemyAI : MonoBehaviour
 
             );
 
-
-
             _behaviourRoutine = null;
 
             yield break;
 
         }
-
-
 
         while (_state == EnemyState.Roaming)
 
@@ -625,13 +469,9 @@ public class EnemyAI : MonoBehaviour
 
                 _currentPatrolIndex = 0;
 
-
-
             PatrolWaypoint wp =
 
                 waypoints[_currentPatrolIndex];
-
-
 
             if (wp == null)
 
@@ -639,13 +479,9 @@ public class EnemyAI : MonoBehaviour
 
                 _currentPatrolIndex++;
 
-
-
                 if (_currentPatrolIndex >= waypoints.Count)
 
                     _currentPatrolIndex = 0;
-
-
 
                 yield return null;
 
@@ -653,11 +489,7 @@ public class EnemyAI : MonoBehaviour
 
             }
 
-
-
             SetAgentMovement(true, true);
-
-
 
             if (!_agent.isOnNavMesh)
 
@@ -669,11 +501,7 @@ public class EnemyAI : MonoBehaviour
 
             }
 
-
-
             _agent.ResetPath();
-
-
 
             bool destinationSet =
 
@@ -682,8 +510,6 @@ public class EnemyAI : MonoBehaviour
                     wp.transform.position
 
                 );
-
-
 
             if (!destinationSet)
 
@@ -697,15 +523,11 @@ public class EnemyAI : MonoBehaviour
 
                 );
 
-
-
                 yield return null;
 
                 continue;
 
             }
-
-
 
             while (_state == EnemyState.Roaming)
 
@@ -721,8 +543,6 @@ public class EnemyAI : MonoBehaviour
 
                 }
 
-
-
                 if (_agent.pathStatus ==
 
                     NavMeshPathStatus.PathInvalid)
@@ -735,13 +555,9 @@ public class EnemyAI : MonoBehaviour
 
                     );
 
-
-
                     break;
 
                 }
-
-
 
                 if (_agent.remainingDistance <=
 
@@ -753,19 +569,13 @@ public class EnemyAI : MonoBehaviour
 
                 }
 
-
-
                 yield return null;
 
             }
 
-
-
             if (_state != EnemyState.Roaming)
 
                 yield break;
-
-
 
             if (wp.waitTime > 0f)
 
@@ -779,11 +589,7 @@ public class EnemyAI : MonoBehaviour
 
             }
 
-
-
             _currentPatrolIndex++;
-
-
 
             if (_currentPatrolIndex >= waypoints.Count)
 
@@ -791,13 +597,9 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         _behaviourRoutine = null;
 
     }
-
-
 
     private void SetAgentMovement(bool moving, bool automaticRotation)
 
@@ -808,8 +610,6 @@ public class EnemyAI : MonoBehaviour
         _agent.updateRotation = automaticRotation;
 
     }
-
-
 
     private void RotateTowardsPosition(
 
@@ -823,23 +623,15 @@ public class EnemyAI : MonoBehaviour
 
             targetPosition - transform.position;
 
-
-
         direction.y = 0f;
-
-
 
         if (direction.sqrMagnitude < 0.001f)
 
             return;
 
-
-
         Quaternion targetRotation =
 
             Quaternion.LookRotation(direction);
-
-
 
         transform.rotation =
 
@@ -855,33 +647,21 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
     private void ReturnToPatrol()
 
     {
 
         UnsubscribeFromPlayer();
 
-
-
         _loseTargetTimer = 0f;
-
-
 
         ResetAttackProgressBar();
 
-
-
         SetAgentMovement(true, true);
-
 
         SetState(EnemyState.Roaming);
 
-
-
         StopBehaviourRoutine();
-
-
 
         _behaviourRoutine =
 
@@ -1009,7 +789,6 @@ public class EnemyAI : MonoBehaviour
         ReturnToPatrol();
     }
 
-
     // =====================================================================
     // DÉTECTION / CHASE
     // =====================================================================
@@ -1023,17 +802,11 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
         _isOriginalDetector = true;
-
-
 
         BeginChase(playerPosition);
 
     }
-
-
 
     public void OnAlerted(
 
@@ -1045,17 +818,11 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
         _isOriginalDetector = false;
-
-
 
         BeginChase(lastKnownPlayerPosition);
 
     }
-
-
 
     private void BeginChase(
 
@@ -1065,37 +832,23 @@ public class EnemyAI : MonoBehaviour
 
         StopBehaviourRoutine();
 
-
-
         ResetAttackProgressBar();
-
-
 
         _lastKnownPlayerPosition =
 
             playerPosition;
 
-
-
         _loseTargetTimer = 0f;
-
-
 
         SetState(EnemyState.Chasing);
 
-
-
         SetAgentMovement(true, true);
-
-
 
         if (_agent.isOnNavMesh)
 
         {
 
             _agent.ResetPath();
-
-
 
             _agent.SetDestination(
 
@@ -1105,18 +858,13 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
         RotateTowardsPositionInstant(
 
             playerPosition
 
         );
 
-
-
         SubscribeToPlayer();
-
-
 
         if (_isOriginalDetector)
 
@@ -1138,25 +886,17 @@ public class EnemyAI : MonoBehaviour
 
             targetPosition - transform.position;
 
-
-
         direction.y = 0f;
-
-
 
         if (direction.sqrMagnitude < 0.001f)
 
             return;
-
-
 
         transform.rotation =
 
             Quaternion.LookRotation(direction);
 
     }
-
-
 
     // =====================================================================
     // CHASING
@@ -1175,14 +915,9 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         Transform player =
 
             _detection.Player;
-
-
-
 
         if (isPreparingAttack)
 
@@ -1193,8 +928,6 @@ public class EnemyAI : MonoBehaviour
             return;
 
         }
-
-
 
         if (_detection.CanSeePlayer(
 
@@ -1210,14 +943,9 @@ public class EnemyAI : MonoBehaviour
 
             );
 
-
-
             return;
 
         }
-
-
-
 
         if (IsPlayerInDetectionRadius(
 
@@ -1233,21 +961,15 @@ public class EnemyAI : MonoBehaviour
 
             );
 
-
-
             return;
 
         }
-
-
 
         bool playerHidden =
 
             PlayerStealth.Instance != null &&
 
             PlayerStealth.Instance.IsHidden;
-
-
 
         if (playerHidden)
 
@@ -1259,15 +981,9 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         ResetAttackProgressBar();
 
-
-
         _loseTargetTimer += Time.deltaTime;
-
-
 
         if (_loseTargetTimer >= loseTargetTime)
 
@@ -1279,8 +995,6 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     private void HandlePlayerDetectedWhileChasing(
 
         Transform player,
@@ -1291,13 +1005,9 @@ public class EnemyAI : MonoBehaviour
 
         _loseTargetTimer = 0f;
 
-
-
         _lastKnownPlayerPosition =
 
             playerPosition;
-
-
 
         float distance =
 
@@ -1309,9 +1019,6 @@ public class EnemyAI : MonoBehaviour
 
             );
 
-
-
-
         if (distance <= attackRange &&
 
             attackCooldownTimer <= 0f)
@@ -1320,19 +1027,13 @@ public class EnemyAI : MonoBehaviour
 
             BeginAttackPreparation(player);
 
-
-
             return;
 
         }
 
         SetAgentMovement(true, true);
 
-
-
         ResetAttackProgressBar();
-
-
 
         if (_agent.isOnNavMesh)
 
@@ -1348,8 +1049,6 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     // =====================================================================
     // ATTAQUE
     // =====================================================================
@@ -1363,35 +1062,21 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
         if (isPreparingAttack)
 
             return;
-
-
 
         if (attackCooldownTimer > 0f)
 
             return;
 
-
-
         isPreparingAttack = true;
-
-
 
         attackTarget = player;
 
-
-
         attackTimer = 0f;
 
-
-
         SetAgentMovement(false, false);
-
-
 
         if (attackProgressBar != null)
 
@@ -1405,13 +1090,9 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         RotateTowardsPlayer(player);
 
     }
-
-
 
     private void TickAttackPreparation()
 
@@ -1427,18 +1108,13 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         SetAgentMovement(false, false);
-
 
         RotateTowardsPlayer(
 
             attackTarget
 
         );
-
-
 
         float distance =
 
@@ -1450,7 +1126,6 @@ public class EnemyAI : MonoBehaviour
 
             );
 
-
         if (distance >
 
             attackRange + attackMoveTolerance)
@@ -1459,25 +1134,15 @@ public class EnemyAI : MonoBehaviour
 
             CancelAttackPreparation();
 
-
-
             SetAgentMovement(true, true);
-
-
 
             return;
 
         }
 
-
-
         attackTimer += Time.deltaTime;
 
-
-
         UpdateAttackProgressBar();
-
-
 
         if (attackTimer >= attackAnimDuration)
 
@@ -1485,26 +1150,15 @@ public class EnemyAI : MonoBehaviour
 
             PlayAttackAnimation();
 
-
-
             DealDamageToPlayer();
-
-
 
             attackCooldownTimer =
 
                 attackCooldown;
 
-
-
             ResetAttackProgressBar();
 
-
-
             SetAgentMovement(true, true);
-
-
-
 
             if (_detection.Player != null)
 
@@ -1522,8 +1176,6 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     private void CancelAttackPreparation()
 
     {
@@ -1531,8 +1183,6 @@ public class EnemyAI : MonoBehaviour
         ResetAttackProgressBar();
 
     }
-
-
 
     private void RotateTowardsPlayer(
 
@@ -1544,19 +1194,13 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
         Vector3 direction =
 
             target.position -
 
             transform.position;
 
-
-
         direction.y = 0f;
-
-
 
         if (direction.sqrMagnitude <
 
@@ -1568,8 +1212,6 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         Quaternion targetRotation =
 
             Quaternion.LookRotation(
@@ -1577,8 +1219,6 @@ public class EnemyAI : MonoBehaviour
                 direction
 
             );
-
-
 
         transform.rotation =
 
@@ -1595,8 +1235,6 @@ public class EnemyAI : MonoBehaviour
             );
 
     }
-
-
 
     private void PlayAttackAnimation()
 
@@ -1616,8 +1254,6 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     private void DealDamageToPlayer()
 
     {
@@ -1630,19 +1266,13 @@ public class EnemyAI : MonoBehaviour
 
                 : _detection.Player;
 
-
-
         if (target == null)
 
             return;
 
-
-
         S_HealthBar playerHealth =
 
             target.GetComponentInParent<S_HealthBar>();
-
-
 
         if (playerHealth != null)
 
@@ -1653,8 +1283,6 @@ public class EnemyAI : MonoBehaviour
                 attackDamage
 
             );
-
-
 
             Debug.Log(
 
@@ -1680,8 +1308,6 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     // =====================================================================
     // ALERTE
     // =====================================================================
@@ -1699,8 +1325,6 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         foreach (
 
             EnemyAI other
@@ -1712,8 +1336,6 @@ public class EnemyAI : MonoBehaviour
             if (other == null)
 
                 continue;
-
-
 
             GameObject beamObj =
 
@@ -1727,13 +1349,9 @@ public class EnemyAI : MonoBehaviour
 
                 );
 
-
-
             Renderer renderer =
 
                 beamObj.GetComponentInChildren<Renderer>();
-
-
 
             if (renderer != null)
 
@@ -1745,25 +1363,17 @@ public class EnemyAI : MonoBehaviour
 
             }
 
-
-
             EnemyAlertBeam beam =
 
                 beamObj.GetComponent<EnemyAlertBeam>();
-
-
 
             if (beam == null)
 
                 continue;
 
-
-
             Vector3 alertPosition =
 
                 _lastKnownPlayerPosition;
-
-
 
             beam.Launch(
 
@@ -1783,8 +1393,6 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     // =====================================================================
     // GESTION DU JOUEUR CACHÉ
     // =====================================================================
@@ -1796,25 +1404,17 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
         if (PlayerStealth.Instance == null)
 
             return;
-
-
 
         PlayerStealth.Instance.OnPlayerHidden +=
 
             HandlePlayerHidden;
 
-
-
         _isSubscribedToPlayer = true;
 
     }
-
-
 
     private void UnsubscribeFromPlayer()
 
@@ -1823,8 +1423,6 @@ public class EnemyAI : MonoBehaviour
         if (!_isSubscribedToPlayer)
 
             return;
-
-
 
         if (PlayerStealth.Instance != null)
 
@@ -1836,13 +1434,9 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         _isSubscribedToPlayer = false;
 
     }
-
-
 
     private void HandlePlayerHidden(
 
@@ -1854,14 +1448,9 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
-
         ResetAttackProgressBar();
 
     }
-
-
 
     // =====================================================================
     // BARRE D'ATTAQUE
@@ -1874,8 +1463,6 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
         attackProgressBar.minValue = 0f;
 
         attackProgressBar.maxValue = 1f;
@@ -1884,8 +1471,6 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     private void UpdateAttackProgressBar()
 
     {
@@ -1893,8 +1478,6 @@ public class EnemyAI : MonoBehaviour
         if (attackProgressBar == null)
 
             return;
-
-
 
         if (attackAnimDuration <= 0f)
 
@@ -1905,8 +1488,6 @@ public class EnemyAI : MonoBehaviour
             return;
 
         }
-
-
 
         attackProgressBar.value =
 
@@ -1920,31 +1501,21 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-
-
     private void ResetAttackProgressBar()
 
     {
 
         attackTimer = 0f;
 
-
-
         isPreparingAttack = false;
 
-
-
         attackTarget = null;
-
-
 
         if (attackProgressBar != null)
 
         {
 
             attackProgressBar.value = 0f;
-
-
 
             attackProgressBar.gameObject.SetActive(
 
@@ -1955,8 +1526,6 @@ public class EnemyAI : MonoBehaviour
         }
 
     }
-
-
 
     // =====================================================================
     // COROUTINE
@@ -1969,21 +1538,15 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
         StopCoroutine(
 
             _behaviourRoutine
 
         );
 
-
-
         _behaviourRoutine = null;
 
     }
-
-
 
     // =====================================================================
     // ÉTAT
@@ -1996,8 +1559,6 @@ public class EnemyAI : MonoBehaviour
 
         _state = newState;
 
-
-
         UpdateDetectionLight(
 
             newState
@@ -2005,8 +1566,6 @@ public class EnemyAI : MonoBehaviour
         );
 
     }
-
-
 
     private void UpdateDetectionLight(
 
@@ -2018,13 +1577,9 @@ public class EnemyAI : MonoBehaviour
 
             return;
 
-
-
         detectionLight.intensity =
 
             lightIntensity;
-
-
 
         switch (state)
 
@@ -2032,55 +1587,33 @@ public class EnemyAI : MonoBehaviour
 
             case EnemyState.Chasing:
 
-
-
                 detectionLight.enabled = true;
-
-
 
                 detectionLight.color =
 
                     chasingLightColor;
 
-
-
                 break;
-
-
 
             case EnemyState.Roaming:
 
-
-
                 detectionLight.enabled = true;
-
-
 
                 detectionLight.color =
 
                     roamingLightColor;
 
-
-
                 break;
-
-
 
             default:
 
-
-
                 detectionLight.enabled = false;
-
-
 
                 break;
 
         }
 
     }
-
-
 
     // =====================================================================
     // GIZMOS
@@ -2095,8 +1628,6 @@ public class EnemyAI : MonoBehaviour
 
             Gizmos.color = Color.yellow;
 
-
-
             Gizmos.DrawWireSphere(
 
                 transform.position,
@@ -2107,11 +1638,7 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-
-
         Gizmos.color = Color.red;
-
-
 
         Gizmos.DrawWireSphere(
 
@@ -2121,11 +1648,7 @@ public class EnemyAI : MonoBehaviour
 
         );
 
-
-
     }
-
-
 
     private void OnCollisionEnter(Collision other)
 
@@ -2136,8 +1659,6 @@ public class EnemyAI : MonoBehaviour
             _body.isKinematic = true;
 
     }
-
-
 
     private void OnCollisionExit(Collision other)
 

@@ -14,11 +14,8 @@ public class S_CamController_Robot : MonoBehaviour
     public Vector3 cameraLocalPosition = new Vector3(0f, 1.6f, 0f);
     public float lookSensitivity = 2.5f;
     public float mouseLookSensitivity = 0.05f;
-    public float minPitch = -80f;
-    public float maxPitch = 80f;
 
     Vector2 lookInput;
-    float pitch;
     float yaw;
 
     void Awake()
@@ -64,15 +61,14 @@ public class S_CamController_Robot : MonoBehaviour
         if (camPos != null)
             cam.localPosition = cameraLocalPosition;
 
-        pitch = cam.localEulerAngles.x;
-        if (pitch > 180f)
+        yaw = orientation != null ? orientation.localEulerAngles.y : cam.localEulerAngles.y;
+
+        if (yaw > 180f)
         {
-            pitch -= 360f;
+            yaw -= 360f;
         }
 
-        yaw = orientation != null ? orientation.localEulerAngles.y : cam.localEulerAngles.y;
-        if (yaw > 180f)
-            yaw -= 360f;
+        cam.localRotation = Quaternion.identity;
     }
 
     public void MoveCamera()
@@ -88,14 +84,13 @@ public class S_CamController_Robot : MonoBehaviour
         }
 
         yaw += lookInput.x * lookSensitivity;
-        pitch = Mathf.Clamp(pitch - lookInput.y * lookSensitivity, minPitch, maxPitch);
 
         if (orientation != null)
         {
             orientation.localRotation = Quaternion.Euler(0f, yaw, 0f);
         }
 
-        cam.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        cam.localRotation = Quaternion.identity;
         lookInput = Vector2.zero;
     }
 
@@ -122,7 +117,10 @@ public class S_CamController_Robot : MonoBehaviour
     public void AdjustYawForBodyTurn(float bodyYawDelta)
     {
         yaw = Mathf.DeltaAngle(0f, yaw - bodyYawDelta);
+
         if (orientation != null)
+        {
             orientation.localRotation = Quaternion.Euler(0f, yaw, 0f);
+        }
     }
 }

@@ -12,24 +12,14 @@ public class S_Field_Of_View : MonoBehaviour
     public Vector3 ViewDirection => viewDirection != null ? viewDirection.forward : transform.forward;
 
     public LayerMask targetMask;
+    [Tooltip("Layers that block line of sight to targets.")]
     public LayerMask obstacleMask;
-    public LayerMask objectMask;
 
     public List<Transform> visibleTargets = new List<Transform>();
-    public List<Transform> visibleObjects = new List<Transform>();
-
-    readonly HashSet<MeshRenderer> hiddenTargets = new HashSet<MeshRenderer>();
-    readonly HashSet<MeshRenderer> hiddenObjects = new HashSet<MeshRenderer>();
 
     void Start()
     {
         StartCoroutine(FindTargetsWithDelay(0.2f));
-    }
-
-    void OnDisable()
-    {
-        RestoreRenderers(hiddenTargets);
-        RestoreRenderers(hiddenObjects);
     }
 
     IEnumerator FindTargetsWithDelay(float delay)
@@ -38,69 +28,42 @@ public class S_Field_Of_View : MonoBehaviour
         {
             yield return new WaitForSeconds(delay);
             FindVisibleTargets();
-            FindVisibleObjects();
         }
     }
 
     void FindVisibleTargets()
     {
-        UpdateVisibility(targetMask, visibleTargets, hiddenTargets);
-    }
+        visibleTargets.Clear();
 
-    void FindVisibleObjects()
-    {
-        UpdateVisibility(objectMask, visibleObjects, hiddenObjects);
-    }
+        Collider[] targetsInRange = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
 
-    void UpdateVisibility(LayerMask elementMask, List<Transform> visibleElements, HashSet<MeshRenderer> previouslyHidden)
-    {
-        visibleElements.Clear();
-        HashSet<MeshRenderer> hiddenThisScan = new HashSet<MeshRenderer>();
-        Collider[] elementsInRange = Physics.OverlapSphere(transform.position, viewRadius, elementMask);
-
-        foreach (Collider element in elementsInRange)
+        foreach (Collider target in targetsInRange)
         {
-            Transform elementTransform = element.transform;
-            bool isVisible = IsVisible(elementTransform);
+            Transform targetTransform = target.transform;
 
-            if (isVisible && !visibleElements.Contains(elementTransform))
-                visibleElements.Add(elementTransform);
-
-            MeshRenderer elementRenderer = element.GetComponent<MeshRenderer>();
-            if (elementRenderer == null)
+            if (visibleTargets.Contains(targetTransform) || !IsInFieldOfView(targetTransform))
+            {
                 continue;
+            }
 
-            elementRenderer.enabled = isVisible;
-            if (!isVisible)
-                hiddenThisScan.Add(elementRenderer);
+            Vector3 directionToTarget = targetTransform.position - transform.position;
+
+            float distanceToTarget = directionToTarget.magnitude;
+
+            if (distanceToTarget > 0f && Physics.Raycast(transform.position, directionToTarget / distanceToTarget, distanceToTarget, obstacleMask))
+            {
+                continue;
+            }
+
+            visibleTargets.Add(targetTransform);
         }
-
-        foreach (MeshRenderer previouslyHiddenRenderer in previouslyHidden)
-        {
-            if (previouslyHiddenRenderer != null && !hiddenThisScan.Contains(previouslyHiddenRenderer))
-                previouslyHiddenRenderer.enabled = true;
-        }
-
-        previouslyHidden.Clear();
-        previouslyHidden.UnionWith(hiddenThisScan);
     }
 
-    bool IsVisible(Transform element)
+    bool IsInFieldOfView(Transform target)
     {
-        Vector3 direction = element.position - transform.position;
+        Vector3 directionToTarget = target.position - transform.position;
 
-        return Vector3.Angle(ViewDirection, direction) < viewAngle / 2
-            && !Physics.Raycast(transform.position, direction.normalized, direction.magnitude, obstacleMask);
+        return Vector3.Angle(ViewDirection, directionToTarget) < viewAngle / 2;
     }
 
-    static void RestoreRenderers(HashSet<MeshRenderer> renderers)
-    {
-        foreach (MeshRenderer renderer in renderers)
-        {
-            if (renderer != null)
-                renderer.enabled = true;
-        }
-
-        renderers.Clear();
-    }
 }

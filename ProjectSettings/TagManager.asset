@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - ButtonDoor
   - Door
+  - Ally
   layers:
   - Default
   - TransparentFX
@@ -16,8 +17,8 @@ TagManager:
   - Enemy
   - Water
   - UI
-  - Obstacle
-  - Target
+  - 
+  - 
   - View_Mask_Test
   - Character
   - Object

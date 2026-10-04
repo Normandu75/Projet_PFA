@@ -44,10 +44,11 @@ GameObject:
   - component: {fileID: 6277479592010068076}
   - component: {fileID: 3155735457313446105}
   - component: {fileID: 2111938098195941911}
-  - component: {fileID: 3085914710198313428}
-  - component: {fileID: 4021968301873128502}
   - component: {fileID: 2037128529669448820}
   - component: {fileID: 717853077332918261}
+  - component: {fileID: 8037056444319024279}
+  - component: {fileID: 3085914710198313428}
+  - component: {fileID: 4021968301873128502}
   m_Layer: 0
   m_Name: Robot_Ally
   m_TagString: Untagged
@@ -179,48 +180,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &3085914710198313428
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1937869954476672063}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7dde1e6bc8d6444da7499ef228498b3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerPivot
-  pivot: {fileID: 8694085229438326242}
-  scan: {fileID: 4021968301873128502}
-  positionWeight: 0
-  rotationWeight: 1
-  rotationSpeed: 90
---- !u!114 &4021968301873128502
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1937869954476672063}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 687513fcfa65d964eb3944f294c08d89, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ScanArmsAdvanced
-  weightByDist: 0
-  armCount: 10
-  armLenght: 0.84
-  armDuplicateCount: 3
-  armDuplicate: 2
-  armDuplicateAngle: 32
-  arcAngle: 270
-  arcResolution: 12
-  arcLayer:
-    serializedVersion: 2
-    m_Bits: 6144
-  gizmoDrawPoint: 1
-  gizmoDrawLink: 1
 --- !u!114 &2037128529669448820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263,6 +222,67 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2048
   arcTransformRotation: {fileID: 6834704761444267503}
+--- !u!114 &8037056444319024279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937869954476672063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f11d6a488534a874d977da901b2f317e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::S_Field_Of_View
+  viewRadius: 0
+  viewAngle: 0
+  viewDirection: {fileID: 0}
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 0
+  visibleTargets: []
+--- !u!114 &3085914710198313428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937869954476672063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7dde1e6bc8d6444da7499ef228498b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerPivot
+  pivot: {fileID: 8694085229438326242}
+  scan: {fileID: 4021968301873128502}
+  positionWeight: 0
+  rotationWeight: 1
+  rotationSpeed: 90
+--- !u!114 &4021968301873128502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937869954476672063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 687513fcfa65d964eb3944f294c08d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScanArmsAdvanced
+  weightByDist: 0
+  armCount: 10
+  armLenght: 0.84
+  armDuplicateCount: 3
+  armDuplicate: 2
+  armDuplicateAngle: 32
+  arcAngle: 270
+  arcResolution: 12
+  arcLayer:
+    serializedVersion: 2
+    m_Bits: 6144
+  gizmoDrawPoint: 1
+  gizmoDrawLink: 1
 --- !u!1 &4397222433282891793
 GameObject:
   m_ObjectHideFlags: 0
@@ -313,8 +333,6 @@ MonoBehaviour:
   cameraLocalPosition: {x: 0, y: 1.6, z: 0}
   lookSensitivity: 1.5
   mouseLookSensitivity: 0.05
-  minPitch: -80
-  maxPitch: 80
 --- !u!1 &5666068754617628923
 GameObject:
   m_ObjectHideFlags: 0
