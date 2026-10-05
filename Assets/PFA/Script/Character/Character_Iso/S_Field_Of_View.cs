@@ -17,9 +17,11 @@ public class S_Field_Of_View : MonoBehaviour
 
     public List<Transform> visibleTargets = new List<Transform>();
 
+    private readonly HashSet<EnemyAI> _visibleEnemies = new HashSet<EnemyAI>();
+
     void Start()
     {
-        StartCoroutine(FindTargetsWithDelay(0.2f));
+        StartCoroutine(FindTargetsWithDelay(2f));
     }
 
     IEnumerator FindTargetsWithDelay(float delay)
@@ -34,6 +36,8 @@ public class S_Field_Of_View : MonoBehaviour
     void FindVisibleTargets()
     {
         visibleTargets.Clear();
+
+        HashSet<EnemyAI> currentlyVisibleEnemies = new HashSet<EnemyAI>();
 
         Collider[] targetsInRange = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
 
@@ -56,7 +60,27 @@ public class S_Field_Of_View : MonoBehaviour
             }
 
             visibleTargets.Add(targetTransform);
+
+            EnemyAI enemy = targetTransform.GetComponentInParent<EnemyAI>();
+
+            if (enemy != null && currentlyVisibleEnemies.Add(enemy) && !_visibleEnemies.Contains(enemy))
+            {
+                S_Robot_Controller robotController =
+                    GetComponentInParent<S_Robot_Controller>();
+                S_Control_Ally allyController =
+                    GetComponentInParent<S_Control_Ally>();
+                Transform observer = robotController != null
+                    ? robotController.transform
+                    : allyController != null
+                        ? allyController.transform
+                        : transform.root;
+
+                enemy.OnSpottedBy(observer);
+            }
         }
+
+        _visibleEnemies.Clear();
+        _visibleEnemies.UnionWith(currentlyVisibleEnemies);
     }
 
     bool IsInFieldOfView(Transform target)

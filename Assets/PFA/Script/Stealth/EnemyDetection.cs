@@ -8,9 +8,8 @@ public class EnemyDetection : MonoBehaviour
     [SerializeField] private float viewAngle = 70f;    // angle total du cône (en degrés)
     [SerializeField] private float viewDistance = 12f;
     [SerializeField] private LayerMask obstacleMask;   // murs / portes qui bloquent la vue
-    [SerializeField] private LayerMask playerMask;
 
-    private Transform _player;
+    private Transform _ally;
 
     public float ViewAngle => viewAngle;
     public float ViewDistance => viewDistance;
@@ -18,9 +17,36 @@ public class EnemyDetection : MonoBehaviour
 
     private void Awake()
     {
-        var playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null) _player = playerObj.transform;
+        FindAlly();
         if (eyePoint == null) eyePoint = transform;
+    }
+
+    private Transform FindAlly()
+    {
+        if (_ally != null)
+            return _ally;
+
+        GameObject allyObject = GameObject.FindGameObjectWithTag("Ally");
+        if (allyObject != null)
+        {
+            _ally = allyObject.transform;
+            return _ally;
+        }
+
+        S_Robot_Controller robotController =
+            FindAnyObjectByType<S_Robot_Controller>();
+        if (robotController != null)
+        {
+            _ally = robotController.transform;
+            return _ally;
+        }
+
+        S_Control_Ally allyController =
+            FindAnyObjectByType<S_Control_Ally>();
+        if (allyController != null)
+            _ally = allyController.transform;
+
+        return _ally;
     }
 
     /// <summary>Vrai si le point est dans l'angle ET dans la distance du cône (sans check de mur).</summary>
@@ -51,38 +77,25 @@ public class EnemyDetection : MonoBehaviour
     }
 
 
-    public bool CanSeePlayer(out Vector3 playerPosition)
+    public bool CanSeeAlly(out Vector3 allyPosition)
     {
-        playerPosition = default;
-        if (_player == null) return false;
-        if (PlayerStealth.Instance != null && PlayerStealth.Instance.IsHidden) return false;
+        allyPosition = default;
+        Transform ally = FindAlly();
+        if (ally == null) return false;
 
-        if (!IsPointInCone(_player.position)) return false;
-        if (!HasLineOfSight(_player.position)) return false;
+        return CanSeeTarget(ally, out allyPosition);
+    }
 
-        playerPosition = _player.position;
+    public bool CanSeeTarget(Transform target, out Vector3 targetPosition)
+    {
+        targetPosition = default;
+        if (target == null) return false;
+        if (!IsPointInCone(target.position)) return false;
+        if (!HasLineOfSight(target.position)) return false;
+
+        targetPosition = target.position;
         return true;
     }
-
-    public Transform Player => _player;
-
-
-    private void OnDrawGizmosSelected()
-    {
-        Vector3 origin = eyePoint != null ? eyePoint.position : transform.position;
-        Gizmos.color = new Color(1f, 0f, 0f, 0.5f);
-
-        int segments = 20;
-        float half = viewAngle * 0.5f;
-        Vector3 prevPoint = origin + Quaternion.Euler(0f, -half, 0f) * transform.forward * viewDistance;
-
-        for (int i = 1; i <= segments; i++)
-        {
-            float angle = -half + (viewAngle / segments) * i;
-            Vector3 point = origin + Quaternion.Euler(0f, angle, 0f) * transform.forward * viewDistance;
-            Gizmos.DrawLine(origin, point);
-            Gizmos.DrawLine(prevPoint, point);
-            prevPoint = point;
-        }
-    }
+    
+    public Transform Ally => FindAlly();
 }
