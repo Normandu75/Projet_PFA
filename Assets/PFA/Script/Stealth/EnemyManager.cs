@@ -1,10 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-
-/// <summary>
-/// Singleton qui garde la liste de tous les ennemis actifs.
-/// Sert de point central pour diffuser une alerte (rayon rouge) aux autres ennemis.
-/// </summary>
 public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager Instance { get; private set; }

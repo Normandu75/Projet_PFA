@@ -8,38 +8,45 @@ public class QuickItemController : MonoBehaviour
 
     private void Update()
     {
+        if (InventoryManager.Instance == null)
+            return;
+
+        InventoryItem quickItem =
+            InventoryManager.Instance.GetQuickItem();
+
+        // Une grenade est gérée par GrenadeThrow :
+        // LT = viser
+        // RT = lancer
+        if (quickItem != null &&
+            quickItem.itemType == InventoryItemType.Grenade)
+        {
+            return;
+        }
+
         bool useItem = false;
 
         // Clavier : F
-        if (Keyboard.current != null)
+        if (Keyboard.current != null &&
+            Keyboard.current.fKey.wasPressedThisFrame)
         {
-            if (Keyboard.current.fKey.wasPressedThisFrame)
-            {
-                useItem = true;
-            }
+            useItem = true;
         }
 
         // Souris : bouton latéral avant
-        if (Mouse.current != null)
+        if (Mouse.current != null &&
+            Mouse.current.forwardButton.wasPressedThisFrame)
         {
-            if (Mouse.current.forwardButton.wasPressedThisFrame)
-            {
-                useItem = true;
-            }
+            useItem = true;
         }
-        // Manette : X 
-        if (Gamepad.current != null) 
-        { 
-            if (Gamepad.current.buttonWest.wasPressedThisFrame) 
-            { 
-                useItem = true; 
-            } 
+
+        // Manette : X
+        if (Gamepad.current != null &&
+            Gamepad.current.buttonWest.wasPressedThisFrame)
+        {
+            useItem = true;
         }
 
         if (!useItem)
-            return;
-
-        if (InventoryManager.Instance == null)
             return;
 
         if (healthBar == null)
