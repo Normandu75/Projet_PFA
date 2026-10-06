@@ -1450,39 +1450,49 @@ public class RuntimeInventoryUI : MonoBehaviour
 
     private void OpenWheel()
     {
-        isOpen =
-            true;
+        isOpen = true;
 
-        wheelRoot.SetActive(
-            true
-        );
+        wheelRoot.SetActive(true);
 
-        selectedIndex =
-            -1;
+        selectedIndex = -1;
 
-        Cursor.visible =
-            true;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
-        Cursor.lockState =
-            CursorLockMode.None;
+        // =========================================
+        // BLOQUE LE JOUEUR
+        // =========================================
+        if (S_Character_Controller.instance != null)
+        {
+            S_Character_Controller.instance.canMove = false;
+
+            // Stoppe immédiatement le mouvement actuel
+            if (S_Character_Controller.instance.rigidBody != null)
+            {
+                S_Character_Controller.instance.rigidBody.linearVelocity =
+                    Vector3.zero;
+            }
+        }
 
         RefreshInventory();
     }
-
     private void CloseWheel()
     {
-        isOpen =
-            false;
-
-        wheelRoot.SetActive(
-            false
-        );
-
-        Cursor.visible =
-            true;
-
-        selectedIndex =
-            -1;
+        isOpen = false;
+    
+        wheelRoot.SetActive(false);
+    
+        Cursor.visible = true;
+    
+        selectedIndex = -1;
+    
+        // =========================================
+        // REDONNE LE MOUVEMENT AU JOUEUR
+        // =========================================
+        if (S_Character_Controller.instance != null)
+        {
+            S_Character_Controller.instance.canMove = true;
+        }
     }
 
     private void HideWheel()
