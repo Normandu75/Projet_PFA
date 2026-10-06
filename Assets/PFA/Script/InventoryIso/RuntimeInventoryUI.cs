@@ -8,18 +8,25 @@ public class RuntimeInventoryUI : MonoBehaviour
     [Header("Wheel")]
     [SerializeField]
     private float outerRadius = 300f;
-    
-    [Header("Quick Slot")]
-    [SerializeField]
-    private Sprite quickSlotButtonIcon;
-    [SerializeField]
-    private Sprite aimButtonIcon;
-    private Image aimButtonImage;
 
     [SerializeField]
     private float innerRadius = 125f;
-    [Header("Center")]
 
+    [Header("Quick Slot")]
+    [SerializeField]
+    private Sprite quickSlotButtonIcon;
+
+    [SerializeField]
+    private Sprite aimButtonIcon;
+
+    [SerializeField]
+    private Sprite throwButtonIcon;
+
+    private Image quickSlotButtonImage;
+    private Image aimButtonImage;
+    private Image throwButtonImage;
+
+    [Header("Center")]
     [SerializeField]
     private float centerSize = 220f;
 
@@ -39,6 +46,7 @@ public class RuntimeInventoryUI : MonoBehaviour
     [SerializeField]
     private Color centerColor =
         new Color(0.005f, 0.018f, 0.035f, 0.98f);
+
     [SerializeField]
     private Sprite mouseAimIcon;
 
@@ -48,67 +56,40 @@ public class RuntimeInventoryUI : MonoBehaviour
     private Canvas canvas;
 
     private GameObject wheelRoot;
-
     private RectTransform wheelRect;
 
     private Image[] icons;
     private RadialSegmentGraphic[] segments;
 
-    private Color segmentNormalColor =
-        new Color(
-            0.055f,
-            0.065f,
-            0.08f,
-            0.94f
-        );
-
-    private Color segmentEmptyColor =
-        new Color(
-            0.035f,
-            0.04f,
-            0.05f,
-            0.86f
-        );
-
-    private Color segmentSelectedColor =
-        new Color(
-            0.04f,
-            0.42f,
-            0.85f,
-            0.98f
-        );
     private TMP_Text[] amountTexts;
-
     private TMP_Text[] maxTexts;
-
     private Image[] maxBorders;
 
     private TMP_Text centerName;
-
     private TMP_Text centerDescription;
-
     private TMP_Text centerAction;
 
     private GameObject quickSlotRoot;
-
     private Image quickIcon;
-
     private TMP_Text quickAmount;
 
     private int selectedIndex = -1;
-
     private bool isOpen;
 
     private const int SlotCount = 8;
 
+    // =========================================================
+    // UNITY
+    // =========================================================
+
     private void Awake()
     {
         CreateCanvas();
-
         CreateWheel();
-
         CreateQuickSlot();
 
+        // IMPORTANT :
+        // La roue est cachée au lancement.
         HideWheel();
     }
 
@@ -116,14 +97,14 @@ public class RuntimeInventoryUI : MonoBehaviour
     {
         if (InventoryManager.Instance != null)
         {
-            InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
+            InventoryManager.Instance.OnInventoryChanged +=
+                RefreshInventory;
 
             InventoryManager.Instance.OnQuickSlotChanged +=
                 OnQuickSlotChanged;
         }
 
         RefreshInventory();
-
         RefreshQuickSlot();
     }
 
@@ -147,7 +128,6 @@ public class RuntimeInventoryUI : MonoBehaviour
             return;
 
         UpdateMouseSelection();
-
         UpdateGamepadSelection();
 
         RefreshSelection();
@@ -219,10 +199,6 @@ public class RuntimeInventoryUI : MonoBehaviour
                 outerRadius * 2.5f
             );
 
-        // IMPORTANT :
-        // On ne crée plus le gros fond rectangulaire.
-        // CreateWheelBackground();
-
         icons =
             new Image[SlotCount];
 
@@ -251,145 +227,77 @@ public class RuntimeInventoryUI : MonoBehaviour
 
         CreateCenter();
     }
-    // =========================================================
-    // BACKGROUND
-    // =========================================================
-
-    private void CreateWheelBackground()
-    {
-        GameObject background =
-            new GameObject(
-                "Wheel Background"
-            );
-
-        background.transform.SetParent(
-            wheelRect,
-            false
-        );
-
-        Image image =
-            background.AddComponent<Image>();
-
-        image.color =
-            new Color(
-                0.002f,
-                0.01f,
-                0.02f,
-                0.82f
-            );
-
-        image.raycastTarget = false;
-
-        RectTransform rect =
-            background.GetComponent<RectTransform>();
-
-        rect.anchorMin =
-            new Vector2(0.5f, 0.5f);
-
-        rect.anchorMax =
-            new Vector2(0.5f, 0.5f);
-
-        rect.pivot =
-            new Vector2(0.5f, 0.5f);
-
-        rect.sizeDelta =
-            new Vector2(
-                outerRadius * 2.1f,
-                outerRadius * 2.1f
-            );
-    }
 
     // =========================================================
     // SLOT
     // =========================================================
 
     private void CreateSlot(
-    int index,
-    float anglePerSlot)
+        int index,
+        float anglePerSlot)
     {
-        // =========================================
-        // SLOT
-        // =========================================    
-
         GameObject slot =
             new GameObject(
                 "Slot " + index,
                 typeof(RectTransform),
                 typeof(CanvasRenderer)
-            );  
+            );
 
         slot.transform.SetParent(
             wheelRect,
             false
-        );  
+        );
 
         RectTransform rect =
-            slot.GetComponent<RectTransform>(); 
+            slot.GetComponent<RectTransform>();
 
         rect.anchorMin =
-            new Vector2(0.5f, 0.5f);    
+            new Vector2(0.5f, 0.5f);
 
         rect.anchorMax =
-            new Vector2(0.5f, 0.5f);    
+            new Vector2(0.5f, 0.5f);
 
         rect.pivot =
-            new Vector2(0.5f, 0.5f);    
+            new Vector2(0.5f, 0.5f);
 
         rect.anchoredPosition =
-            Vector2.zero;   
+            Vector2.zero;
 
         rect.sizeDelta =
             new Vector2(
                 outerRadius * 2f,
                 outerRadius * 2f
-            );  
-
-        // =========================================
-        // ANGLE
-        // =========================================    
+            );
 
         float centerAngle =
             90f -
-            index * anglePerSlot;   
-
-        // =========================================
-        // SEGMENT GRAPHIC
-        // =========================================    
+            index * anglePerSlot;
 
         RadialSegmentGraphic segment =
-            slot.AddComponent<RadialSegmentGraphic>();  
+            slot.AddComponent<RadialSegmentGraphic>();
 
         segment.Setup(
             innerRadius,
             outerRadius,
             anglePerSlot,
             5f
-        );  
+        );
 
-        // ROUGE TEMPORAIRE !
-        // Pour être absolument certain de le voir.
-        segment.color = normalColor;
+        segment.color =
+            normalColor;
 
         segment.raycastTarget =
-            false;  
+            false;
 
         segments[index] =
-            segment;    
-
-        // =========================================
-        // ROTATION DU SEGMENT
-        // =========================================    
+            segment;
 
         rect.localRotation =
             Quaternion.Euler(
                 0f,
                 0f,
                 centerAngle
-            );  
-
-        // =========================================
-        // CONTENT
-        // =========================================    
+            );
 
         CreateSlotContent(
             slot.transform,
@@ -403,9 +311,9 @@ public class RuntimeInventoryUI : MonoBehaviour
     // =========================================================
 
     private void CreateSlotContent(
-    Transform parent,
-    int index,
-    float unusedAngle)
+        Transform parent,
+        int index,
+        float unusedAngle)
     {
         GameObject content =
             new GameObject(
@@ -436,8 +344,6 @@ public class RuntimeInventoryUI : MonoBehaviour
                 140f
             );
 
-        // Le mesh du segment pointe vers la droite.
-        // On place donc le contenu vers la droite.
         float contentRadius =
             Mathf.Lerp(
                 innerRadius,
@@ -451,9 +357,6 @@ public class RuntimeInventoryUI : MonoBehaviour
                 0f
             );
 
-        // Le parent est tourné.
-        // On applique la rotation inverse pour que
-        // l'icône reste droite.
         contentRect.localRotation =
             Quaternion.Inverse(
                 parent.localRotation
@@ -489,9 +392,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         int index)
     {
         GameObject iconObject =
-            new GameObject(
-                "Item Icon"
-            );
+            new GameObject("Item Icon");
 
         iconObject.transform.SetParent(
             parent,
@@ -501,9 +402,11 @@ public class RuntimeInventoryUI : MonoBehaviour
         Image image =
             iconObject.AddComponent<Image>();
 
-        image.enabled = false;
+        image.enabled =
+            false;
 
-        image.raycastTarget = false;
+        image.raycastTarget =
+            false;
 
         RectTransform rect =
             image.GetComponent<RectTransform>();
@@ -533,9 +436,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         int index)
     {
         GameObject amountObject =
-            new GameObject(
-                "Amount"
-            );
+            new GameObject("Amount");
 
         amountObject.transform.SetParent(
             parent,
@@ -545,7 +446,8 @@ public class RuntimeInventoryUI : MonoBehaviour
         TMP_Text text =
             amountObject.AddComponent<TextMeshProUGUI>();
 
-        text.fontSize = 21;
+        text.fontSize =
+            21;
 
         text.fontStyle =
             FontStyles.Bold;
@@ -556,7 +458,8 @@ public class RuntimeInventoryUI : MonoBehaviour
         text.color =
             Color.white;
 
-        text.raycastTarget = false;
+        text.raycastTarget =
+            false;
 
         RectTransform rect =
             text.GetComponent<RectTransform>();
@@ -586,9 +489,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         int index)
     {
         GameObject maxObject =
-            new GameObject(
-                "MAX"
-            );
+            new GameObject("MAX");
 
         maxObject.transform.SetParent(
             parent,
@@ -601,7 +502,8 @@ public class RuntimeInventoryUI : MonoBehaviour
         text.text =
             "MAX";
 
-        text.fontSize = 15;
+        text.fontSize =
+            15;
 
         text.fontStyle =
             FontStyles.Bold;
@@ -612,7 +514,8 @@ public class RuntimeInventoryUI : MonoBehaviour
         text.color =
             maxColor;
 
-        text.raycastTarget = false;
+        text.raycastTarget =
+            false;
 
         RectTransform rect =
             text.GetComponent<RectTransform>();
@@ -644,9 +547,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         int index)
     {
         GameObject borderObject =
-            new GameObject(
-                "MAX Border"
-            );
+            new GameObject("MAX Border");
 
         borderObject.transform.SetParent(
             parent,
@@ -659,7 +560,8 @@ public class RuntimeInventoryUI : MonoBehaviour
         border.color =
             maxColor;
 
-        border.raycastTarget = false;
+        border.raycastTarget =
+            false;
 
         RectTransform rect =
             border.GetComponent<RectTransform>();
@@ -694,50 +596,42 @@ public class RuntimeInventoryUI : MonoBehaviour
                 typeof(RectTransform),
                 typeof(CanvasRenderer)
             );
-    
+
         center.transform.SetParent(
             wheelRect,
             false
         );
-    
+
         RectTransform rect =
             center.GetComponent<RectTransform>();
-    
+
         rect.anchorMin =
             new Vector2(0.5f, 0.5f);
-    
+
         rect.anchorMax =
             new Vector2(0.5f, 0.5f);
-    
+
         rect.pivot =
             new Vector2(0.5f, 0.5f);
-    
+
         rect.anchoredPosition =
             Vector2.zero;
-    
+
         rect.sizeDelta =
             new Vector2(
                 centerSize,
                 centerSize
             );
-    
-        // ==============================
-        // CERCLE
-        // ==============================
-    
+
         UICircleGraphic circle =
             center.AddComponent<UICircleGraphic>();
-    
+
         circle.color =
             centerColor;
-    
+
         circle.raycastTarget =
             false;
-    
-        // ==============================
-        // TEXTES
-        // ==============================
-    
+
         centerName =
             CreateCenterText(
                 center.transform,
@@ -747,7 +641,7 @@ public class RuntimeInventoryUI : MonoBehaviour
                     35f
                 )
             );
-    
+
         centerDescription =
             CreateCenterText(
                 center.transform,
@@ -757,7 +651,7 @@ public class RuntimeInventoryUI : MonoBehaviour
                     0f
                 )
             );
-    
+
         centerAction =
             CreateCenterText(
                 center.transform,
@@ -767,7 +661,7 @@ public class RuntimeInventoryUI : MonoBehaviour
                     -40f
                 )
             );
-    
+
         centerName.color =
             selectedColor;
     }
@@ -778,9 +672,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         Vector2 position)
     {
         GameObject objectText =
-            new GameObject(
-                "Text"
-            );
+            new GameObject("Text");
 
         objectText.transform.SetParent(
             parent,
@@ -799,7 +691,8 @@ public class RuntimeInventoryUI : MonoBehaviour
         text.alignment =
             TextAlignmentOptions.Center;
 
-        text.raycastTarget = false;
+        text.raycastTarget =
+            false;
 
         RectTransform rect =
             text.GetComponent<RectTransform>();
@@ -823,9 +716,7 @@ public class RuntimeInventoryUI : MonoBehaviour
     private void CreateQuickSlot()
     {
         quickSlotRoot =
-            new GameObject(
-                "Quick Slot"
-            );
+            new GameObject("Quick Slot");
 
         quickSlotRoot.transform.SetParent(
             canvas.transform,
@@ -835,23 +726,19 @@ public class RuntimeInventoryUI : MonoBehaviour
         RectTransform rect =
             quickSlotRoot.AddComponent<RectTransform>();
 
+        // =====================================================
+        // QUICK SLOT POSITION
+        // Bas droite, mais suffisamment éloigné des bords.
+        // =====================================================
+
         rect.anchorMin =
-            new Vector2(
-                1f,
-                0f
-            );
+            new Vector2(1f, 0f);
 
         rect.anchorMax =
-            new Vector2(
-                1f,
-                0f
-            );
+            new Vector2(1f, 0f);
 
         rect.pivot =
-            new Vector2(
-                1f,
-                0f
-            );
+            new Vector2(0.5f, 0.5f);
 
         rect.sizeDelta =
             new Vector2(
@@ -861,8 +748,8 @@ public class RuntimeInventoryUI : MonoBehaviour
 
         rect.anchoredPosition =
             new Vector2(
-                -35f,
-                35f
+                -125f,
+                125f
             );
 
         Image background =
@@ -874,10 +761,12 @@ public class RuntimeInventoryUI : MonoBehaviour
         background.raycastTarget =
             false;
 
+        // =====================================================
+        // QUICK ITEM ICON
+        // =====================================================
+
         GameObject iconObject =
-            new GameObject(
-                "Quick Icon"
-            );
+            new GameObject("Quick Icon");
 
         iconObject.transform.SetParent(
             quickSlotRoot.transform,
@@ -887,13 +776,23 @@ public class RuntimeInventoryUI : MonoBehaviour
         quickIcon =
             iconObject.AddComponent<Image>();
 
-        quickIcon.enabled = false;
+        quickIcon.enabled =
+            false;
 
         quickIcon.raycastTarget =
             false;
 
         RectTransform iconRect =
             quickIcon.GetComponent<RectTransform>();
+
+        iconRect.anchorMin =
+            new Vector2(0.5f, 0.5f);
+
+        iconRect.anchorMax =
+            new Vector2(0.5f, 0.5f);
+
+        iconRect.pivot =
+            new Vector2(0.5f, 0.5f);
 
         iconRect.sizeDelta =
             new Vector2(
@@ -907,10 +806,12 @@ public class RuntimeInventoryUI : MonoBehaviour
                 20f
             );
 
+        // =====================================================
+        // QUICK AMOUNT
+        // =====================================================
+
         GameObject amountObject =
-            new GameObject(
-                "Quick Amount"
-            );
+            new GameObject("Quick Amount");
 
         amountObject.transform.SetParent(
             quickSlotRoot.transform,
@@ -929,8 +830,20 @@ public class RuntimeInventoryUI : MonoBehaviour
         quickAmount.alignment =
             TextAlignmentOptions.Center;
 
+        quickAmount.raycastTarget =
+            false;
+
         RectTransform amountRect =
             quickAmount.GetComponent<RectTransform>();
+
+        amountRect.anchorMin =
+            new Vector2(0.5f, 0.5f);
+
+        amountRect.anchorMax =
+            new Vector2(0.5f, 0.5f);
+
+        amountRect.pivot =
+            new Vector2(0.5f, 0.5f);
 
         amountRect.sizeDelta =
             new Vector2(
@@ -940,77 +853,169 @@ public class RuntimeInventoryUI : MonoBehaviour
 
         amountRect.anchoredPosition =
             new Vector2(
-                20f,
+                0f,
                 -45f
             );
 
+        // =====================================================
+        // X - QUICK SLOT BUTTON
+        // =====================================================
+
         GameObject keyObject =
-    new GameObject("Quick Key");
+            new GameObject("Quick Key");
 
-    keyObject.transform.SetParent(
-        quickSlotRoot.transform,
-        false
-    );
-    
-    
-    Image keyImage =
-        keyObject.AddComponent<Image>();
-    
-    keyImage.sprite =
-        quickSlotButtonIcon;
-    
-    keyImage.preserveAspect =
-        true;
-    
-    keyImage.raycastTarget =
-        false;
-    
-    RectTransform keyRect =
-        keyImage.GetComponent<RectTransform>();
-    
-    keyRect.sizeDelta =
-        new Vector2(
-            40f,
-            30f
+        keyObject.transform.SetParent(
+            quickSlotRoot.transform,
+            false
         );
-    
-    keyRect.anchoredPosition =
-    new Vector2(
-        -48f,
-        -48f
-    );
 
-    GameObject aimObject =
-    new GameObject("Aim Key");
+        quickSlotButtonImage =
+            keyObject.AddComponent<Image>();
 
-    aimObject.transform.SetParent(
-        quickSlotRoot.transform,
-        false
-    );
+        quickSlotButtonImage.sprite =
+            quickSlotButtonIcon;
 
-    aimButtonImage =
-        aimObject.AddComponent<Image>();
+        quickSlotButtonImage.preserveAspect =
+            true;
 
-    aimButtonImage.sprite =
-        aimButtonIcon;
+        quickSlotButtonImage.raycastTarget =
+            false;
 
-    aimButtonImage.preserveAspect =
-        true;
+        // Caché tant qu'aucun objet n'est équipé.
+        quickSlotButtonImage.enabled =
+            false;
 
-    aimButtonImage.raycastTarget =
-        false;
+        RectTransform keyRect =
+            quickSlotButtonImage.GetComponent<RectTransform>();
 
-    RectTransform aimRect =
-        aimButtonImage.GetComponent<RectTransform>();
+        keyRect.anchorMin =
+            new Vector2(0.5f, 0.5f);
 
-    aimRect.sizeDelta =
-        new Vector2(40f, 30f);
+        keyRect.anchorMax =
+            new Vector2(0.5f, 0.5f);
 
-    aimRect.anchoredPosition =
-        new Vector2(
-            -48f,
-            -82f
+        keyRect.pivot =
+            new Vector2(0.5f, 0.5f);
+
+        keyRect.sizeDelta =
+            new Vector2(
+                40f,
+                30f
+            );
+
+        // X à gauche.
+        keyRect.anchoredPosition =
+            new Vector2(
+                -48f,
+                -48f
+            );
+
+        // =====================================================
+        // LT - AIM BUTTON
+        // =====================================================
+
+        GameObject aimObject =
+            new GameObject("Aim Key");
+
+        aimObject.transform.SetParent(
+            quickSlotRoot.transform,
+            false
         );
+
+        aimButtonImage =
+            aimObject.AddComponent<Image>();
+
+        aimButtonImage.sprite =
+            aimButtonIcon;
+
+        aimButtonImage.preserveAspect =
+            true;
+
+        aimButtonImage.raycastTarget =
+            false;
+
+        // Caché tant qu'aucune grenade n'est équipée.
+        aimButtonImage.enabled =
+            false;
+
+        RectTransform aimRect =
+            aimButtonImage.GetComponent<RectTransform>();
+
+        aimRect.anchorMin =
+            new Vector2(0.5f, 0.5f);
+
+        aimRect.anchorMax =
+            new Vector2(0.5f, 0.5f);
+
+        aimRect.pivot =
+            new Vector2(0.5f, 0.5f);
+
+        aimRect.sizeDelta =
+            new Vector2(
+                40f,
+                30f
+            );
+
+        // LT À GAUCHE.
+        // Même emplacement que X.
+        aimRect.anchoredPosition =
+            new Vector2(
+                -48f,
+                -48f
+            );
+
+        // =====================================================
+        // RT - THROW BUTTON
+        // =====================================================
+
+        GameObject throwObject =
+            new GameObject("Throw Key");
+
+        throwObject.transform.SetParent(
+            quickSlotRoot.transform,
+            false
+        );
+
+        throwButtonImage =
+            throwObject.AddComponent<Image>();
+
+        throwButtonImage.sprite =
+            throwButtonIcon;
+
+        throwButtonImage.preserveAspect =
+            true;
+
+        throwButtonImage.raycastTarget =
+            false;
+
+        // Caché tant qu'aucune grenade n'est équipée.
+        throwButtonImage.enabled =
+            false;
+
+        RectTransform throwRect =
+            throwButtonImage.GetComponent<RectTransform>();
+
+        throwRect.anchorMin =
+            new Vector2(0.5f, 0.5f);
+
+        throwRect.anchorMax =
+            new Vector2(0.5f, 0.5f);
+
+        throwRect.pivot =
+            new Vector2(0.5f, 0.5f);
+
+        throwRect.sizeDelta =
+            new Vector2(
+                40f,
+                30f
+            );
+
+        // RT À DROITE.
+        throwRect.anchoredPosition =
+            new Vector2(
+                48f,
+                -48f
+            );
     }
 
     // =========================================================
@@ -1055,6 +1060,7 @@ public class RuntimeInventoryUI : MonoBehaviour
             }
         }
     }
+
     private void EquipSelected()
     {
         if (selectedIndex < 0)
@@ -1184,7 +1190,6 @@ public class RuntimeInventoryUI : MonoBehaviour
 
             if (isSelected)
             {
-                // Le curseur pointe ce segment.
                 segments[i].color =
                     selectedColor;
 
@@ -1193,8 +1198,6 @@ public class RuntimeInventoryUI : MonoBehaviour
             }
             else
             {
-                // Les emplacements vides sont
-                // légèrement plus transparents.
                 segments[i].color =
                     hasItem
                         ? normalColor
@@ -1222,9 +1225,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         if (selectedIndex < 0)
         {
             centerName.text = "";
-
             centerDescription.text = "";
-
             centerAction.text = "";
 
             return;
@@ -1249,14 +1250,14 @@ public class RuntimeInventoryUI : MonoBehaviour
             return;
         }
 
-    centerName.text =
-    slot.item.inventoryName;
+        centerName.text =
+            slot.item.inventoryName;
 
-    centerDescription.text =
-    slot.item.inventoryDescription;
+        centerDescription.text =
+            slot.item.inventoryDescription;
 
-    centerAction.text =
-    slot.item.inventoryAction;
+        centerAction.text =
+            slot.item.inventoryAction;
     }
 
     // =========================================================
@@ -1330,52 +1331,109 @@ public class RuntimeInventoryUI : MonoBehaviour
     }
 
     // =========================================================
-    // QUICK SLOT
+    // QUICK SLOT REFRESH
     // =========================================================
 
-    private void OnQuickSlotChanged(
-        int index)
+    private void OnQuickSlotChanged(int index)
     {
         RefreshQuickSlot();
     }
 
     private void RefreshQuickSlot()
     {
-       if (InventoryManager.Instance == null)
-           return;
+        if (InventoryManager.Instance == null)
+            return;
 
-       InventoryItem item =
-           InventoryManager.Instance.GetQuickItem();
+        InventoryItem item =
+            InventoryManager.Instance.GetQuickItem();
 
-       int amount =
-           InventoryManager.Instance.GetQuickItemAmount();
+        int amount =
+            InventoryManager.Instance.GetQuickItemAmount();
 
-       if (item == null)
-       {
-           quickIcon.enabled = false;
-           quickAmount.text = "";
+        // =====================================================
+        // SLOT VIDE
+        // =====================================================
 
-           if (aimButtonImage != null)
-               aimButtonImage.enabled = false;
+        if (item == null || amount <= 0)
+        {
+            quickIcon.enabled =
+                false;
 
-           return;
-       }
+            quickAmount.text =
+                "";
 
-       quickIcon.enabled = true;
-       quickIcon.sprite = item.icon;
+            // Aucun bouton.
+            if (quickSlotButtonImage != null)
+                quickSlotButtonImage.enabled = false;
 
-       quickAmount.text =
-           "x" + amount;
+            if (aimButtonImage != null)
+                aimButtonImage.enabled = false;
 
-       bool isGrenade =
-           item.itemType ==
-           InventoryItemType.Grenade;
+            if (throwButtonImage != null)
+                throwButtonImage.enabled = false;
 
-       if (aimButtonImage != null)
-       {
-           aimButtonImage.enabled =
-               isGrenade;
-       }
+            return;
+        }
+
+        // =====================================================
+        // ITEM ÉQUIPÉ
+        // =====================================================
+
+        quickIcon.enabled =
+            true;
+
+        quickIcon.sprite =
+            item.icon;
+
+        quickAmount.text =
+            "x" + amount;
+
+        // =====================================================
+        // GRENADE ?
+        // =====================================================
+
+        bool isGrenade =
+            item.itemType ==
+            InventoryItemType.Grenade;
+
+        // =====================================================
+        // X
+        //
+        // Soin / consommable / objet normal.
+        // Caché pour une grenade.
+        // =====================================================
+
+        if (quickSlotButtonImage != null)
+        {
+            quickSlotButtonImage.enabled =
+                !isGrenade;
+        }
+
+        // =====================================================
+        // LT
+        //
+        // Toujours visible quand une grenade
+        // est équipée.
+        // =====================================================
+
+        if (aimButtonImage != null)
+        {
+            aimButtonImage.enabled =
+                isGrenade;
+        }
+
+        // =====================================================
+        // RT
+        //
+        // Toujours visible quand une grenade
+        // est équipée.
+        // =====================================================
+
+        if (throwButtonImage != null)
+        {
+            throwButtonImage.enabled =
+                isGrenade;
+        }
     }
 
     // =========================================================
@@ -1390,32 +1448,50 @@ public class RuntimeInventoryUI : MonoBehaviour
             OpenWheel();
     }
 
-    private void OpenWheel() 
-    { 
-        isOpen = true; 
+    private void OpenWheel()
+    {
+        isOpen =
+            true;
 
-        wheelRoot.SetActive(true); selectedIndex = -1; 
+        wheelRoot.SetActive(
+            true
+        );
 
-        Cursor.visible = true; 
+        selectedIndex =
+            -1;
 
-        Cursor.lockState = CursorLockMode.None; 
+        Cursor.visible =
+            true;
 
-        RefreshInventory(); }
+        Cursor.lockState =
+            CursorLockMode.None;
 
-    private void CloseWheel() 
-    { 
-        isOpen = false; 
+        RefreshInventory();
+    }
 
-        wheelRoot.SetActive(false); 
+    private void CloseWheel()
+    {
+        isOpen =
+            false;
 
-        Cursor.visible = true; 
+        wheelRoot.SetActive(
+            false
+        );
 
-        selectedIndex = -1; }
+        Cursor.visible =
+            true;
+
+        selectedIndex =
+            -1;
+    }
 
     private void HideWheel()
     {
-        isOpen = false;
+        isOpen =
+            false;
 
-        wheelRoot.SetActive(false);
+        wheelRoot.SetActive(
+            false
+        );
     }
 }

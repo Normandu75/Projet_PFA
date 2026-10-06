@@ -403,16 +403,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RuntimeInventoryUI
   outerRadius: 350
-  quickSlotButtonIcon: {fileID: 21300000, guid: 1839ff15860eb2a4d8392797c76c791e, type: 3}
-  aimButtonIcon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   innerRadius: 175
+  quickSlotButtonIcon: {fileID: 21300000, guid: 1839ff15860eb2a4d8392797c76c791e, type: 3}
+  aimButtonIcon: {fileID: 21300000, guid: b7891b70f9b60184686e157a5357b449, type: 3}
+  throwButtonIcon: {fileID: 21300000, guid: 3eaff8079f97e2a49b31f76bef55bedd, type: 3}
   centerSize: 300
   normalColor: {r: 0.015, g: 0.055, b: 0.1, a: 0.96}
   selectedColor: {r: 0.05, g: 0.55, b: 1, a: 1}
   maxColor: {r: 1, g: 0.72, b: 0.05, a: 0.40392157}
   centerColor: {r: 0.014574542, g: 0.17521176, b: 0.335849, a: 0.98}
   mouseAimIcon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  gamepadAimIcon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  gamepadAimIcon: {fileID: 21300000, guid: 1839ff15860eb2a4d8392797c76c791e, type: 3}
 --- !u!1 &141957380
 GameObject:
   m_ObjectHideFlags: 0
@@ -2076,7 +2077,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60142189430ac8c4c9b43451495ef916, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grenade
-  explosionDelay: 1.75
+  explosionDelay: 0.75
   distractionRadius: 8
   enemyLayers:
     serializedVersion: 2
@@ -5969,11 +5970,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GrenadeThrow
   grenadePrefab: {fileID: 759714434}
   throwPoint: {fileID: 1833605597}
-  throwForce: 20
+  minThrowForce: 4
+  maxThrowForce: 18
+  chargeSpeed: 8
+  dischargeSpeed: 12
   lineRenderer: {fileID: 993994844}
   trajectoryPoints: 30
   timeBetweenPoints: 0.1
   triggerDeadzone: 0.2
+  inventoryUI: {fileID: 0}
 --- !u!1 &1785889581
 GameObject:
   m_ObjectHideFlags: 0
@@ -6946,6 +6951,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4147539828530141832, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].time
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4147539828530141832, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.13627943
+      objectReference: {fileID: 0}
     - target: {fileID: 4840874221467649103, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.67
@@ -6978,16 +6991,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3608876303101938303, guid: 40d9d53b2d7e7224f8d8a592236b100b, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.5
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 3608876303101938303, guid: 40d9d53b2d7e7224f8d8a592236b100b, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 3608876303101938303, guid: 40d9d53b2d7e7224f8d8a592236b100b, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.5
+      value: 0.3
       objectReference: {fileID: 0}
+    - target: {fileID: 8165531432954598260, guid: 40d9d53b2d7e7224f8d8a592236b100b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 8642a02dbec104b448894ebf03184513, type: 2}
     - target: {fileID: 8846226970767883309, guid: 40d9d53b2d7e7224f8d8a592236b100b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.93

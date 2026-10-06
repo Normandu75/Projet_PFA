@@ -7,55 +7,74 @@ public class GrenadeThrow : MonoBehaviour
     [SerializeField] private GameObject grenadePrefab;
     [SerializeField] private Transform throwPoint;
 
-    [Header("Throw")]
-    [SerializeField] private float throwForce = 10f;
+    [Header("Throw Force")]
+    [SerializeField] private float minThrowForce = 4f;
+    [SerializeField] private float maxThrowForce = 18f;
+
+    [Tooltip("Vitesse à laquelle la force augmente quand LT est maintenu.")]
+    [SerializeField] private float chargeSpeed = 8f;
+
+    [Tooltip("Vitesse à laquelle la force redescend quand LT est relâché.")]
+    [SerializeField] private float dischargeSpeed = 12f;
 
     [Header("Trajectory")]
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private int trajectoryPoints = 30;
-    [SerializeField] private float timeBetweenPoints = 0.1f;
+    [SerializeField] private float timeBetweenPoints = 0.08f;
 
     [Header("Input")]
     [SerializeField] private float triggerDeadzone = 0.2f;
 
+    [Header("UI")]
+    [SerializeField] private RuntimeInventoryUI inventoryUI;
+
+    private float currentThrowForce;
     private bool isAiming = false;
+
+    // =========================================================
+    // UNITY
+    // =========================================================
 
     private void Awake()
     {
+        currentThrowForce = minThrowForce;
+
         if (lineRenderer != null)
+        {
             lineRenderer.enabled = false;
+        }
     }
 
     private void Update()
     {
-        // ==========================================
-        // Vérifier qu'une grenade est équipée
-        // ==========================================
+        // =====================================================
+        // PAS DE GRENADE ÉQUIPÉE
+        // =====================================================
 
         if (!HasGrenadeEquipped())
         {
-            StopAiming();
+            ResetThrow();
             return;
         }
 
         HandleInput();
     }
 
-    // =====================================================
+    // =========================================================
     // INPUT
-    // =====================================================
+    // =========================================================
 
     private void HandleInput()
     {
         bool aimHeld = false;
         bool throwPressed = false;
 
-        // ==========================================
+        // =====================================================
         // CLAVIER DEBUG
         //
-        // H = viser
-        // J = lancer
-        // ==========================================
+        // H = AIM / CHARGE
+        // J = THROW
+        // =====================================================
 
         if (Keyboard.current != null)
         {
@@ -67,26 +86,22 @@ public class GrenadeThrow : MonoBehaviour
             if (Keyboard.current.jKey.wasPressedThisFrame)
             {
                 throwPressed = true;
-
-                Debug.Log(
-                    "[GRENADE] J pressé -> demande de lancer."
-                );
             }
         }
 
-        // ==========================================
-        // MANETTE
+        // =====================================================
+        // GAMEPAD
         //
-        // LT = viser
-        // RT = lancer
-        // ==========================================
+        // LT = AIM / CHARGE
+        // RT = THROW
+        // =====================================================
 
         if (Gamepad.current != null)
         {
-            float lt =
+            float leftTrigger =
                 Gamepad.current.leftTrigger.ReadValue();
 
-            if (lt > triggerDeadzone)
+            if (leftTrigger > triggerDeadzone)
             {
                 aimHeld = true;
             }
@@ -94,49 +109,122 @@ public class GrenadeThrow : MonoBehaviour
             if (Gamepad.current.rightTrigger.wasPressedThisFrame)
             {
                 throwPressed = true;
-
-                Debug.Log(
-                    "[GRENADE] RT pressé -> demande de lancer."
-                );
             }
         }
 
-        // ==========================================
-        // VISÉE
-        // ==========================================
+        // =====================================================
+        // AIM / CHARGE
+        // =====================================================
 
+        UpdateThrowCharge(aimHeld);
+
+        // =====================================================
+        // THROW
+        // =====================================================
+
+        if (throwPressed && isAiming)
+        {
+            ThrowGrenade();
+        }
+    }
+
+    // =========================================================
+    // CHARGE
+    // =========================================================
+
+    private void UpdateThrowCharge(bool aimHeld)
+    {
         if (aimHeld)
         {
-            StartAiming();
+            // =================================================
+            // DÉBUT DE VISÉE
+            // =================================================
+
+            if (!isAiming)
+            {
+                isAiming = true;
+
+                Debug.Log("[GRENADE] Visée activée.");
+
+                // =============================================
+                // AFFICHER RT
+                // =============================================
+
+                if (inventoryUI != null)
+                {
+                    Debug.Log(
+                        "[GRENADE UI] Affichage du bouton RT."
+                    );
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        "[GRENADE UI] RuntimeInventoryUI n'est pas assigné dans GrenadeThrow !"
+                    );
+                }
+            }
+
+            // =================================================
+            // AUGMENTER LA FORCE
+            // =================================================
+
+            currentThrowForce =
+                Mathf.MoveTowards(
+                    currentThrowForce,
+                    maxThrowForce,
+                    chargeSpeed * Time.deltaTime
+                );
+
+            // =================================================
+            // TRAJECTOIRE
+            // =================================================
+
+            if (lineRenderer != null)
+            {
+                lineRenderer.enabled = true;
+
+                DrawTrajectory();
+            }
         }
         else
         {
-            StopAiming();
-        }
+            // =================================================
+            // FIN DE VISÉE
+            // =================================================
 
-        // ==========================================
-        // LANCER
-        // ==========================================
-
-        if (throwPressed)
-        {
             if (isAiming)
             {
-                ThrowGrenade();
+                isAiming = false;
+
+                Debug.Log("[GRENADE] Visée désactivée.");
+
             }
-            else
-            {
-                Debug.LogWarning(
-                    "[GRENADE] Lancer refusé : " +
-                    "il faut maintenir H ou LT."
+
+            // =================================================
+            // DIMINUER LA FORCE
+            // =================================================
+
+            currentThrowForce =
+                Mathf.MoveTowards(
+                    currentThrowForce,
+                    minThrowForce,
+                    dischargeSpeed * Time.deltaTime
                 );
+
+            // =================================================
+            // CACHER LA TRAJECTOIRE
+            // =================================================
+
+            if (lineRenderer != null)
+            {
+                lineRenderer.enabled = false;
             }
         }
     }
 
-    // =====================================================
-    // CHECK INVENTAIRE
-    // =====================================================
+    // =========================================================
+    // CHECK GRENADE
+    // =========================================================
 
     private bool HasGrenadeEquipped()
     {
@@ -162,57 +250,9 @@ public class GrenadeThrow : MonoBehaviour
                InventoryItemType.Grenade;
     }
 
-    // =====================================================
-    // VISÉE
-    // =====================================================
-
-    private void StartAiming()
-    {
-        // Log seulement au début,
-        // pas toutes les frames.
-        if (!isAiming)
-        {
-            Debug.Log(
-                "[GRENADE] Visée activée."
-            );
-        }
-
-        isAiming = true;
-
-        if (lineRenderer == null)
-        {
-            Debug.LogError(
-                "[GRENADE] LineRenderer manquant."
-            );
-
-            return;
-        }
-
-        lineRenderer.enabled = true;
-
-        DrawTrajectory();
-    }
-
-    private void StopAiming()
-    {
-        if (isAiming)
-        {
-            Debug.Log(
-                "[GRENADE] Visée désactivée."
-            );
-        }
-
-        isAiming = false;
-
-        if (lineRenderer != null)
-        {
-            lineRenderer.enabled = false;
-        }
-    }
-
-    // =====================================================
+    // =========================================================
     // TRAJECTOIRE
-    // =====================================================
+    // =========================================================
 
     private void DrawTrajectory()
     {
@@ -225,8 +265,10 @@ public class GrenadeThrow : MonoBehaviour
         Vector3 startPosition =
             throwPoint.position;
 
+        // Utilise la force actuellement chargée.
         Vector3 startVelocity =
-            throwPoint.forward * throwForce;
+            throwPoint.forward *
+            currentThrowForce;
 
         lineRenderer.positionCount =
             trajectoryPoints;
@@ -251,45 +293,42 @@ public class GrenadeThrow : MonoBehaviour
         }
     }
 
-    // =====================================================
-    // LANCER
-    // =====================================================
+    // =========================================================
+    // THROW
+    // =========================================================
 
     private void ThrowGrenade()
     {
-        Debug.Log(
-            "[GRENADE] ThrowGrenade() appelé."
-        );
-
-        // ==========================================
-        // PREFAB
-        // ==========================================
+        if (!HasGrenadeEquipped())
+        {
+            return;
+        }
 
         if (grenadePrefab == null)
         {
             Debug.LogError(
-                "[GRENADE] Grenade Prefab non assigné !"
+                "[GRENADE] Grenade Prefab manquant."
             );
 
             return;
         }
-
-        // ==========================================
-        // THROW POINT
-        // ==========================================
 
         if (throwPoint == null)
         {
             Debug.LogError(
-                "[GRENADE] ThrowPoint non assigné !"
+                "[GRENADE] ThrowPoint manquant."
             );
 
             return;
         }
 
-        // ==========================================
-        // CRÉER LA GRENADE
-        // ==========================================
+        // Sauvegarde la force avant le Reset.
+        float forceAtThrow =
+            currentThrowForce;
+
+        // =====================================================
+        // CRÉATION GRENADE
+        // =====================================================
 
         GameObject grenade =
             Instantiate(
@@ -298,22 +337,17 @@ public class GrenadeThrow : MonoBehaviour
                 throwPoint.rotation
             );
 
-        Debug.Log(
-            "[GRENADE] Grenade créée : "
-            + grenade.name
-        );
-
-        // ==========================================
+        // =====================================================
         // RIGIDBODY
-        // ==========================================
+        // =====================================================
 
         Rigidbody rb =
             grenade.GetComponent<Rigidbody>();
 
+        // Dans ton prefab le Rigidbody peut être
+        // sur l'enfant Grenade.
         if (rb == null)
         {
-            // Au cas où le Rigidbody serait
-            // sur un enfant du prefab.
             rb =
                 grenade.GetComponentInChildren<Rigidbody>();
         }
@@ -321,8 +355,7 @@ public class GrenadeThrow : MonoBehaviour
         if (rb == null)
         {
             Debug.LogError(
-                "[GRENADE] Aucun Rigidbody trouvé " +
-                "sur le prefab !"
+                "[GRENADE] Aucun Rigidbody trouvé sur le prefab."
             );
 
             Destroy(grenade);
@@ -330,45 +363,59 @@ public class GrenadeThrow : MonoBehaviour
             return;
         }
 
-        Debug.Log(
-            "[GRENADE] Rigidbody trouvé."
-        );
-
-        // Au cas où le prefab serait configuré
-        // incorrectement.
         rb.isKinematic = false;
         rb.useGravity = true;
 
-        // ==========================================
-        // VITESSE
-        // ==========================================
+        // =====================================================
+        // VELOCITY
+        // =====================================================
 
         Vector3 velocity =
-            throwPoint.forward * throwForce;
+            throwPoint.forward *
+            forceAtThrow;
 
-        rb.linearVelocity = velocity;
+        rb.linearVelocity =
+            velocity;
 
         Debug.Log(
-            "[GRENADE] LANCÉE ! Velocity = "
-            + velocity
+            "[GRENADE] LANCER | Force = "
+            + forceAtThrow
+            + " / "
+            + maxThrowForce
         );
 
-        // ==========================================
+        // =====================================================
         // INVENTAIRE
-        // ==========================================
+        // =====================================================
 
-        bool removed =
-            InventoryManager.Instance.RemoveQuickItem();
+        InventoryManager.Instance.RemoveQuickItem();
 
-        Debug.Log(
-            "[GRENADE] Retrait inventaire = "
-            + removed
-        );
+        // =====================================================
+        // RESET
+        // =====================================================
 
-        // ==========================================
-        // FIN VISÉE
-        // ==========================================
+        ResetThrow();
+    }
 
-        StopAiming();
+    // =========================================================
+    // RESET
+    // =========================================================
+
+    private void ResetThrow()
+    {
+
+        isAiming = false;
+
+        currentThrowForce =
+            minThrowForce;
+
+        // =====================================================
+        // CACHER TRAJECTOIRE
+        // =====================================================
+
+        if (lineRenderer != null)
+        {
+            lineRenderer.enabled = false;
+        }
     }
 }
