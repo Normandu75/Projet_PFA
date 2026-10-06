@@ -174,7 +174,7 @@ public class S_Character_Controller : MonoBehaviour
     {
         if (detected)
         {
-            if (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame || Keyboard.current.fKey.wasPressedThisFrame)
+            if (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame || Keyboard.current.fKey.wasPressedThisFrame)
                 pickedUp = true;
 
             if (!pickedUp)
