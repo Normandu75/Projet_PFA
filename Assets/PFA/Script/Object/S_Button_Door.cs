@@ -11,6 +11,7 @@ public class S_Button_Door : MonoBehaviour
             if (buttonIndex >= 0)
             {
                 S_Door_Controller.instance.OpenDoor(buttonIndex);
+                S_Door_Controller.instance.ChangeLightColor(buttonIndex, Color.green);
                 
                 Destroy(gameObject);
             }
