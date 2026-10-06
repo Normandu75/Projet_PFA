@@ -10,6 +10,7 @@ public class EnemyDetection : MonoBehaviour
     [SerializeField] private LayerMask obstacleMask;   // murs / portes qui bloquent la vue
 
     private Transform _ally;
+    private Transform _player;
 
     public float ViewAngle => viewAngle;
     public float ViewDistance => viewDistance;
@@ -18,7 +19,36 @@ public class EnemyDetection : MonoBehaviour
     private void Awake()
     {
         FindAlly();
+        FindPlayer();
         if (eyePoint == null) eyePoint = transform;
+    }
+
+    private Transform FindPlayer()
+    {
+        if (_player != null)
+            return _player;
+
+        if (PlayerStealth.Instance != null)
+        {
+            _player = PlayerStealth.Instance.transform;
+            return _player;
+        }
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject != null)
+        {
+            _player = playerObject.transform;
+            return _player;
+        }
+
+        S_HealthBar healthBar = FindAnyObjectByType<S_HealthBar>();
+        if (healthBar != null)
+        {
+            _player = healthBar.transform;
+            return _player;
+        }
+
+        return _player;
     }
 
     private Transform FindAlly()
@@ -86,6 +116,15 @@ public class EnemyDetection : MonoBehaviour
         return CanSeeTarget(ally, out allyPosition);
     }
 
+    public bool CanSeePlayer(out Vector3 playerPosition)
+    {
+        playerPosition = default;
+        Transform player = FindPlayer();
+        if (player == null) return false;
+
+        return CanSeeTarget(player, out playerPosition);
+    }
+
     public bool CanSeeTarget(Transform target, out Vector3 targetPosition)
     {
         targetPosition = default;
@@ -98,4 +137,5 @@ public class EnemyDetection : MonoBehaviour
     }
     
     public Transform Ally => FindAlly();
+    public Transform Player => FindPlayer();
 }
