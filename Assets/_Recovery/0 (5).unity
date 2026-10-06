@@ -2261,10 +2261,6 @@ PrefabInstance:
       propertyPath: mouseLookSensitivity
       value: 0.025
       objectReference: {fileID: 0}
-    - target: {fileID: 717853077332918261, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
-      propertyPath: arcLayer.m_Bits
-      value: 2048
-      objectReference: {fileID: 0}
     - target: {fileID: 1937869954476672063, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
       propertyPath: m_Name
       value: Robot_Ally
@@ -2274,28 +2270,12 @@ PrefabInstance:
       value: Ally
       objectReference: {fileID: 0}
     - target: {fileID: 4021968301873128502, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
-      propertyPath: armCount
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4021968301873128502, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
-      propertyPath: armLenght
-      value: 0.41
-      objectReference: {fileID: 0}
-    - target: {fileID: 4021968301873128502, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
-      propertyPath: armDuplicate
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4021968301873128502, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
       propertyPath: weightByDist
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4021968301873128502, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
       propertyPath: arcLayer.m_Bits
       value: 2048
-      objectReference: {fileID: 0}
-    - target: {fileID: 4021968301873128502, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
-      propertyPath: armDuplicateAngle
-      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6834704761444267503, guid: 926dee16d47f2cd4ba959d6f04409451, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3968,8 +3948,8 @@ GameObject:
   - component: {fileID: 1235374060}
   - component: {fileID: 1235374059}
   - component: {fileID: 1235374057}
-  - component: {fileID: 1235374055}
   - component: {fileID: 1235374056}
+  - component: {fileID: 1235374055}
   - component: {fileID: 1235374054}
   m_Layer: 3
   m_Name: Enemy
@@ -4460,7 +4440,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.16666667
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 795e8c6cc6dde5545a06dd0091044f9e, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: c3d23e49a1f8cbf43923231a9c072aee, type: 2}
   m_BuildHeightMesh: 0
 --- !u!1 &1342162551
 GameObject:
@@ -5034,10 +5014,6 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 9d674b61f45ee76438eaf4d22ca99860, type: 3}
       propertyPath: m_Layer
       value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 9d674b61f45ee76438eaf4d22ca99860, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7147,10 +7123,6 @@ PrefabInstance:
     - target: {fileID: 4840874221467649103, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.67
-      objectReference: {fileID: 0}
-    - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
-      propertyPath: detectionRadius
-      value: 1.16
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -15,6 +15,7 @@ public class S_Character_Controller : MonoBehaviour
     public Camera cam;
     public GameObject target;
     public LayerMask MyLayerMask;
+    public float detectionRadius;
 
     [Header("See Through Walls")]
     public float sphereMaxScale = 4.23831606f;
@@ -40,6 +41,11 @@ public class S_Character_Controller : MonoBehaviour
         rigidBody.constraints = RigidbodyConstraints.FreezeRotation;
         cam = Camera.main;
         target = GameObject.Find("See_Thrg_Wall");
+    }
+
+    void Update()
+    {
+        Detection();
     }
 
     public void CursorToCamera()
@@ -166,19 +172,38 @@ public class S_Character_Controller : MonoBehaviour
 
     public void PickUpRobotAlly()
     {
-        if (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame || Keyboard.current.fKey.wasPressedThisFrame)
-            pickedUp = true;
+        if (detected)
+        {
+            if (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame || Keyboard.current.fKey.wasPressedThisFrame)
+                pickedUp = true;
 
-        if (!pickedUp)
-            return;
+            if (!pickedUp)
+                return;
 
-        GameObject robot = GameObject.Find("Robot_Ally");
-        Transform robotPos = GameObject.Find("Robot_Pos")?.transform;
+            GameObject robot = GameObject.Find("Robot_Ally");
+            Transform robotPos = GameObject.Find("Robot_Pos")?.transform;
 
-        if (robot == null || robotPos == null)
-            return;
+            if (robot == null || robotPos == null)
+                return;
 
-        robot.transform.position = robotPos.position;
-        robot.transform.rotation = transform.rotation;
+            robot.transform.position = robotPos.position;
+            robot.transform.rotation = transform.rotation;
+        }
+    }
+
+    private void Detection()
+    {
+        Collider[] hit = Physics.OverlapSphere(transform.position, detectionRadius, LayerMask.GetMask("Ally"));
+        
+        if (hit.Length > 0)
+        {
+            detected = true;
+        }
+        else
+        {
+            detected = false;
+            pickedUp = false;
+        }
+
     }
 }

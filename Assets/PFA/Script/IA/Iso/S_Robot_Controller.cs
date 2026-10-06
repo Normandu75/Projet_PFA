@@ -75,8 +75,6 @@ public class S_Robot_Controller : MonoBehaviour
         {
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.isKinematic = true;
-
-            playerCollider.isTrigger = true;
         }
 
         if (orientation == null)
