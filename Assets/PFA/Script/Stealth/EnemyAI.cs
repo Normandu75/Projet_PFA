@@ -859,20 +859,24 @@ public class EnemyAI : MonoBehaviour
             SetAgentMovement(true, true);
             return;
         }
+
         attackTimer += Time.deltaTime;
+
         UpdateAttackProgressBar();
+
         if (attackTimer >= attackAnimDuration)
         {
             DealDamageToPlayer();
-            attackCooldownTimer =
-                attackCooldown;
+
+            attackCooldownTimer = attackCooldown;
+                
             ResetAttackProgressBar();
+
             SetAgentMovement(true, true);
+
             if (_chaseTarget != null)
             {
-                _agent.SetDestination(
-                    _chaseTarget.position
-                );
+                _agent.SetDestination(_chaseTarget.position);
             }
         }
     }
