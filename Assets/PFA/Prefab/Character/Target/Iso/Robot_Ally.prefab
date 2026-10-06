@@ -214,13 +214,13 @@ MonoBehaviour:
   orientation: {fileID: 0}
   surfaceProbeDistance: 0.75
   surfaceOffset: 0.02
-  surfaceAlignmentSpeed: 180
+  surfaceAlignmentSpeed: 90
   surfaceGraceTime: 0.2
   arcAngle: 270
   arcResolution: 6
   arcLayer:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 6144
   arcTransformRotation: {fileID: 6834704761444267503}
 --- !u!114 &8037056444319024279
 MonoBehaviour:
