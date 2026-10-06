@@ -1,9 +1,29 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
 public class S_Character_Controller : MonoBehaviour
 {
+    [System.Serializable]
+    public class LayerDetectionEntry
+    {
+        public string label;
+        public LayerMask layerMask;
+        public List<GameObject> detectedObjects = new List<GameObject>();
+
+        public void Clear()
+        {
+            detectedObjects.Clear();
+        }
+
+        public void Add(GameObject detectedObject)
+        {
+            if (!detectedObjects.Contains(detectedObject))
+                detectedObjects.Add(detectedObject);
+        }
+    }
+
    public static S_Character_Controller instance;
 
     [Header("Movement")]
@@ -17,6 +37,20 @@ public class S_Character_Controller : MonoBehaviour
     public LayerMask MyLayerMask;
     public float detectionRadius;
 
+    [Header("Overlap Sphere - Layer Detection")]
+    [SerializeField]
+    private List<LayerDetectionEntry> detectionLayers =     new List<LayerDetectionEntry>
+    {
+        new LayerDetectionEntry
+        {
+            label = "Ally"
+        },
+        new LayerDetectionEntry
+        {
+            label = "Enemy"
+        }
+    };
+
     [Header("See Through Walls")]
     public float sphereMaxScale = 4.23831606f;
     public float sphereScaleSpeed = 8f;
@@ -25,9 +59,17 @@ public class S_Character_Controller : MonoBehaviour
     public float gamepadDeadzone = 0.2f;
     public bool detected;
     public bool pickedUp;
+
+    private int allyLayer = -1;
     
     void Awake()
     {
+        allyLayer = LayerMask.NameToLayer("Ally");
+        if (allyLayer < 0)
+            Debug.LogWarning("La layer 'Ally' n'existe pas dans les paramètres du projet.", this);
+
+        InitializeDetectionLayerMasks();
+
         if (instance == null)
         {
             instance = this;
@@ -41,6 +83,28 @@ public class S_Character_Controller : MonoBehaviour
         rigidBody.constraints = RigidbodyConstraints.FreezeRotation;
         cam = Camera.main;
         target = GameObject.Find("See_Thrg_Wall");
+    }
+
+    private void InitializeDetectionLayerMasks()
+    {
+        foreach (LayerDetectionEntry entry in detectionLayers)
+        {
+            if (entry == null || entry.layerMask.value != 0)
+                continue;
+
+            int layer = LayerMask.NameToLayer(entry.label);
+            if (layer >= 0)
+            {
+                entry.layerMask = 1 << layer;
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"La layer '{entry.label}' n'existe pas dans les paramètres du projet.",
+                    this
+                );
+            }
+        }
     }
 
     void Update()
@@ -193,17 +257,41 @@ public class S_Character_Controller : MonoBehaviour
 
     private void Detection()
     {
-        Collider[] hit = Physics.OverlapSphere(transform.position, detectionRadius, LayerMask.GetMask("Ally"));
-        
-        if (hit.Length > 0)
+        int combinedLayerMask = allyLayer >= 0 ? 1 << allyLayer : 0;
+
+        foreach (LayerDetectionEntry entry in detectionLayers)
         {
-            detected = true;
-        }
-        else
-        {
-            detected = false;
-            pickedUp = false;
+            if (entry == null)
+                continue;
+
+            entry.Clear();
+            combinedLayerMask |= entry.layerMask.value;
         }
 
+        Collider[] hits = Physics.OverlapSphere(
+            transform.position,
+            detectionRadius,
+            combinedLayerMask
+        );
+
+        detected = false;
+        foreach (Collider hit in hits)
+        {
+            int hitLayerMask = 1 << hit.gameObject.layer;
+            if (allyLayer >= 0 && hit.gameObject.layer == allyLayer)
+                detected = true;
+
+            foreach (LayerDetectionEntry entry in detectionLayers)
+            {
+                if (entry != null &&
+                    (entry.layerMask.value & hitLayerMask) != 0)
+                {
+                    entry.Add(hit.gameObject);
+                }
+            }
+        }
+
+        if (!detected)
+            pickedUp = false;
     }
 }
