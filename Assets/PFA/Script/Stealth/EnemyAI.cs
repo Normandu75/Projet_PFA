@@ -140,6 +140,7 @@ public class EnemyAI : MonoBehaviour
     private EnemyDetection _detection;
 
     private EnemyState _state = EnemyState.Roaming;
+    private Transform _chaseTarget;
 
     private bool _isOriginalDetector;
     private Transform _fieldOfViewTarget;
@@ -185,6 +186,12 @@ public class EnemyAI : MonoBehaviour
         attackCooldownTimer =
             Mathf.Max(0f, attackCooldownTimer - Time.deltaTime);
         currentStateReadOnly = _state;
+        if (_state == EnemyState.Roaming &&
+            !debugForceRoaming &&
+            TryDetectTarget(out Transform detectedTarget, out Vector3 targetPosition))
+        {
+            BeginChase(detectedTarget, targetPosition);
+        }
         switch (_state)
         {
             case EnemyState.Chasing:
@@ -209,7 +216,6 @@ public class EnemyAI : MonoBehaviour
             mainCamera.transform.up
         );
     }
-#region DEBUG TOGGLE CHASING / ROAMING
     // =====================================================================
     // DEBUG
     // =====================================================================
@@ -223,31 +229,61 @@ public class EnemyAI : MonoBehaviour
         else if (debugForceChasing && !_prevDebugChasing)
         {
             debugForceRoaming = false;
+            Transform chaseTarget = _detection.Player != null
+                ? _detection.Player
+                : _detection.Ally;
             Vector3 target =
-                _detection.Ally != null
-                    ? _detection.Ally.position
+                chaseTarget != null
+                    ? chaseTarget.position
                     : transform.position;
             _isOriginalDetector = true;
-            BeginChase(target);
+            BeginChase(chaseTarget, target);
         }
         _prevDebugRoaming = debugForceRoaming;
         _prevDebugChasing = debugForceChasing;
     }
-    private bool IsAllyInDetectionRadius(
-        out Vector3 playerPosition)
+    private bool IsTargetInDetectionRadius(
+        Transform target,
+        out Vector3 targetPosition)
     {
-        playerPosition = Vector3.zero;
-        if (_detection.Ally == null)
+        targetPosition = Vector3.zero;
+        if (target == null)
             return false;
-        playerPosition = _detection.Ally.position;
+        targetPosition = target.position;
         float distance = Vector3.Distance(
             transform.position,
-            playerPosition
+            targetPosition
         );
-        return distance <= detectionRadius;
+        return distance <= detectionRadius &&
+               _detection.HasLineOfSight(targetPosition);
     }
-#endregion
-#region Patrouille
+
+    private bool TryDetectTarget(
+        out Transform target,
+        out Vector3 targetPosition)
+    {
+        target = _detection.Player;
+        bool playerHidden =
+            PlayerStealth.Instance != null &&
+            PlayerStealth.Instance.IsHidden;
+        if (!playerHidden)
+        {
+            if (_detection.CanSeePlayer(out targetPosition))
+                return true;
+            if (IsTargetInDetectionRadius(target, out targetPosition))
+                return true;
+        }
+
+        target = _detection.Ally;
+        if (_detection.CanSeeAlly(out targetPosition))
+            return true;
+        if (IsTargetInDetectionRadius(target, out targetPosition))
+            return true;
+
+        target = null;
+        targetPosition = Vector3.zero;
+        return false;
+    }
     // =====================================================================
     // PATROUILLE
     // =====================================================================
@@ -261,6 +297,7 @@ public class EnemyAI : MonoBehaviour
 
         _loseTargetTimer = 0f;
 
+        _chaseTarget = null;
         SetAgentMovement(true, true);
 
         SetState(EnemyState.Roaming);
@@ -476,10 +513,9 @@ public class EnemyAI : MonoBehaviour
     }
 
     private void ReturnToPatrol()
-
     {
 
-
+        _chaseTarget = null;
         _fieldOfViewTarget = null;
         _isFieldOfViewChase = false;
         _hasSeenFieldOfViewTarget = false;
@@ -499,8 +535,6 @@ public class EnemyAI : MonoBehaviour
             StartCoroutine(PatrolRoutine());
 
     }
-#endregion
-#region LEURRE / DISTRACTION
     // =====================================================================
     // LEURRE / DISTRACTION
     // =====================================================================
@@ -590,8 +624,6 @@ public class EnemyAI : MonoBehaviour
         // _currentPatrolIndex est conservé : reprise du roaming normal.
         ReturnToPatrol();
     }
-#endregion
-#region Détection l'ennemi par le joueur (Field of View)
     // =====================================================================
     // DÉTECTION / CHASE
     // =====================================================================
@@ -601,13 +633,16 @@ public class EnemyAI : MonoBehaviour
         if (_state == EnemyState.Chasing)
             return;
         _isOriginalDetector = false;
-        BeginChase(lastKnownPlayerPosition);
+        Transform target = _detection.Player != null
+            ? _detection.Player
+            : _detection.Ally;
+        BeginChase(target, lastKnownPlayerPosition);
     }
     private void BeginChase(
+        Transform target,
         Vector3 playerPosition)
     {
-        if (_detection.Ally != null)
-            playerPosition = _detection.Ally.position;
+        _chaseTarget = target;
         _fieldOfViewTarget = null;
         _isFieldOfViewChase = false;
         _hasSeenFieldOfViewTarget = false;
@@ -638,6 +673,7 @@ public class EnemyAI : MonoBehaviour
             return;
 
         _fieldOfViewTarget = observer;
+        _chaseTarget = observer;
         _isFieldOfViewChase = true;
         _hasSeenFieldOfViewTarget = false;
         StopBehaviourRoutine();
@@ -694,37 +730,47 @@ public class EnemyAI : MonoBehaviour
             }
             return;
         }
-        if (_detection.Ally == null)
+        Transform target = _chaseTarget;
+        if (target == null)
+        {
+            target = _detection.Player != null
+                ? _detection.Player
+                : _detection.Ally;
+            _chaseTarget = target;
+        }
+        if (target == null)
         {
             ResetAttackProgressBar();
+            _loseTargetTimer += Time.deltaTime;
+            if (_loseTargetTimer >= loseTargetTime)
+                ReturnToPatrol();
             return;
         }
-        Transform player =
-            _detection.Ally;
         if (isPreparingAttack)
         {
             TickAttackPreparation();
             return;
         }
-        if (_detection.CanSeeAlly(
-          out Vector3 currentPos))
+        if (_detection.CanSeeTarget(target, out Vector3 currentPos))
         {
             HandlePlayerDetectedWhileChasing(
-                player,
+                target,
                 currentPos
             );
             return;
         }
-        if (IsAllyInDetectionRadius(
+        if (IsTargetInDetectionRadius(
+            target,
             out Vector3 nearbyPlayerPos))
         {
             HandlePlayerDetectedWhileChasing(
-                player,
+                target,
                 nearbyPlayerPos
             );
             return;
         }
         bool playerHidden =
+            target == _detection.Player &&
             PlayerStealth.Instance != null &&
             PlayerStealth.Instance.IsHidden;
         if (playerHidden)
@@ -769,7 +815,6 @@ public class EnemyAI : MonoBehaviour
     // =====================================================================
     // ATTAQUE
     // =====================================================================
-    #region Attaque
     private void BeginAttackPreparation(
         Transform player)
     {
@@ -823,15 +868,14 @@ public class EnemyAI : MonoBehaviour
                 attackCooldown;
             ResetAttackProgressBar();
             SetAgentMovement(true, true);
-            if (_detection.Ally != null)
+            if (_chaseTarget != null)
             {
                 _agent.SetDestination(
-                    _detection.Ally.position
+                    _chaseTarget.position
                 );
             }
         }
     }
-    #endregion
     private void CancelAttackPreparation()
     {
         ResetAttackProgressBar();
@@ -862,14 +906,12 @@ public class EnemyAI : MonoBehaviour
                 Time.deltaTime
             );
     }
-    #endregion 
-#region Dégâts au joueur
     private void DealDamageToPlayer()
     {
         Transform target =
             attackTarget != null
                 ? attackTarget
-                : _detection.Ally;
+                : _chaseTarget;
         if (target == null)
             return;
         S_HealthBar playerHealth =
@@ -886,14 +928,23 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning(
+            PlayerHealth modernPlayerHealth =
+                target.GetComponentInParent<PlayerHealth>();
+            if (modernPlayerHealth != null)
+            {
+                modernPlayerHealth.TakeDamage(attackDamage);
+                Debug.Log(
+                    "Enemy attacks player : -" +
+                    attackDamage
+                );
+                return;
+            }
 
-                "S_HealthBar introuvable sur le Player."
+            Debug.LogWarning(
+                "Aucun composant de santé trouvé sur la cible de l'ennemi."
             );
         }
     }
-#endregion
-#region Dégâts au joueur SLIDER / FILL (Se lance à la fin de barre)
     // =====================================================================
     // BARRE D'ATTAQUE
     // =====================================================================
@@ -934,8 +985,6 @@ public class EnemyAI : MonoBehaviour
             );
         }
     }
-    #endregion
-    #region Etat de l'ennemi
     // =====================================================================
     // COROUTINE
     // =====================================================================
@@ -984,8 +1033,6 @@ public class EnemyAI : MonoBehaviour
                 break;
         }
     }
-    #endregion
-#region GIZMOS DETECTION
     // =====================================================================
     // GIZMOS
     // =====================================================================
@@ -1006,8 +1053,6 @@ public class EnemyAI : MonoBehaviour
             attackRange
         );
     }
-#endregion
-#region Collision avec le joueur et Enemy 
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag("Player") && _body != null)
@@ -1021,4 +1066,3 @@ public class EnemyAI : MonoBehaviour
             _body.isKinematic = false;
     }
 }
-#endregion
