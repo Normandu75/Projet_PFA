@@ -17,7 +17,7 @@ public class S_Robot_Controller : MonoBehaviour
     [Header("Surface Movement")]
     [SerializeField, Min(0.01f)] float surfaceProbeDistance = 0.75f;
     [SerializeField] float surfaceOffset = 0.02f;
-    [SerializeField] float surfaceAlignmentSpeed = 180f;
+    [SerializeField] float surfaceAlignmentSpeed = 90f;
     [SerializeField, Min(0f)] float surfaceGraceTime = 0.2f;
     [SerializeField, Range(0f, 360f)] float arcAngle = 270f;
     [SerializeField, Min(1)] int arcResolution = 6;
@@ -33,6 +33,8 @@ public class S_Robot_Controller : MonoBehaviour
     Rigidbody rb;
     Collider playerCollider;
     float lastSurfaceContactTime = float.NegativeInfinity;
+    bool hasScanSurfaceTarget;
+    Quaternion scanSurfaceTarget;
 
     public Vector2 VelocityNoAdd
     {
@@ -49,6 +51,13 @@ public class S_Robot_Controller : MonoBehaviour
     public Vector3 Velocity3 => new Vector3(velocity.x, 0f, velocity.y);
     public float Speed => speed;
     public float SpeedProgress => speedProgress;
+
+    public void SetScanSurfaceTarget(Quaternion targetRotation, bool hasSurface)
+    {
+        hasScanSurfaceTarget = hasSurface;
+        if (hasSurface)
+            scanSurfaceTarget = targetRotation;
+    }
 
     void Awake()
     {
@@ -186,7 +195,8 @@ public class S_Robot_Controller : MonoBehaviour
 
         Vector3 castDirection = worldVelocity.sqrMagnitude > 0.000001f ? worldVelocity : movementFrame.forward;
 
-        if (S_Physics_Extension.ArcCast(rb.position, Quaternion.LookRotation(castDirection, movementFrame.up), arcAngle, surfaceProbeDistance, arcResolution, arcLayer, out RaycastHit hit, ignoredRoot: transform))
+        bool hasSurfaceHit = S_Physics_Extension.ArcCast(rb.position, Quaternion.LookRotation(castDirection, movementFrame.up), arcAngle, surfaceProbeDistance, arcResolution, arcLayer, out RaycastHit hit, ignoredRoot: transform);
+        if (hasSurfaceHit)
         {
             lastSurfaceContactTime = Time.time;
 
@@ -206,6 +216,14 @@ public class S_Robot_Controller : MonoBehaviour
                 targetPosition += hit.normal * (colliderExtent + surfaceOffset - distanceToSurface);
             }
 
+        }
+
+        if (hasScanSurfaceTarget)
+        {
+            targetRotation = Quaternion.RotateTowards(targetRotation, scanSurfaceTarget, surfaceAlignmentSpeed * deltaTime);
+        }
+        else if (hasSurfaceHit)
+        {
             Quaternion surfaceRotation = Quaternion.FromToRotation(targetRotation * Vector3.up, hit.normal) * targetRotation;
             targetRotation = Quaternion.RotateTowards(targetRotation, surfaceRotation, surfaceAlignmentSpeed * deltaTime);
         }

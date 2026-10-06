@@ -2495,7 +2495,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &831444825
 Transform:
   m_ObjectHideFlags: 0
@@ -4083,9 +4083,6 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 4096
-  playerMask:
-    serializedVersion: 2
-    m_Bits: 512
 --- !u!65 &1235374059
 BoxCollider:
   m_ObjectHideFlags: 0

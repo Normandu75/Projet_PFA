@@ -160,6 +160,12 @@ public class EnemyAI : MonoBehaviour
 
     private bool _isOriginalDetector;
 
+    private Transform _fieldOfViewTarget;
+
+    private bool _isFieldOfViewChase;
+
+    private bool _hasSeenFieldOfViewTarget;
+
     private Vector3 _lastKnownPlayerPosition;
 
     private Coroutine _behaviourRoutine;
@@ -270,13 +276,6 @@ public class EnemyAI : MonoBehaviour
         switch (_state)
 
         {
-
-            case EnemyState.Roaming:
-
-                TickRoaming();
-
-                break;
-
             case EnemyState.Chasing:
 
                 TickChasing();
@@ -346,10 +345,8 @@ public class EnemyAI : MonoBehaviour
 
             Vector3 target =
 
-                _detection.Player != null
-
-                    ? _detection.Player.position
-
+                _detection.Ally != null
+                    ? _detection.Ally.position
                     : transform.position;
 
             _isOriginalDetector = true;
@@ -364,37 +361,7 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-    // =====================================================================
-    // ROAMING
-    // =====================================================================
-    private void TickRoaming()
-
-    {
-        // La coroutine du leurre contrôle le déplacement pendant l'investigation.
-        if (_isInvestigatingDecoy)
-            return;
-
-        if (_detection.CanSeePlayer(out Vector3 playerPos))
-
-        {
-
-            OnPlayerDetected(playerPos);
-
-            return;
-
-        }
-
-        if (!IsPlayerInDetectionRadius(out Vector3 nearbyPlayerPos))
-
-            return;
-
-        RotateTowardsPosition(nearbyPlayerPos, detectionRotationSpeed);
-
-        OnPlayerDetected(nearbyPlayerPos);
-
-    }
-
-    private bool IsPlayerInDetectionRadius(
+    private bool IsAllyInDetectionRadius(
 
         out Vector3 playerPosition)
 
@@ -402,11 +369,11 @@ public class EnemyAI : MonoBehaviour
 
         playerPosition = Vector3.zero;
 
-        if (_detection.Player == null)
+        if (_detection.Ally == null)
 
             return false;
 
-        playerPosition = _detection.Player.position;
+        playerPosition = _detection.Ally.position;
 
         float distance = Vector3.Distance(
 
@@ -653,6 +620,10 @@ public class EnemyAI : MonoBehaviour
 
         UnsubscribeFromPlayer();
 
+        _fieldOfViewTarget = null;
+        _isFieldOfViewChase = false;
+        _hasSeenFieldOfViewTarget = false;
+
         _loseTargetTimer = 0f;
 
         ResetAttackProgressBar();
@@ -733,15 +704,6 @@ public class EnemyAI : MonoBehaviour
         // Aller jusqu'au leurre.
         while (_isInvestigatingDecoy)
         {
-            // Le joueur reste prioritaire s'il est réellement vu.
-            if (_detection.CanSeePlayer(out Vector3 playerPos))
-            {
-                _isInvestigatingDecoy = false;
-                _decoyRoutine = null;
-                OnPlayerDetected(playerPos);
-                yield break;
-            }
-
             if (!_agent.pathPending)
             {
                 if (_agent.pathStatus == NavMeshPathStatus.PathInvalid)
@@ -769,15 +731,6 @@ public class EnemyAI : MonoBehaviour
 
         while (timer < waitDuration)
         {
-            if (_detection.CanSeePlayer(out Vector3 playerPos))
-            {
-                _isInvestigatingDecoy = false;
-                _decoyRoutine = null;
-                SetAgentMovement(true, true);
-                OnPlayerDetected(playerPos);
-                yield break;
-            }
-
             timer += Time.deltaTime;
             yield return null;
         }
@@ -792,22 +745,6 @@ public class EnemyAI : MonoBehaviour
     // =====================================================================
     // DÉTECTION / CHASE
     // =====================================================================
-    private void OnPlayerDetected(
-
-        Vector3 playerPosition)
-
-    {
-
-        if (_state == EnemyState.Chasing)
-
-            return;
-
-        _isOriginalDetector = true;
-
-        BeginChase(playerPosition);
-
-    }
-
     public void OnAlerted(
 
         Vector3 lastKnownPlayerPosition)
@@ -829,6 +766,13 @@ public class EnemyAI : MonoBehaviour
         Vector3 playerPosition)
 
     {
+
+        if (_detection.Ally != null)
+            playerPosition = _detection.Ally.position;
+
+        _fieldOfViewTarget = null;
+        _isFieldOfViewChase = false;
+        _hasSeenFieldOfViewTarget = false;
 
         StopBehaviourRoutine();
 
@@ -876,6 +820,30 @@ public class EnemyAI : MonoBehaviour
 
     }
 
+    public void OnSpottedBy(Transform observer)
+    {
+        if (observer == null)
+            return;
+
+        if (_fieldOfViewTarget == observer && _state == EnemyState.Chasing)
+            return;
+
+        _fieldOfViewTarget = observer;
+        _isFieldOfViewChase = true;
+        _hasSeenFieldOfViewTarget = false;
+        StopBehaviourRoutine();
+        ResetAttackProgressBar();
+        _loseTargetTimer = 0f;
+        SetState(EnemyState.Chasing);
+        SetAgentMovement(true, true);
+
+        if (_agent.isOnNavMesh)
+        {
+            _agent.ResetPath();
+            _agent.SetDestination(observer.position);
+        }
+    }
+
     private void RotateTowardsPositionInstant(
 
         Vector3 targetPosition)
@@ -905,7 +873,35 @@ public class EnemyAI : MonoBehaviour
 
     {
 
-        if (_detection.Player == null)
+        if (_isFieldOfViewChase)
+        {
+            if (_fieldOfViewTarget == null)
+            {
+                ReturnToPatrol();
+                return;
+            }
+
+            if (_detection.CanSeeTarget(
+                    _fieldOfViewTarget,
+                    out Vector3 targetPosition))
+            {
+                _hasSeenFieldOfViewTarget = true;
+                if (_agent.isOnNavMesh)
+                    _agent.SetDestination(targetPosition);
+            }
+            else if (_hasSeenFieldOfViewTarget)
+            {
+                ReturnToPatrol();
+            }
+            else if (_agent.isOnNavMesh)
+            {
+                _agent.SetDestination(_fieldOfViewTarget.position);
+            }
+
+            return;
+        }
+
+        if (_detection.Ally == null)
 
         {
 
@@ -917,7 +913,7 @@ public class EnemyAI : MonoBehaviour
 
         Transform player =
 
-            _detection.Player;
+            _detection.Ally;
 
         if (isPreparingAttack)
 
@@ -929,7 +925,7 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-        if (_detection.CanSeePlayer(
+        if (_detection.CanSeeAlly(
 
             out Vector3 currentPos))
 
@@ -947,7 +943,7 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-        if (IsPlayerInDetectionRadius(
+        if (IsAllyInDetectionRadius(
 
             out Vector3 nearbyPlayerPos))
 
@@ -1160,13 +1156,13 @@ public class EnemyAI : MonoBehaviour
 
             SetAgentMovement(true, true);
 
-            if (_detection.Player != null)
+            if (_detection.Ally != null)
 
             {
 
                 _agent.SetDestination(
 
-                    _detection.Player.position
+                    _detection.Ally.position
 
                 );
 
@@ -1264,7 +1260,7 @@ public class EnemyAI : MonoBehaviour
 
                 ? attackTarget
 
-                : _detection.Player;
+                : _detection.Ally;
 
         if (target == null)
 
