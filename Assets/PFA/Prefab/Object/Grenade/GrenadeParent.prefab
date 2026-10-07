@@ -58,7 +58,7 @@ VisualEffect:
       m_Array: []
     m_Vector4f:
       m_Array:
-      - m_Value: {x: 1, y: 1, z: 1, w: 0}
+      - m_Value: {x: 1, y: 0.1490565, z: 0.9151971, w: 0}
         m_Name: Smoke Color
         m_Overridden: 1
     m_Uint:
@@ -189,7 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60142189430ac8c4c9b43451495ef916, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grenade
-  explosionDelay: 1
+  explosionDelay: 10
   distractionRadius: 10
   enemyLayers:
     serializedVersion: 2
