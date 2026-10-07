@@ -137,13 +137,12 @@ public class PersonaMenuGenerator : MonoBehaviour
             return;
         }
 
-        // Supprime les anciens boutons
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
             Destroy(transform.GetChild(i).gameObject);
         }
 
-        // Crée les boutons
+
         rectsBoutons.Clear();
         groupesCanvas.Clear();
         echellesDepartClic.Clear();
@@ -151,8 +150,11 @@ public class PersonaMenuGenerator : MonoBehaviour
         indexBoutonSurvole = -1;
         indexBoutonSelectionne = -1;
         progressionTransitionClic = 0f;
+
         int nombreDeConfigurations = boutons == null ? 0 : boutons.Count;
+
         float bordGaucheCommun = 0f;
+
         if (alignerBordsGauches && nombreDeConfigurations > 0 && boutons[0] != null)
         {
             ButtonSettings premier = boutons[0];
@@ -177,7 +179,6 @@ public class PersonaMenuGenerator : MonoBehaviour
 
             ButtonSettings settings = boutons[i];
 
-            // Position
             float angleRad = settings.angle * Mathf.Deg2Rad;
 
             float x = Mathf.Cos(angleRad) * settings.distance;
@@ -194,15 +195,16 @@ public class PersonaMenuGenerator : MonoBehaviour
 
             rect.anchoredPosition = centre + new Vector2(x, y);
 
-            // Taille
             rect.sizeDelta = settings.taille;
 
-            // Rotation
             rect.localRotation = Quaternion.Euler(0, 0, settings.rotation);
 
             rectsBoutons.Add(rect);
+
             MenuButtonHoverEffect hoverEffect = nouveauBouton.AddComponent<MenuButtonHoverEffect>();
+
             int indexBouton = rectsBoutons.Count - 1;
+
             hoverEffect.Initialiser(this, indexBouton);
 
             CanvasGroup groupeCanvas = nouveauBouton.GetComponent<CanvasGroup>();
@@ -210,17 +212,18 @@ public class PersonaMenuGenerator : MonoBehaviour
             {
                 groupeCanvas = nouveauBouton.AddComponent<CanvasGroup>();
             }
+
             groupesCanvas.Add(groupeCanvas);
+
             Button composantBouton = nouveauBouton.GetComponent<Button>();
+
             if (composantBouton != null)
             {
                 composantBouton.onClick.AddListener(() => SelectionnerBouton(indexBouton));
             }
 
-            // Nom
             nouveauBouton.name = settings.nom;
 
-            // Sprite
             Image image = nouveauBouton.GetComponent<Image>();
 
             if (image != null && settings.sprite != null)
@@ -269,7 +272,9 @@ public class PersonaMenuGenerator : MonoBehaviour
         for (int i = 0; i < rectsBoutons.Count; i++)
         {
             echellesDepartClic.Add(rectsBoutons[i] != null ? rectsBoutons[i].localScale : Vector3.one);
+
             transparencesDepartClic.Add(groupesCanvas[i] != null ? groupesCanvas[i].alpha : 1f);
+            
             if (groupesCanvas[i] != null)
             {
                 groupesCanvas[i].blocksRaycasts = false;
