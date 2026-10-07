@@ -44,7 +44,6 @@ public class Grenade : MonoBehaviour
             QueryTriggerInteraction.Collide
         );
 
-        // Évite de notifier plusieurs fois un ennemi ayant plusieurs colliders.
         HashSet<EnemyAI> affectedEnemies = new HashSet<EnemyAI>();
 
         foreach (Collider col in colliders)
@@ -63,7 +62,7 @@ public class Grenade : MonoBehaviour
             );
         }
 
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()

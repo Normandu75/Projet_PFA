@@ -749,7 +749,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         rect.anchoredPosition =
             new Vector2(
                 -125f,
-                125f
+                220f
             );
 
         Image background =
