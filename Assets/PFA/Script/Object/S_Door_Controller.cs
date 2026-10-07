@@ -6,6 +6,7 @@ public class S_Door_Controller : MonoBehaviour
     [Header("Door Settings")]
     public List<GameObject>buttonDoors= new List<GameObject>();
     public List<GameObject> doors = new List<GameObject>();
+    public List<GameObject> lights = new List<GameObject>();
 
     public static S_Door_Controller instance;
 
@@ -22,6 +23,7 @@ public class S_Door_Controller : MonoBehaviour
 
         AddButtonDoors(GameObject.FindGameObjectsWithTag("ButtonDoor"));
         AddDoors(GameObject.FindGameObjectsWithTag("Door"));
+        AddLights(GameObject.FindGameObjectsWithTag("Light"));
     }
 
     private void AddButtonDoors(GameObject[] buttonDoorsFound)
@@ -56,6 +58,22 @@ public class S_Door_Controller : MonoBehaviour
         }
     }
 
+    private void AddLights(GameObject[] lightsFound)
+    {
+        foreach (GameObject light in lightsFound)
+        {
+            AddLight(light);
+        }
+    }
+
+    private void AddLight(GameObject light)
+    {
+        if (light != null && !lights.Contains(light))
+        {
+            lights.Add(light);
+        }
+    }
+
     public void OpenDoor(int index)
     {
         if (index < 0 || index >= doors.Count)
@@ -72,4 +90,25 @@ public class S_Door_Controller : MonoBehaviour
             Destroy(door);
         }
     }
+
+    public void ChangeLightColor(int index, Color newColor)
+    {
+        if (index < 0 || index >= lights.Count)
+        {
+            Debug.LogWarning("Aucune lumière ne correspond à l'index " + index);
+            return;
+        }
+
+        GameObject light = lights[index];
+
+        if (light != null)
+        {
+            Light lightComponent = light.GetComponent<Light>();
+            
+            if (lightComponent != null)
+            {
+                lightComponent.color = newColor;
+            }
+        }
+    } 
 }
