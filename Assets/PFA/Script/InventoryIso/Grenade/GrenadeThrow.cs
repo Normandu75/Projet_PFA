@@ -47,9 +47,6 @@ public class GrenadeThrow : MonoBehaviour
 
     private void Update()
     {
-        // =====================================================
-        // PAS DE GRENADE ÉQUIPÉE
-        // =====================================================
 
         if (!HasGrenadeEquipped())
         {

@@ -2400,6 +2400,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60142189430ac8c4c9b43451495ef916, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grenade
+  destroyDelay: 5
   explosionDelay: 0.75
   distractionRadius: 8
   enemyLayers:
@@ -2879,7 +2880,7 @@ Transform:
   m_GameObject: {fileID: 802354644}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.8, y: 0.21, z: 0.48499}
+  m_LocalPosition: {x: -1.8, y: -29.5, z: 0.48499}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5477,9 +5478,9 @@ MonoBehaviour:
   grenadePrefab: {fileID: 759714434}
   throwPoint: {fileID: 1833605597}
   minThrowForce: 4
-  maxThrowForce: 18
-  chargeSpeed: 8
-  dischargeSpeed: 12
+  maxThrowForce: 9.5
+  chargeSpeed: 10
+  dischargeSpeed: 14
   lineRenderer: {fileID: 993994844}
   trajectoryPoints: 30
   timeBetweenPoints: 0.1
