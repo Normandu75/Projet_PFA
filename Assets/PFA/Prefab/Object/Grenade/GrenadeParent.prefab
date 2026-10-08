@@ -58,7 +58,7 @@ VisualEffect:
       m_Array: []
     m_Vector4f:
       m_Array:
-      - m_Value: {x: 1, y: 0.1490565, z: 0.9151971, w: 0}
+      - m_Value: {x: 0.97735846, y: 0.064542405, z: 0.095313, w: 0}
         m_Name: Smoke Color
         m_Overridden: 1
     m_Uint:
@@ -189,8 +189,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60142189430ac8c4c9b43451495ef916, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grenade
-  explosionDelay: 10
-  distractionRadius: 10
+  destroyDelay: 10
+  explosionDelay: 1.95
+  distractionRadius: 8
   enemyLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -297,10 +298,10 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 6144
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 520
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -378,8 +379,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 1, g: 0.118867874, b: 0.7485674, a: 1}
-  m_Intensity: 10
+  m_Color: {r: 1, g: 0.11764705, b: 0.12987961, a: 1}
+  m_Intensity: 30
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208

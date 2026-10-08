@@ -40,6 +40,10 @@ public class GrenadePickUp : MonoBehaviour
         {
             Pickup();
         }
+        if(Input.GetKeyDown(KeyCode.V))
+        {
+            Pickup();
+        }
     }
 
     private void OnTriggerEnter(Collider other)

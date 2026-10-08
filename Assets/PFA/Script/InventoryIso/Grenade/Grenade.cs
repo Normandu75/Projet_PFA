@@ -3,9 +3,13 @@ using UnityEngine;
 
 public class Grenade : MonoBehaviour
 {
+    
+    [Header("Destruction")]
+    [SerializeField] private float destroyDelay = 5f;
     [Header("Leurre")]
     [SerializeField] private float explosionDelay = 3f;
     [SerializeField] private float distractionRadius = 8f;
+    
     [SerializeField] private LayerMask enemyLayers = ~0;
     [Tooltip("Temps pendant lequel l'ennemi reste sur le leurre.")]
     [Min(0f)]
@@ -62,7 +66,7 @@ public class Grenade : MonoBehaviour
             );
         }
 
-        //Destroy(gameObject);
+        Destroy(gameObject, destroyDelay);
     }
 
     private void OnDrawGizmosSelected()
