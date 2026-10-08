@@ -21,20 +21,20 @@ public class S_CamController_Robot : MonoBehaviour
     void Awake()
     {
         if (instance == null)
-        {
             instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
 
     private void Start()
     {
+        S_Camera_Controller cameraController = S_Camera_Controller.instance;
+        if (cameraController != null && !cameraController.IsRobotCameraController(this))
+            return;
+
         if (cam == null)
         {
-            cam = FindTransformIncludingInactive("Camera_Robot_Ally");
+            cam = cameraController != null
+                ? cameraController.robotCam
+                : FindTransformIncludingInactive("Camera_Robot_Ally");
         }
 
         if (camPos == null)
@@ -61,7 +61,7 @@ public class S_CamController_Robot : MonoBehaviour
         if (camPos != null)
             cam.localPosition = cameraLocalPosition;
 
-        yaw = orientation != null ? orientation.localEulerAngles.y : cam.localEulerAngles.y;
+        yaw = orientation != null ? orientation.eulerAngles.y : cam.eulerAngles.y;
 
         if (yaw > 180f)
         {
@@ -78,16 +78,12 @@ public class S_CamController_Robot : MonoBehaviour
             return;
         }
 
-        if (lookInput.sqrMagnitude < 0.0001f)
-        {
-            return;
-        }
-
-        yaw += lookInput.x * lookSensitivity;
+        if (lookInput.sqrMagnitude >= 0.0001f)
+            yaw += lookInput.x * lookSensitivity;
 
         if (orientation != null)
         {
-            orientation.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            orientation.rotation = Quaternion.Euler(0f, yaw, 0f);
         }
 
         cam.localRotation = Quaternion.identity;
@@ -114,13 +110,18 @@ public class S_CamController_Robot : MonoBehaviour
         lookInput = gamepadInput + mouseInput * mouseLookSensitivity;
     }
 
+    public void ConfigureCamera(Transform cameraTransform)
+    {
+        cam = cameraTransform;
+    }
+
     public void AdjustYawForBodyTurn(float bodyYawDelta)
     {
         yaw = Mathf.DeltaAngle(0f, yaw - bodyYawDelta);
 
         if (orientation != null)
         {
-            orientation.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            orientation.rotation = Quaternion.Euler(0f, yaw, 0f);
         }
     }
 }

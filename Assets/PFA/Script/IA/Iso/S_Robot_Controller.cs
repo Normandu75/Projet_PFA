@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(-900)]
 public class S_Robot_Controller : MonoBehaviour
 {
     public static S_Robot_Controller instance;
@@ -11,6 +13,8 @@ public class S_Robot_Controller : MonoBehaviour
     [SerializeField] float friction = 5f;
     [SerializeField] Vector2 addVelocity = Vector2.zero;
     [SerializeField] float rotationSpeed = 90f;
+    [SerializeField, Min(0f)] float proceduralMoveSpeed = 3.5f;
+    [SerializeField, Range(0f, 1f)] float proceduralGamepadDeadzone = 0.15f;
     public bool canMove = false;
     public Transform orientation;
 
@@ -35,7 +39,10 @@ public class S_Robot_Controller : MonoBehaviour
     float lastSurfaceContactTime = float.NegativeInfinity;
     bool hasScanSurfaceTarget;
     Quaternion scanSurfaceTarget;
+    bool usesProceduralMovement;
+    S_CamController_Robot proceduralCamera;
 
+    public bool UsesProceduralMovement => usesProceduralMovement;
     public Vector2 VelocityNoAdd
     {
         get => velocityNoAdd;
@@ -61,28 +68,76 @@ public class S_Robot_Controller : MonoBehaviour
 
     void Awake()
     {
-        if (instance != null && instance != this)
+        usesProceduralMovement = GetComponent<S_Procedural_Animation>() != null
+            || GetComponent<S_Procedural_Robot_Movement>() != null;
+
+        if (usesProceduralMovement)
         {
-            Destroy(gameObject);
+            if (instance != null && instance != this)
+            {
+                instance.enabled = false;
+                Debug.LogWarning("S_Robot_Controller : le contrôleur du robot procédural remplace l'instance précédente.", this);
+            }
+
+            instance = this;
+        }
+        else if (instance != null && instance != this)
+        {
+            enabled = false;
             return;
         }
+        else
+        {
+            instance = this;
+        }
 
-        instance = this;
         rb = GetComponent<Rigidbody>();
         playerCollider = GetComponent<Collider>();
 
-        if (rb != null && playerCollider != null)
+        if (usesProceduralMovement)
+        {
+            S_Procedural_Robot_Movement oldMovement = GetComponent<S_Procedural_Robot_Movement>();
+            if (oldMovement != null)
+                oldMovement.enabled = false;
+
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            rb.constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            proceduralCamera = GetComponentInChildren<S_CamController_Robot>(true);
+        }
+        else if (rb != null && playerCollider != null)
         {
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.isKinematic = true;
         }
 
         if (orientation == null)
-        {
             orientation = transform;
-        }
 
         EstimateMaxSpeed();
+    }
+
+    void Update()
+    {
+        if (!usesProceduralMovement)
+            return;
+
+        if (!canMove)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
+        moveInput = ReadProceduralMoveInput();
+
+    }
+
+    void FixedUpdate()
+    {
+        if (usesProceduralMovement)
+            Move();
     }
 
     void OnValidate()
@@ -92,6 +147,9 @@ public class S_Robot_Controller : MonoBehaviour
 
     void OnDisable()
     {
+        if (instance == this)
+            instance = null;
+
         velocityNoAdd = Vector2.zero;
 
         UpdateVelocity();
@@ -104,10 +162,26 @@ public class S_Robot_Controller : MonoBehaviour
         moveInput = Vector2.ClampMagnitude(input, 1f);
     }
 
+    public void SetRobotMode(bool enabledForPlayer)
+    {
+        canMove = enabledForPlayer;
+        if (usesProceduralMovement && rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+        }
+    }
+
     public void Move()
     {
         if (rb == null)
             return;
+
+        if (usesProceduralMovement)
+        {
+            MoveProceduralRobot();
+            return;
+        }
 
         if (!canMove)
         {
@@ -124,6 +198,55 @@ public class S_Robot_Controller : MonoBehaviour
         ApplyFriction();
         UpdateVelocity();
         ApplyVelocity();
+    }
+
+    Vector2 ReadProceduralMoveInput()
+    {
+        Vector2 keyboardInput = Vector2.zero;
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard != null)
+        {
+            keyboardInput = new Vector2(
+                (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed ? 1f : 0f)
+                    - (keyboard.aKey.isPressed || keyboard.qKey.isPressed || keyboard.leftArrowKey.isPressed ? 1f : 0f),
+                (keyboard.wKey.isPressed || keyboard.zKey.isPressed || keyboard.upArrowKey.isPressed ? 1f : 0f)
+                    - (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed ? 1f : 0f));
+        }
+
+        Vector2 gamepadInput = Gamepad.current != null
+            ? Gamepad.current.leftStick.ReadValue()
+            : Vector2.zero;
+        if (gamepadInput.sqrMagnitude < proceduralGamepadDeadzone * proceduralGamepadDeadzone)
+            gamepadInput = Vector2.zero;
+
+        Vector2 input = gamepadInput.sqrMagnitude > keyboardInput.sqrMagnitude
+            ? gamepadInput
+            : keyboardInput;
+        return Vector2.ClampMagnitude(input, 1f);
+    }
+
+    void MoveProceduralRobot()
+    {
+        if (!canMove)
+            moveInput = Vector2.zero;
+
+        Transform movementFrame = S_Camera_Controller.instance != null
+            && S_Camera_Controller.instance.robotMode
+            && S_Camera_Controller.instance.RobotMovementReference != null
+                ? S_Camera_Controller.instance.RobotMovementReference
+                : proceduralCamera != null && proceduralCamera.orientation != null
+                    ? proceduralCamera.orientation
+                    : orientation != null ? orientation : transform;
+        Vector3 forward = Vector3.ProjectOnPlane(movementFrame.forward, Vector3.up).normalized;
+        if (forward.sqrMagnitude < 0.001f)
+            forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+        if (forward.sqrMagnitude < 0.001f)
+            forward = Vector3.forward;
+        Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
+
+        Vector3 horizontalVelocity = (right * moveInput.x + forward * moveInput.y) * proceduralMoveSpeed;
+        Vector3 verticalVelocity = Vector3.Project(rb.linearVelocity, Vector3.up);
+        rb.linearVelocity = horizontalVelocity + verticalVelocity;
     }
 
     void EstimateMaxSpeed()

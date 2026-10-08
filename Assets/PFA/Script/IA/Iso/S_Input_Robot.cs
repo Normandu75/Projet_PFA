@@ -5,7 +5,15 @@ public class S_Input_Robot : MonoBehaviour
 {
     void Update()
     {
+        if (S_Camera_Controller.instance != null
+            && S_Camera_Controller.instance.robotMode
+            && S_Camera_Controller.instance.IsProceduralRobotMode)
+            return;
+
         if (S_Robot_Controller.instance == null)
+            return;
+
+        if (S_Robot_Controller.instance.UsesProceduralMovement)
             return;
 
         if (S_Camera_Controller.instance == null || !S_Camera_Controller.instance.robotMode)
@@ -27,7 +35,12 @@ public class S_Input_Robot : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (S_Robot_Controller.instance != null)
+        if (S_Camera_Controller.instance != null
+            && S_Camera_Controller.instance.robotMode
+            && S_Camera_Controller.instance.IsProceduralRobotMode)
+            return;
+
+        if (S_Robot_Controller.instance != null && !S_Robot_Controller.instance.UsesProceduralMovement)
             S_Robot_Controller.instance.Move();
     }
 
