@@ -189,7 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60142189430ac8c4c9b43451495ef916, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grenade
-  destroyDelay: 10
+  destroyDelay: 20
   explosionDelay: 1.95
   distractionRadius: 8
   enemyLayers:

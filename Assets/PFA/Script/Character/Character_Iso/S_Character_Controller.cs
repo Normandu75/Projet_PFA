@@ -146,7 +146,7 @@ public class S_Character_Controller : MonoBehaviour
             distanceFromCamera = (transform.position.y - cam.transform.position.y) / cam.transform.forward.y;
         }
 
-        Vector2 mousePositionOnScreen = Mouse.current.position.ReadValue();
+       /* Vector2 mousePositionOnScreen = Mouse.current.position.ReadValue();
         Vector3 mousePosition = cam.ScreenToWorldPoint(new Vector3(mousePositionOnScreen.x, mousePositionOnScreen.y, distanceFromCamera));
         Vector3 direction = mousePosition - transform.position;
         
@@ -156,6 +156,7 @@ public class S_Character_Controller : MonoBehaviour
         {
             transform.rotation = Quaternion.LookRotation(direction);
         }
+        */
     }
 
     public void Movement()
