@@ -14,9 +14,14 @@ public class S_CamController_Robot : MonoBehaviour
     public Vector3 cameraLocalPosition = new Vector3(0f, 1.6f, 0f);
     public float lookSensitivity = 2.5f;
     public float mouseLookSensitivity = 0.05f;
+    [SerializeField, Min(0f)] float groundTransitionRotationSpeed = 120f;
 
     Vector2 lookInput;
     float yaw;
+    Quaternion orientationLocalRotation;
+    S_Procedural_Robot_Movement proceduralMovement;
+    bool wasOnWall;
+    bool returningToGround;
 
     void Awake()
     {
@@ -47,6 +52,10 @@ public class S_CamController_Robot : MonoBehaviour
             orientation = camPos;
         }
 
+        proceduralMovement = GetComponentInParent<S_Procedural_Robot_Movement>();
+        if (orientation != null)
+            orientationLocalRotation = orientation.localRotation;
+
         if (cam == null)
         {
             Debug.LogError("S_CamController_Robot: Camera_Robot_Ally est introuvable.");
@@ -61,9 +70,9 @@ public class S_CamController_Robot : MonoBehaviour
         if (camPos != null)
             cam.localPosition = cameraLocalPosition;
 
-        yaw = orientation != null ? orientation.eulerAngles.y : cam.eulerAngles.y;
-
-        if (yaw > 180f)
+        wasOnWall = proceduralMovement != null && proceduralMovement.IsOnWall;
+        yaw = wasOnWall ? 0f : orientation != null ? orientation.eulerAngles.y : cam.eulerAngles.y;
+        if (!wasOnWall && yaw > 180f)
         {
             yaw -= 360f;
         }
@@ -81,9 +90,45 @@ public class S_CamController_Robot : MonoBehaviour
         if (lookInput.sqrMagnitude >= 0.0001f)
             yaw += lookInput.x * lookSensitivity;
 
+        bool isOnWall = proceduralMovement != null && proceduralMovement.IsOnWall;
+        if (isOnWall != wasOnWall)
+        {
+            returningToGround = wasOnWall && !isOnWall;
+            yaw = isOnWall || orientation == null
+                ? 0f
+                : Mathf.DeltaAngle(0f, orientation.eulerAngles.y);
+            wasOnWall = isOnWall;
+        }
+
         if (orientation != null)
         {
-            orientation.rotation = Quaternion.Euler(0f, yaw, 0f);
+            if (isOnWall)
+            {
+                orientation.rotation = proceduralMovement.transform.rotation
+                    * orientationLocalRotation
+                    * Quaternion.Euler(0f, yaw, 0f);
+            }
+            else
+            {
+                Quaternion groundRotation = Quaternion.Euler(0f, yaw, 0f);
+                if (returningToGround)
+                {
+                    orientation.rotation = Quaternion.RotateTowards(
+                        orientation.rotation,
+                        groundRotation,
+                        groundTransitionRotationSpeed * Time.deltaTime);
+
+                    if (Quaternion.Angle(orientation.rotation, groundRotation) < 0.1f)
+                    {
+                        orientation.rotation = groundRotation;
+                        returningToGround = false;
+                    }
+                }
+                else
+                {
+                    orientation.rotation = groundRotation;
+                }
+            }
         }
 
         cam.localRotation = Quaternion.identity;
@@ -121,7 +166,12 @@ public class S_CamController_Robot : MonoBehaviour
 
         if (orientation != null)
         {
-            orientation.rotation = Quaternion.Euler(0f, yaw, 0f);
+            bool isOnWall = proceduralMovement != null && proceduralMovement.IsOnWall;
+            orientation.rotation = isOnWall
+                ? proceduralMovement.transform.rotation
+                    * orientationLocalRotation
+                    * Quaternion.Euler(0f, yaw, 0f)
+                : Quaternion.Euler(0f, yaw, 0f);
         }
     }
 }

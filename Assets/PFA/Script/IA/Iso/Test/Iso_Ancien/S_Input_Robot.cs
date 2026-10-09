@@ -13,9 +13,6 @@ public class S_Input_Robot : MonoBehaviour
         if (S_Robot_Controller.instance == null)
             return;
 
-        if (S_Robot_Controller.instance.UsesProceduralMovement)
-            return;
-
         if (S_Camera_Controller.instance == null || !S_Camera_Controller.instance.robotMode)
         {
             S_Robot_Controller.instance.SetMoveInput(Vector2.zero);
@@ -40,7 +37,7 @@ public class S_Input_Robot : MonoBehaviour
             && S_Camera_Controller.instance.IsProceduralRobotMode)
             return;
 
-        if (S_Robot_Controller.instance != null && !S_Robot_Controller.instance.UsesProceduralMovement)
+        if (S_Robot_Controller.instance != null)
             S_Robot_Controller.instance.Move();
     }
 

@@ -29,12 +29,14 @@ public class S_Procedural_Animation : MonoBehaviour
     }
 
     Rigidbody rb;
+    S_Procedural_Robot_Movement movement;
     LegState[] legs;
     float gaitClock;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        movement = GetComponent<S_Procedural_Robot_Movement>();
         InitializeLegs();
     }
 
@@ -43,8 +45,9 @@ public class S_Procedural_Animation : MonoBehaviour
         if (legs == null)
             return;
 
-        Vector3 horizontalVelocity = Vector3.ProjectOnPlane(rb.linearVelocity, Vector3.up);
-        float speed = horizontalVelocity.magnitude;
+        Vector3 surfaceUp = movement != null ? movement.SurfaceNormal : Vector3.up;
+        Vector3 surfaceVelocity = Vector3.ProjectOnPlane(rb.linearVelocity, surfaceUp);
+        float speed = surfaceVelocity.magnitude;
         float frequency = speed / Mathf.Max(stepDistance * 2f, 0.01f);
         bool isMoving = speed > 0.05f && frequency > 0.01f;
 
@@ -57,7 +60,7 @@ public class S_Procedural_Animation : MonoBehaviour
         gaitClock += Time.deltaTime * frequency;
         float stepDuration = Mathf.Min(stepDistance / stepSpeed, 0.45f / frequency);
         float swingFraction = Mathf.Clamp(stepDuration * frequency, 0.05f, 0.45f);
-        Vector3 moveDirection = horizontalVelocity / speed;
+        Vector3 moveDirection = surfaceVelocity / speed;
 
         foreach (LegState leg in legs)
         {
@@ -71,7 +74,7 @@ public class S_Procedural_Animation : MonoBehaviour
                 BeginStep(leg, cycle, moveDirection);
 
             if (leg.isStepping)
-                UpdateStep(leg, stepDuration);
+                UpdateStep(leg, stepDuration, surfaceUp);
             else
                 leg.target.position = leg.plantedPosition;
         }
@@ -129,16 +132,17 @@ public class S_Procedural_Animation : MonoBehaviour
 
     void BeginStep(LegState leg, int cycle, Vector3 moveDirection)
     {
+        Vector3 surfaceUp = movement != null ? movement.SurfaceNormal : Vector3.up;
         Vector3 homePosition = transform.TransformPoint(leg.homeLocalPosition);
         Vector3 probeOrigin = homePosition
             + moveDirection * stepDistance
-            + Vector3.up * groundProbeHeight;
+            + surfaceUp * groundProbeHeight;
         int layerMask = groundLayers.value != 0 ? groundLayers.value : Physics.DefaultRaycastLayers;
 
         RaycastHit[] hits = Physics.SphereCastAll(
             probeOrigin,
             sphereCastRadius,
-            Vector3.down,
+            -surfaceUp,
             groundProbeDistance,
             layerMask,
             QueryTriggerInteraction.Ignore);
@@ -155,9 +159,11 @@ public class S_Procedural_Animation : MonoBehaviour
                 continue;
 
             nearestDistance = hit.distance;
-            Vector3 horizontalOffset = Vector3.ProjectOnPlane(hit.point - homePosition, Vector3.up);
-            landingPosition = homePosition + Vector3.ClampMagnitude(horizontalOffset, stepDistance);
-            landingPosition.y = hit.point.y;
+            Vector3 surfaceOffset = Vector3.ProjectOnPlane(hit.point - homePosition, surfaceUp);
+            float surfaceHeight = Vector3.Dot(hit.point - homePosition, surfaceUp);
+            landingPosition = homePosition
+                + Vector3.ClampMagnitude(surfaceOffset, stepDistance)
+                + surfaceUp * surfaceHeight;
         }
 
         if (float.IsPositiveInfinity(nearestDistance))
@@ -170,11 +176,11 @@ public class S_Procedural_Animation : MonoBehaviour
         leg.stepStartTime = Time.time;
     }
 
-    void UpdateStep(LegState leg, float stepDuration)
+    void UpdateStep(LegState leg, float stepDuration, Vector3 surfaceUp)
     {
         float progress = Mathf.Clamp01((Time.time - leg.stepStartTime) / stepDuration);
         Vector3 position = Vector3.Lerp(leg.stepStart, leg.stepEnd, progress);
-        position += Vector3.up * (Mathf.Sin(progress * Mathf.PI) * stepHeight);
+        position += surfaceUp * (Mathf.Sin(progress * Mathf.PI) * stepHeight);
         leg.target.position = position;
 
         if (progress < 1f)

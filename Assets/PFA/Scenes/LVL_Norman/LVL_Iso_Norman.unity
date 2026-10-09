@@ -1956,6 +1956,7 @@ MonoBehaviour:
   cameraLocalPosition: {x: 0, y: 1.6, z: 0}
   lookSensitivity: 1.5
   mouseLookSensitivity: 0.05
+  groundTransitionRotationSpeed: 120
 --- !u!1 &619396833 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -1704039550722668674, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
@@ -2278,7 +2279,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: e1830b02496617242ab2611fcdb88e66, type: 3}
       propertyPath: m_Layer
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2660,6 +2661,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60142189430ac8c4c9b43451495ef916, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grenade
+  destroyDelay: 5
   explosionDelay: 0.75
   distractionRadius: 8
   enemyLayers:
@@ -4407,7 +4409,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071067
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
       propertyPath: m_LocalRotation.x
@@ -4419,11 +4421,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -4799,7 +4801,7 @@ MonoBehaviour:
   arcResolution: 12
   arcLayer:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 6144
   gizmoDrawPoint: 1
   gizmoDrawLink: 1
 --- !u!114 &1114446542
@@ -4863,6 +4865,19 @@ MonoBehaviour:
   gamepadDeadzone: 0.15
   movementReference: {fileID: 0}
   onlyWhenRobotMode: 1
+  isGround: 0
+  surfaceProbeDistance: 0.75
+  surfaceOffset: 0.02
+  surfaceAlignmentSpeed: 180
+  surfaceGraceTime: 0.2
+  arcAngle: 270
+  arcResolution: 12
+  surfaceLayers:
+    serializedVersion: 2
+    m_Bits: 6144
+  isOnWall: 0
+  rb: {fileID: 0}
+  robotCollider: {fileID: 0}
 --- !u!114 &1114446548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4885,7 +4900,7 @@ MonoBehaviour:
   - {fileID: 42760579}
   groundLayers:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 6144
   sphereCastRadius: 0.08
   groundProbeHeight: 0.25
   groundProbeDistance: 0.75
