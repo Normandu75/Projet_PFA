@@ -105,19 +105,20 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
+    
     public bool RemoveItem(int slotIndex, int amount = 1)
     {
-        if (!IsValidIndex(slotIndex))
+        if (!IsValidIndex(slotIndex) || amount <= 0)
             return false;
 
         InventorySlotData slot = slots[slotIndex];
 
-        if (slot.IsEmpty)
+        if (slot.IsEmpty || slot.amount < amount)
             return false;
 
         slot.amount -= amount;
 
-        if (slot.amount <= 0)
+        if (slot.amount == 0)
         {
             slot.Clear();
 
@@ -127,11 +128,16 @@ public class InventoryManager : MonoBehaviour
                 OnQuickSlotChanged?.Invoke(quickSlotIndex);
             }
         }
+        else if (quickSlotIndex == slotIndex)
+        {
+            OnQuickSlotChanged?.Invoke(quickSlotIndex);
+        }
 
         NotifyInventoryChanged();
 
         return true;
     }
+
 
     public bool SetQuickSlot(int index)
     {
@@ -172,6 +178,9 @@ public class InventoryManager : MonoBehaviour
         InventoryItem item = GetQuickItem();
     
         if (item == null)
+            return;
+
+        if (item.itemType != InventoryItemType.Health)
             return;
     
         if (GetQuickItemAmount() <= 0)

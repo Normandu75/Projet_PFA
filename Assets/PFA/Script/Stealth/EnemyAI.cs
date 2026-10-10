@@ -27,11 +27,20 @@ public class EnemyAI : MonoBehaviour
     private int _currentPatrolIndex = 0;
 
     // =====================================================================
+    // CLone
+    // =====================================================================
+    [Header("Clone")]
+    private Transform _cloneTarget;
+    private Vector3 _cloneLastPosition;
+    private bool _isDistractedByClone;
+    [SerializeField] private float cloneStoppingDistance = 1.5f;
+    // =====================================================================
     // PATROUILLE
     // =====================================================================
     [Header("Patrouille")]
 
     [SerializeField] private List<PatrolWaypoint> waypoints;
+    
 
     // =====================================================================
     // DÉTECTION
@@ -186,6 +195,15 @@ public class EnemyAI : MonoBehaviour
         attackCooldownTimer =
             Mathf.Max(0f, attackCooldownTimer - Time.deltaTime);
         currentStateReadOnly = _state;
+        if (DecoyClone.IsActive)
+        {
+            if (!_isDistractedByClone)
+                CheckForClone();
+        }
+        else if (_isDistractedByClone)
+        {
+            EndCloneDistraction();
+        }
         if (_state == EnemyState.Roaming &&
             !debugForceRoaming &&
             TryDetectTarget(out Transform detectedTarget, out Vector3 targetPosition))
@@ -262,26 +280,42 @@ public class EnemyAI : MonoBehaviour
         out Transform target,
         out Vector3 targetPosition)
     {
-        target = _detection.Player;
+        target = null;
+        targetPosition = Vector3.zero;
+
+        // Pendant le clone, aucune détection
+        // du joueur ou de l'allié.
+        if (DecoyClone.IsActive)
+            return false;
+
+        Transform player = _detection.Player;
+
         bool playerHidden =
             PlayerStealth.Instance != null &&
             PlayerStealth.Instance.IsHidden;
-        if (!playerHidden)
+
+        if (player != null && !playerHidden)
         {
-            if (_detection.CanSeePlayer(out targetPosition))
+            if (_detection.CanSeePlayer(out targetPosition) ||
+                IsTargetInDetectionRadius(player, out targetPosition))
+            {
+                target = player;
                 return true;
-            if (IsTargetInDetectionRadius(target, out targetPosition))
-                return true;
+            }
         }
 
-        target = _detection.Ally;
-        if (_detection.CanSeeAlly(out targetPosition))
-            return true;
-        if (IsTargetInDetectionRadius(target, out targetPosition))
-            return true;
+        Transform ally = _detection.Ally;
 
-        target = null;
-        targetPosition = Vector3.zero;
+        if (ally != null)
+        {
+            if (_detection.CanSeeAlly(out targetPosition) ||
+                IsTargetInDetectionRadius(ally, out targetPosition))
+            {
+                target = ally;
+                return true;
+            }
+        }
+
         return false;
     }
     // =====================================================================
@@ -630,6 +664,8 @@ public class EnemyAI : MonoBehaviour
     public void OnAlerted(
         Vector3 lastKnownPlayerPosition)
     {
+        if (DecoyClone.IsActive)
+            return;
         if (_state == EnemyState.Chasing)
             return;
         _isOriginalDetector = false;
@@ -642,6 +678,8 @@ public class EnemyAI : MonoBehaviour
         Transform target,
         Vector3 playerPosition)
     {
+        if (DecoyClone.IsActive)
+            return;
         _chaseTarget = target;
         _fieldOfViewTarget = null;
         _isFieldOfViewChase = false;
@@ -666,6 +704,8 @@ public class EnemyAI : MonoBehaviour
     }
     public void OnSpottedBy(Transform observer)
     {
+        if (DecoyClone.IsActive)
+            return;
         if (observer == null)
             return;
 
@@ -704,6 +744,11 @@ public class EnemyAI : MonoBehaviour
     // =====================================================================
     private void TickChasing()
     {
+        if (_isDistractedByClone)
+        {
+            TickCloneDistraction();
+            return;
+        }
         if (_isFieldOfViewChase)
         {
             if (_fieldOfViewTarget == null)
@@ -1068,5 +1113,122 @@ public class EnemyAI : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player") && _body != null)
             _body.isKinematic = false;
+    }
+    // =====================================================================
+    // CLONE
+    // =====================================================================
+    private void CheckForClone()
+    {
+        if (!DecoyClone.IsActive || _isDistractedByClone)
+            return;
+
+        Transform clone = DecoyClone.Target;
+
+        if (clone == null)
+            return;
+
+        bool canSeeClone = _detection.CanSeeTarget(
+            clone,
+            out Vector3 clonePosition
+        );
+
+        bool isNearby = IsTargetInDetectionRadius(
+            clone,
+            out Vector3 nearbyPosition
+        );
+
+        if (!canSeeClone && !isNearby)
+            return;
+
+        OnCloneDetected(clone);
+    }    
+    private void OnCloneDetected(Transform clone)
+    {
+        if (clone == null)
+            return;
+
+        StopBehaviourRoutine();
+        ResetAttackProgressBar();
+
+        if (_decoyRoutine != null)
+        {
+            StopCoroutine(_decoyRoutine);
+            _decoyRoutine = null;
+        }
+
+        _isInvestigatingDecoy = false;
+
+        _cloneTarget = clone;
+        _isDistractedByClone = true;
+
+        _fieldOfViewTarget = null;
+        _isFieldOfViewChase = false;
+        _hasSeenFieldOfViewTarget = false;
+
+        SetState(EnemyState.Chasing);
+
+        SetAgentMovement(true, true);
+
+        if (_agent.isOnNavMesh &&
+            NavMesh.SamplePosition(
+                clone.position,
+                out NavMeshHit hit,
+                3f,
+                NavMesh.AllAreas))
+        {
+            _agent.ResetPath();
+            _agent.SetDestination(hit.position);
+        }
+    }
+
+   private void TickCloneDistraction()
+    {
+        if (_cloneTarget == null)
+        {
+            EndCloneDistraction();
+            return;
+        }
+    
+        if (!_agent.isOnNavMesh)
+            return;
+    
+        Vector3 clonePosition = _cloneTarget.position;
+    
+        if (!NavMesh.SamplePosition(
+            clonePosition,
+            out NavMeshHit hit,
+            3f,
+            NavMesh.AllAreas))
+            return;
+    
+        _agent.stoppingDistance = cloneStoppingDistance;
+    
+        if (!_agent.pathPending &&
+            _agent.hasPath &&
+            _agent.remainingDistance <=
+            _agent.stoppingDistance + 0.15f)
+        {
+            SetAgentMovement(false, false);
+            _agent.ResetPath();
+    
+            RotateTowardsPosition(
+                clonePosition,
+                detectionRotationSpeed
+            );
+    
+            return;
+        }
+    
+        SetAgentMovement(true, true);
+        _agent.SetDestination(hit.position);
+    }
+
+    private void EndCloneDistraction()
+    {
+        _cloneTarget = null;
+        _isDistractedByClone = false;
+
+        ResetAttackProgressBar();
+        ReturnToPatrol();
     }
 }

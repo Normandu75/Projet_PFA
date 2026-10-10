@@ -25,6 +25,9 @@ public class EnemyDetection : MonoBehaviour
 
     private Transform FindPlayer()
     {
+        if (DecoyClone.IsActive)
+            return _player;
+
         if (_player != null)
             return _player;
 
@@ -112,13 +115,16 @@ public class EnemyDetection : MonoBehaviour
         allyPosition = default;
         Transform ally = FindAlly();
         if (ally == null) return false;
-
+        if (DecoyClone.IsActive && ally == FindPlayer())
+        return false;
         return CanSeeTarget(ally, out allyPosition);
     }
 
     public bool CanSeePlayer(out Vector3 playerPosition)
     {
         playerPosition = default;
+        if (DecoyClone.IsActive)
+        return false;
         Transform player = FindPlayer();
         if (player == null) return false;
 

@@ -18,7 +18,7 @@ MonoBehaviour:
   maxStack: 3
   healAmount: 0
   energyAmount: 0
-  inventoryName: Grenade Leurre.
-  inventoryDescription: "Apr\xE8s l'explosion attire les ennemis \xE0 sa port\xE9e."
-  inventoryAction: "Utilis\xE9e"
+  inventoryName: "Fumig\xE8nes."
+  inventoryDescription: "Attire les ennemis sur sa position et fais de la lumi\xE8re."
+  inventoryAction: Objet
   grenadePrefab: {fileID: 0}

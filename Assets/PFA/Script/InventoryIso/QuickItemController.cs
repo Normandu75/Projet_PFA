@@ -1,57 +1,115 @@
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class QuickItemController : MonoBehaviour
 {
-    [SerializeField]
-    private S_HealthBar healthBar;
+    [Header("Health")]
+    [SerializeField] private S_HealthBar healthBar;
+
+    [Header("Clone")]
+    [SerializeField] private PlayerDecoyAbility playerDecoyAbility;
+
+    private int cloneSlotIndex = -1;
+    private DecoyClone activeClone;
 
     private void Update()
     {
-        if (InventoryManager.Instance == null)
+        InventoryManager inventory = InventoryManager.Instance;
+
+        if (inventory == null)
             return;
 
-        InventoryItem quickItem =
-            InventoryManager.Instance.GetQuickItem();
-
-        // Une grenade est gérée par GrenadeThrow :
-        // LT = viser
-        // RT = lancer
-        if (quickItem != null &&
-            quickItem.itemType == InventoryItemType.Grenade)
+        // Le clone a disparu : retirer 1 objet.
+        if (cloneSlotIndex >= 0 && activeClone == null)
         {
+            FinishClone(inventory);
+        }
+
+        InventoryItem quickItem = inventory.GetQuickItem();
+
+        if (quickItem == null)
             return;
-        }
 
-        bool useItem = false;
+        // Les grenades sont gérées séparément.
+        if (quickItem.itemType == InventoryItemType.Grenade)
+            return;
 
-        // Clavier : F
-        if (Keyboard.current != null &&
-            Keyboard.current.fKey.wasPressedThisFrame)
-        {
-            useItem = true;
-        }
+        bool useItem =
+            (Keyboard.current != null &&
+             Keyboard.current.fKey.wasPressedThisFrame) ||
 
-        // Souris : bouton latéral avant
-        if (Mouse.current != null &&
-            Mouse.current.forwardButton.wasPressedThisFrame)
-        {
-            useItem = true;
-        }
+            (Mouse.current != null &&
+             Mouse.current.forwardButton.wasPressedThisFrame) ||
 
-        // Manette : X
-        if (Gamepad.current != null &&
-            Gamepad.current.buttonWest.wasPressedThisFrame)
-        {
-            useItem = true;
-        }
+            (Gamepad.current != null &&
+             Gamepad.current.buttonWest.wasPressedThisFrame);
 
         if (!useItem)
             return;
 
-        if (healthBar == null)
+        switch (quickItem.itemType)
+        {
+            case InventoryItemType.Health:
+                if (healthBar != null)
+                    inventory.UseQuickItem(healthBar);
+                break;
+
+            case InventoryItemType.Clone:
+                UseClone(inventory);
+                break;
+        }
+    }
+
+    private void UseClone(InventoryManager inventory)
+    {
+        if (inventory.GetQuickItemAmount() <= 0)
             return;
 
-        InventoryManager.Instance.UseQuickItem(healthBar);
+        if (cloneSlotIndex >= 0 || DecoyClone.IsActive)
+            return;
+
+        if (playerDecoyAbility == null)
+        {
+            Debug.LogWarning(
+                "Player Decoy Ability non assigné."
+            );
+            return;
+        }
+
+        // C'est PlayerDecoyAbility qui crée le clone.
+        bool activated = playerDecoyAbility.ActivateClone();
+
+        if (!activated)
+            return;
+
+        // Mémorise le clone et son slot d'inventaire.
+        activeClone = playerDecoyAbility.ActiveClone;
+        cloneSlotIndex = inventory.QuickSlotIndex;
+    }
+
+    private void FinishClone(InventoryManager inventory)
+    {
+        int slotIndex = cloneSlotIndex;
+
+        cloneSlotIndex = -1;
+        activeClone = null;
+
+        InventorySlotData slot = inventory.GetSlot(slotIndex);
+
+        if (slot == null ||
+            slot.IsEmpty ||
+            slot.item == null ||
+            slot.item.itemType != InventoryItemType.Clone)
+        {
+            Debug.LogWarning(
+                "Clone terminé : objet introuvable dans le slot."
+            );
+            return;
+        }
+
+        // Décrémente avec ton InventoryManager existant.
+        inventory.RemoveItem(slotIndex, 1);
     }
 }
+
