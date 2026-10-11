@@ -12,14 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88ea8bb8e71693341acd297d10e94beb, type: 3}
   m_Name: Clone
   m_EditorClassIdentifier: Assembly-CSharp::InventoryItem
-  itemName: 
+  itemName: Clone
   itemType: 2
   icon: {fileID: 21300000, guid: ee7e7dc1e4f8de443b00339a259cc835, type: 3}
   maxStack: 5
   healAmount: 25
   energyAmount: 25
   inventoryName: Clone
-  inventoryDescription: "Cr\xE9er un clone pour attirer l'ennemi. Parfait pour fuir
-    une situation."
+  inventoryDescription: Attire l'ennemi vers le clone.
   inventoryAction: Objet
   grenadePrefab: {fileID: 0}

@@ -49,9 +49,7 @@ public class RuntimeInventoryUI : MonoBehaviour
 
     [SerializeField]
     private Sprite mouseAimIcon;
-
-    [SerializeField]
-    private Sprite gamepadAimIcon;
+    private TMP_Text cloneProgressText;
 
     private Canvas canvas;
 
@@ -87,8 +85,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         CreateCanvas();
         CreateWheel();
         CreateQuickSlot();
-
-        // IMPORTANT :
+        CreateCloneTimerText();
         // La roue est cachée au lancement.
         HideWheel();
     }
@@ -123,7 +120,7 @@ public class RuntimeInventoryUI : MonoBehaviour
     private void Update()
     {
         HandleOpenInput();
-
+        UpdateCloneTimerText();
         if (!isOpen)
             return;
 
@@ -1503,5 +1500,59 @@ public class RuntimeInventoryUI : MonoBehaviour
         wheelRoot.SetActive(
             false
         );
+    } 
+    private void CreateCloneTimerText()
+    {
+        GameObject textObject = new GameObject(
+            "Clone Timer Text",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI)
+        );
+
+        textObject.transform.SetParent(
+            quickSlotRoot.transform,
+            false
+        );
+
+        RectTransform textRect =
+            textObject.GetComponent<RectTransform>();
+
+        textRect.anchorMin = new Vector2(0.5f, 0.5f);
+        textRect.anchorMax = new Vector2(0.5f, 0.5f);
+        textRect.pivot = new Vector2(0.5f, 0.5f);
+
+        textRect.sizeDelta = new Vector2(200f, 30f);
+        textRect.anchoredPosition = new Vector2(0f, 105f);
+
+        cloneProgressText =
+            textObject.GetComponent<TextMeshProUGUI>();
+
+        cloneProgressText.fontSize = 17f;
+        cloneProgressText.fontStyle = FontStyles.Bold;
+        cloneProgressText.alignment =
+            TextAlignmentOptions.Center;
+        cloneProgressText.color = Color.white;
+        cloneProgressText.raycastTarget = false;
+
+        textObject.SetActive(false);
+    }
+
+    private void UpdateCloneTimerText()
+    {
+        if (cloneProgressText == null)
+            return;
+
+        DecoyClone clone = DecoyClone.ActiveClone;
+
+        if (clone == null)
+        {
+            cloneProgressText.gameObject.SetActive(false);
+            return;
+        }
+
+        cloneProgressText.gameObject.SetActive(true);
+
+        cloneProgressText.text =
+            "CLONE : " + clone.RemainingTime.ToString("F1") + " s";
     }
 }

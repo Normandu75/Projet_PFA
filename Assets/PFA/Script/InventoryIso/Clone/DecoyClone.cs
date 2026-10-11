@@ -6,20 +6,31 @@ public class DecoyClone : MonoBehaviour
 {
     public static DecoyClone ActiveClone { get; private set; }
 
-    public static bool IsActive =>
-        ActiveClone != null;
+    public static bool IsActive => ActiveClone != null;
 
     public static Transform Target =>
         IsActive ? ActiveClone.transform : null;
 
+    private float duration;
+    private float endTime;
     private Coroutine lifetimeRoutine;
 
-    public void Activate(float duration)
+    public float Duration => duration;
+
+    public float RemainingTime =>
+        IsActive && ActiveClone == this
+            ? Mathf.Max(0f, endTime - Time.time)
+            : 0f;
+
+    public void Activate(float cloneDuration)
     {
         if (ActiveClone != null && ActiveClone != this)
             return;
 
         ActiveClone = this;
+
+        duration = Mathf.Max(0f, cloneDuration);
+        endTime = Time.time + duration;
 
         Rigidbody rb = GetComponent<Rigidbody>();
 
@@ -29,14 +40,17 @@ public class DecoyClone : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
             rb.isKinematic = true;
         }
-        lifetimeRoutine = StartCoroutine(
-            LifetimeRoutine(Mathf.Max(0f, duration))
-        );
+
+        if (lifetimeRoutine != null)
+            StopCoroutine(lifetimeRoutine);
+
+        lifetimeRoutine = StartCoroutine(LifetimeRoutine());
     }
 
-    private IEnumerator LifetimeRoutine(float duration)
+    private IEnumerator LifetimeRoutine()
     {
-        yield return new WaitForSeconds(duration);
+        while (RemainingTime > 0f)
+            yield return null;
 
         if (ActiveClone == this)
             ActiveClone = null;
