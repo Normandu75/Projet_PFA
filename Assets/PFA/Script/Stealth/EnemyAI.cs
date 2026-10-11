@@ -187,6 +187,7 @@ public class EnemyAI : MonoBehaviour
     {
         ConfigureAttackProgressBar();
         attackCooldownTimer = 0f;
+        UpdateDetectionLight(_state);
         StartPatrol();
     }
     private void Update()
@@ -1058,30 +1059,24 @@ public class EnemyAI : MonoBehaviour
             newState
         );
     }
-    private void UpdateDetectionLight(
-        EnemyState state)
+   
+    private void UpdateDetectionLight(EnemyState state)
     {
         if (detectionLight == null)
             return;
-        detectionLight.intensity =
-            lightIntensity;
-        switch (state)
+
+        // Lumière uniquement pendant la poursuite.
+        bool isChasing = state == EnemyState.Chasing;
+
+        detectionLight.enabled = isChasing;
+
+        if (isChasing)
         {
-            case EnemyState.Chasing:
-                detectionLight.enabled = true;
-                detectionLight.color =
-                    chasingLightColor;
-                break;
-            case EnemyState.Roaming:
-                detectionLight.enabled = true;
-                detectionLight.color =
-                    roamingLightColor;
-                break;
-            default:
-                detectionLight.enabled = false;
-                break;
+            detectionLight.color = chasingLightColor;
+            detectionLight.intensity = lightIntensity;
         }
     }
+
     // =====================================================================
     // GIZMOS
     // =====================================================================
