@@ -21,7 +21,7 @@ public class S_Field_Of_View : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(FindTargetsWithDelay(8f));
+        StartCoroutine(FindTargetsWithDelay(3f));
     }
 
     IEnumerator FindTargetsWithDelay(float delay)
