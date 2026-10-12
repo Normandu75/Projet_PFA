@@ -28,6 +28,7 @@ public class S_Camera_Controller : MonoBehaviour
     private Collider robotCollider;
     private S_Robot_Controller robotController;
     private S_CamController_Robot robotCameraController;
+    private S_Robot_Follow_Player robotFollower;
 
     public bool IsProceduralRobotMode => robotTarget != null
         && (robotTarget.GetComponent<S_Procedural_Animation>() != null
@@ -60,6 +61,15 @@ public class S_Camera_Controller : MonoBehaviour
             robotCollider = robotTarget.GetComponent<Collider>();
             robotController = robotTarget.GetComponent<S_Robot_Controller>();
             robotCameraController = robotTarget.GetComponentInChildren<S_CamController_Robot>(true);
+
+            if (robotTarget.GetComponent<S_Procedural_Robot_Movement>() != null)
+            {
+                robotFollower = robotTarget.GetComponent<S_Robot_Follow_Player>();
+                if (robotFollower == null)
+                    robotFollower = robotTarget.gameObject.AddComponent<S_Robot_Follow_Player>();
+
+                robotFollower.Configure(player, FindChildTransformIncludingInactive(player, "Robot_Pos"));
+            }
         }
 
         if (robotCam == null)
@@ -180,6 +190,8 @@ public class S_Camera_Controller : MonoBehaviour
     private void SetCameraMode(bool useRobotCamera)
     {
         robotMode = useRobotCamera;
+        if (robotFollower != null)
+            robotFollower.SetFollowing(!robotMode);
 
         if (cam != null)
         {

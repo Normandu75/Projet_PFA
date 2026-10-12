@@ -47,7 +47,11 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
 
     void Start()
     {
-        rb.isKinematic = false;
+        S_Robot_Follow_Player follower = GetComponent<S_Robot_Follow_Player>();
+        if (follower == null || !follower.IsFollowing)
+            rb.isKinematic = false;
+        else
+            rb.isKinematic = true;
         rb.useGravity = true;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
