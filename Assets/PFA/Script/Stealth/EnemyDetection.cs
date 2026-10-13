@@ -18,7 +18,7 @@ public class EnemyDetection : MonoBehaviour
 
     private void Awake()
     {
-        FindAlly();
+        // FindAlly();
         FindPlayer();
         if (eyePoint == null) eyePoint = transform;
     }
@@ -54,33 +54,33 @@ public class EnemyDetection : MonoBehaviour
         return _player;
     }
 
-    private Transform FindAlly()
-    {
-        if (_ally != null)
-            return _ally;
+    // private Transform FindAlly()
+    // {
+    //     if (_ally != null)
+    //         return _ally;
 
-        GameObject allyObject = GameObject.FindGameObjectWithTag("Ally");
-        if (allyObject != null)
-        {
-            _ally = allyObject.transform;
-            return _ally;
-        }
+    //     GameObject allyObject = GameObject.FindGameObjectWithTag("Ally");
+    //     if (allyObject != null)
+    //     {
+    //         _ally = allyObject.transform;
+    //         return _ally;
+    //     }
 
-        S_Robot_Controller robotController =
-            FindAnyObjectByType<S_Robot_Controller>();
-        if (robotController != null)
-        {
-            _ally = robotController.transform;
-            return _ally;
-        }
+    //     S_Robot_Controller robotController =
+    //         FindAnyObjectByType<S_Robot_Controller>();
+    //     if (robotController != null)
+    //     {
+    //         _ally = robotController.transform;
+    //         return _ally;
+    //     }
 
-        S_Control_Ally allyController =
-            FindAnyObjectByType<S_Control_Ally>();
-        if (allyController != null)
-            _ally = allyController.transform;
+    //     S_Control_Ally allyController =
+    //         FindAnyObjectByType<S_Control_Ally>();
+    //     if (allyController != null)
+    //         _ally = allyController.transform;
 
-        return _ally;
-    }
+    //     return _ally;
+    // }
 
     /// <summary>Vrai si le point est dans l'angle ET dans la distance du cône (sans check de mur).</summary>
     public bool IsPointInCone(Vector3 point)
@@ -110,15 +110,15 @@ public class EnemyDetection : MonoBehaviour
     }
 
 
-    public bool CanSeeAlly(out Vector3 allyPosition)
-    {
-        allyPosition = default;
-        Transform ally = FindAlly();
-        if (ally == null) return false;
-        if (DecoyClone.IsActive && ally == FindPlayer())
-        return false;
-        return CanSeeTarget(ally, out allyPosition);
-    }
+    // public bool CanSeeAlly(out Vector3 allyPosition)
+    // {
+    //     allyPosition = default;
+    //     Transform ally = FindAlly();
+    //     if (ally == null) return false;
+    //     if (DecoyClone.IsActive && ally == FindPlayer())
+    //     return false;
+    //     return CanSeeTarget(ally, out allyPosition);
+    // }
 
     public bool CanSeePlayer(out Vector3 playerPosition)
     {
@@ -142,6 +142,6 @@ public class EnemyDetection : MonoBehaviour
         return true;
     }
     
-    public Transform Ally => FindAlly();
+    // public Transform Ally => FindAlly();
     public Transform Player => FindPlayer();
 }

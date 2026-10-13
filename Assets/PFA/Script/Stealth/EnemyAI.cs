@@ -248,9 +248,7 @@ public class EnemyAI : MonoBehaviour
         else if (debugForceChasing && !_prevDebugChasing)
         {
             debugForceRoaming = false;
-            Transform chaseTarget = _detection.Player != null
-                ? _detection.Player
-                : _detection.Ally;
+            Transform chaseTarget = _detection.Player;
             Vector3 target =
                 chaseTarget != null
                     ? chaseTarget.position
@@ -301,18 +299,6 @@ public class EnemyAI : MonoBehaviour
                 IsTargetInDetectionRadius(player, out targetPosition))
             {
                 target = player;
-                return true;
-            }
-        }
-
-        Transform ally = _detection.Ally;
-
-        if (ally != null)
-        {
-            if (_detection.CanSeeAlly(out targetPosition) ||
-                IsTargetInDetectionRadius(ally, out targetPosition))
-            {
-                target = ally;
                 return true;
             }
         }
@@ -670,9 +656,7 @@ public class EnemyAI : MonoBehaviour
         if (_state == EnemyState.Chasing)
             return;
         _isOriginalDetector = false;
-        Transform target = _detection.Player != null
-            ? _detection.Player
-            : _detection.Ally;
+        Transform target = _detection.Player;
         BeginChase(target, lastKnownPlayerPosition);
     }
     private void BeginChase(
@@ -779,9 +763,7 @@ public class EnemyAI : MonoBehaviour
         Transform target = _chaseTarget;
         if (target == null)
         {
-            target = _detection.Player != null
-                ? _detection.Player
-                : _detection.Ally;
+            target = _detection.Player;
             _chaseTarget = target;
         }
         if (target == null)

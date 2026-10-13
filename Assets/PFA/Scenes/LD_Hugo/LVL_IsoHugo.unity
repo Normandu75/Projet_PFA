@@ -2401,6 +2401,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Porte
       objectReference: {fileID: 0}
+    - target: {fileID: 8508478971833331995, guid: c3d4383dc25e61d45a76c5b4b697d6ef, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8257,9 +8261,9 @@ MonoBehaviour:
   detectionRadius: 3
   showDetectionGizmo: 1
   attackRange: 1.5
-  attackAnimDuration: 0.5
+  attackAnimDuration: 0.75
   attackDamage: 45
-  attackCooldown: 0.5
+  attackCooldown: 0.75
   detectionRotationSpeed: 560
   attackRotationSpeed: 720
   attackMoveTolerance: 1
@@ -8282,7 +8286,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 7
+  m_Speed: 4
   m_Acceleration: 15
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -12608,6 +12612,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Porte (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 8508478971833331995, guid: c3d4383dc25e61d45a76c5b4b697d6ef, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -12893,6 +12901,10 @@ PrefabInstance:
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
       value: 0.13627943
       objectReference: {fileID: 0}
+    - target: {fileID: 4723410977599509339, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4840874221467649103, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.67
@@ -12901,6 +12913,10 @@ PrefabInstance:
       propertyPath: playerDecoyAbility
       value: 
       objectReference: {fileID: 1781193670}
+    - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: speed
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: detectionRadius
       value: 5
