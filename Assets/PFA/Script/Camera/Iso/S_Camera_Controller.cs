@@ -36,6 +36,9 @@ public class S_Camera_Controller : MonoBehaviour
     public Transform RobotMovementReference => robotCameraController != null
         ? robotCameraController.orientation
         : null;
+    public float RobotCameraYaw => robotCameraController != null
+        ? robotCameraController.Yaw
+        : 0f;
 
     void Awake()
     {

@@ -23,6 +23,8 @@ public class S_CamController_Robot : MonoBehaviour
     bool wasOnWall;
     bool returningToGround;
 
+    public float Yaw => yaw;
+
     void Awake()
     {
         if (instance == null)

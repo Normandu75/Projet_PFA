@@ -2569,7 +2569,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScanArmsAdvanced
   weightByDist: 0
-  armCount: 4
+  armCount: 5
   armLenght: 0.4
   armDuplicateCount: 2
   armDuplicate: 2
@@ -7577,11 +7577,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.94373
+      value: -1.287
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.0789602
+      value: 3.079
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
       propertyPath: m_LocalRotation.w

@@ -174,9 +174,16 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
 
         int wallLayer = LayerMask.NameToLayer("Wall");
         isOnWall = wallLayer >= 0 && activeSurfaceLayer == wallLayer;
+        S_Camera_Controller cameraController = S_Camera_Controller.instance;
+        bool followCameraYaw = cameraController != null
+            && cameraController.robotMode
+            && cameraController.RobotMovementReference != null;
         Quaternion targetRotation = isOnWall
             ? Quaternion.FromToRotation(rb.rotation * Vector3.forward, surfaceNormal) * rb.rotation
-            : Quaternion.Euler(-90f, 0f, 0f);
+            : followCameraYaw
+                ? Quaternion.AngleAxis(cameraController.RobotCameraYaw, Vector3.up)
+                    * Quaternion.Euler(-90f, 0f, 0f)
+                : Quaternion.Euler(-90f, 0f, 0f);
         rb.angularVelocity = Vector3.zero;
         rb.MoveRotation(!isOnWall
             ? targetRotation
