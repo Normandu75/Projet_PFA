@@ -23,6 +23,8 @@ public class S_Robot_Follow_Player : MonoBehaviour
     bool hasWarnedAboutDestination;
     float nextDestinationUpdateTime;
     float visualHeightOffset;
+    float playerYawAtFollowStart;
+    Quaternion robotRotationAtFollowStart;
 
     public bool IsFollowing => following;
     public Vector3 MovementVelocity => following && agent != null && agent.enabled && agent.isOnNavMesh
@@ -76,7 +78,7 @@ public class S_Robot_Follow_Player : MonoBehaviour
 
         transform.SetPositionAndRotation(
             agent.nextPosition + Vector3.up * visualHeightOffset,
-            FollowRotation);
+            GetFollowRotation());
     }
 
     public void Configure(Transform playerTransform, Transform initialPosition)
@@ -144,6 +146,8 @@ public class S_Robot_Follow_Player : MonoBehaviour
         transform.position = startHit.position;
         if (placeAtStartPosition)
             transform.rotation = FollowRotation;
+        playerYawAtFollowStart = GetPlayerYaw();
+        robotRotationAtFollowStart = transform.rotation;
 
         if (body != null)
         {
@@ -172,6 +176,23 @@ public class S_Robot_Follow_Player : MonoBehaviour
         transform.position = startHit.position + Vector3.up * visualHeightOffset;
         hasPlacedAtStartPosition |= placeAtStartPosition;
         nextDestinationUpdateTime = 0f;
+    }
+
+    float GetPlayerYaw()
+    {
+        if (player == null)
+            return 0f;
+
+        Vector3 forward = Vector3.ProjectOnPlane(player.forward, Vector3.up);
+        return forward.sqrMagnitude > 0.0001f
+            ? Mathf.Atan2(forward.x, forward.z) * Mathf.Rad2Deg
+            : player.eulerAngles.y;
+    }
+
+    Quaternion GetFollowRotation()
+    {
+        float yawDelta = Mathf.DeltaAngle(playerYawAtFollowStart, GetPlayerYaw());
+        return Quaternion.AngleAxis(yawDelta + 180f, Vector3.up) * robotRotationAtFollowStart;
     }
 
     float CalculateVisualHeightOffset(Vector3 navMeshPosition)
