@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[DefaultExecutionOrder(200)]
 public class S_Procedural_Animation : MonoBehaviour
 {
     [Header("Steps")]
@@ -30,6 +31,7 @@ public class S_Procedural_Animation : MonoBehaviour
 
     Rigidbody rb;
     S_Procedural_Robot_Movement movement;
+    S_Robot_Follow_Player follower;
     LegState[] legs;
     float gaitClock;
 
@@ -37,6 +39,7 @@ public class S_Procedural_Animation : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         movement = GetComponent<S_Procedural_Robot_Movement>();
+        follower = GetComponent<S_Robot_Follow_Player>();
         InitializeLegs();
     }
 
@@ -46,7 +49,10 @@ public class S_Procedural_Animation : MonoBehaviour
             return;
 
         Vector3 surfaceUp = movement != null ? movement.SurfaceNormal : Vector3.up;
-        Vector3 surfaceVelocity = Vector3.ProjectOnPlane(rb.linearVelocity, surfaceUp);
+        Vector3 movementVelocity = follower != null && follower.IsFollowing
+            ? follower.MovementVelocity
+            : rb.linearVelocity;
+        Vector3 surfaceVelocity = Vector3.ProjectOnPlane(movementVelocity, surfaceUp);
         float speed = surfaceVelocity.magnitude;
         float frequency = speed / Mathf.Max(stepDistance * 2f, 0.01f);
         bool isMoving = speed > 0.05f && frequency > 0.01f;
