@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
@@ -44,7 +45,7 @@ public class PersonaMenuGenerator : MonoBehaviour
     [Header("Transition au clic")]
     [Range(1f, 2f)] public float agrandissementAuClic = 1.35f;
     [Range(0f, 0.5f)] public float echelleFinaleDesAutres = 0.03f;
-    [Min(0.1f)] public float dureeTransitionClic = 0.45f;
+    [Min(0.1f)] public float dureeTransitionClic = 0.25f;
 
     [Header("Paramètres des boutons")]
     public List<ButtonSettings> boutons = new List<ButtonSettings>();
@@ -62,6 +63,7 @@ public class PersonaMenuGenerator : MonoBehaviour
     private int indexBoutonSurvole = -1;
     private int indexBoutonSelectionne = -1;
     private float progressionTransitionClic;
+    private bool chargementSceneDemarre;
 
     [ContextMenu("Appliquer le menu principal (4 boutons)")]
     private void AppliquerDispositionMenuPrincipal()
@@ -150,6 +152,7 @@ public class PersonaMenuGenerator : MonoBehaviour
         indexBoutonSurvole = -1;
         indexBoutonSelectionne = -1;
         progressionTransitionClic = 0f;
+        chargementSceneDemarre = false;
 
         int nombreDeConfigurations = boutons == null ? 0 : boutons.Count;
 
@@ -287,7 +290,7 @@ public class PersonaMenuGenerator : MonoBehaviour
         if (indexBoutonSelectionne >= 0)
         {
             progressionTransitionClic = Mathf.Min(
-                1f,
+                2f,
                 progressionTransitionClic + Time.unscaledDeltaTime / dureeTransitionClic);
             float transition = Mathf.SmoothStep(0f, 1f, progressionTransitionClic);
 
@@ -312,6 +315,14 @@ public class PersonaMenuGenerator : MonoBehaviour
                     float alphaFinal = boutonSelectionne ? transparencesDepartClic[i] : 0f;
                     groupeCanvas.alpha = Mathf.Lerp(transparencesDepartClic[i], alphaFinal, transition);
                 }
+            }
+
+            if (progressionTransitionClic >= 2f
+                && !chargementSceneDemarre
+                && rectsBoutons[indexBoutonSelectionne].gameObject.name == "JOUER")
+            {
+                chargementSceneDemarre = true;
+                SceneManager.LoadSceneAsync(1);
             }
 
             return;
