@@ -55,8 +55,7 @@ public class S_Camera_Controller : MonoBehaviour
         cam = GameObject.Find("Follow Camera")?.transform;
 
         if (robotTarget == null)
-            robotTarget = FindTransformIncludingInactive("Robot_Ally")
-                ?? FindTransformIncludingInactive("Robot_Ally");
+            robotTarget = FindTransformIncludingInactive("Robot_Procedural");
 
         if (robotTarget != null)
         {
