@@ -1,46 +1,26 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Grenade : MonoBehaviour
 {
-    
     [Header("Destruction")]
-    [SerializeField] private float destroyDelay = 5f;
-    [Header("Leurre")]
-    [SerializeField] private float explosionDelay = 3f;
-    [SerializeField] private float distractionRadius = 8f;
-    
-    [SerializeField] private LayerMask enemyLayers = ~0;
-    [Tooltip("Temps pendant lequel l'ennemi reste sur le leurre.")]
     [Min(0f)]
-    [SerializeField] private float investigationTime = 3f;
+    [SerializeField] private float destroyDelay = 5f;
 
-    private float countdown;
-    private bool hasExploded;
+    [Header("Leurre")]
+    [SerializeField] private float distractionRadius = 8f;
+    [SerializeField] private LayerMask enemyLayers = ~0;
+
+    private readonly HashSet<EnemyAI> affectedEnemies = new();
 
     private void Start()
     {
-        countdown = explosionDelay;
+        Destroy(gameObject, destroyDelay);
     }
 
     private void Update()
     {
-        if (hasExploded)
-            return;
-
-        countdown -= Time.deltaTime;
-
-        if (countdown <= 0f)
-            Explode();
-    }
-
-    private void Explode()
-    {
-        if (hasExploded)
-            return;
-
-        hasExploded = true;
-
         Collider[] colliders = Physics.OverlapSphere(
             transform.position,
             distractionRadius,
@@ -48,25 +28,26 @@ public class Grenade : MonoBehaviour
             QueryTriggerInteraction.Collide
         );
 
-        HashSet<EnemyAI> affectedEnemies = new HashSet<EnemyAI>();
-
         foreach (Collider col in colliders)
         {
-            if (col == null)
-                continue;
-
             EnemyAI enemy = col.GetComponentInParent<EnemyAI>();
 
             if (enemy == null || !affectedEnemies.Add(enemy))
                 continue;
 
-            enemy.InvestigateDecoy(
-                transform.position,
-                investigationTime
-            );
+            enemy.InvestigateDecoy(transform);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        foreach (EnemyAI enemy in affectedEnemies)
+        {
+            if (enemy != null)
+                enemy.StopInvestigatingDecoy(transform);
         }
 
-        Destroy(gameObject, destroyDelay);
+        affectedEnemies.Clear();
     }
 
     private void OnDrawGizmosSelected()

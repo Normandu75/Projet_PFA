@@ -52,6 +52,12 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float detectionRadius = 3f;
 
     [SerializeField] private bool showDetectionGizmo = true;
+    private Transform _activeDecoy;
+    private float _decoyStoppingDistance = 1.5f;
+    private float _defaultStoppingDistance;
+
+    private bool HasActiveDecoy =>
+    _isInvestigatingDecoy && _activeDecoy != null;
 
     // =====================================================================
     // POURSUITE / ATTAQUE
@@ -166,9 +172,9 @@ public class EnemyAI : MonoBehaviour
     // UNITY
     // =====================================================================
     private void Awake()
-
     {
         _agent = GetComponent<NavMeshAgent>();
+        _defaultStoppingDistance = _agent.stoppingDistance;
         _body = GetComponent<Rigidbody>();
         _detection = GetComponent<EnemyDetection>();
         if (alertLaunchPoint == null)
@@ -190,12 +196,22 @@ public class EnemyAI : MonoBehaviour
         UpdateDetectionLight(_state);
         StartPatrol();
     }
+   
     private void Update()
     {
-        HandleDebugToggles();
-        attackCooldownTimer =
-            Mathf.Max(0f, attackCooldownTimer - Time.deltaTime);
+        attackCooldownTimer = Mathf.Max(
+            0f,
+            attackCooldownTimer - Time.deltaTime
+        );
+
         currentStateReadOnly = _state;
+
+        // Le leurre est prioritaire sur tous les comportements.
+        if (HasActiveDecoy)
+            return;
+
+        HandleDebugToggles();
+
         if (DecoyClone.IsActive)
         {
             if (!_isDistractedByClone)
@@ -205,12 +221,16 @@ public class EnemyAI : MonoBehaviour
         {
             EndCloneDistraction();
         }
+
         if (_state == EnemyState.Roaming &&
             !debugForceRoaming &&
-            TryDetectTarget(out Transform detectedTarget, out Vector3 targetPosition))
+            TryDetectTarget(
+                out Transform detectedTarget,
+                out Vector3 targetPosition))
         {
             BeginChase(detectedTarget, targetPosition);
         }
+
         switch (_state)
         {
             case EnemyState.Chasing:
@@ -218,6 +238,7 @@ public class EnemyAI : MonoBehaviour
                 break;
         }
     }
+
     private void LateUpdate()
     {
         if (attackProgressBar == null)
@@ -535,7 +556,8 @@ public class EnemyAI : MonoBehaviour
 
     private void ReturnToPatrol()
     {
-
+        if (HasActiveDecoy)
+            return;
         _chaseTarget = null;
         _fieldOfViewTarget = null;
         _isFieldOfViewChase = false;
@@ -560,10 +582,12 @@ public class EnemyAI : MonoBehaviour
     // LEURRE / DISTRACTION
     // =====================================================================
 
-    public void InvestigateDecoy(Vector3 decoyPosition, float waitDuration)
+   public void InvestigateDecoy(Transform decoy)
     {
-        // Un ennemi qui poursuit déjà le joueur ignore le leurre.
-        if (_state == EnemyState.Chasing)
+        if (decoy == null || HasActiveDecoy)
+            return;
+
+        if (!_agent.isOnNavMesh)
             return;
 
         StopBehaviourRoutine();
@@ -574,75 +598,99 @@ public class EnemyAI : MonoBehaviour
             _decoyRoutine = null;
         }
 
-        _decoyRoutine = StartCoroutine(
-            InvestigateDecoyRoutine(decoyPosition, waitDuration)
-        );
-    }
-    private IEnumerator InvestigateDecoyRoutine(
-        Vector3 decoyPosition,
-        float waitDuration)
-    {
+        // La grenade interrompt toute attaque.
+        ResetAttackProgressBar();
+
+        // La grenade est prioritaire sur le clone.
+        _isDistractedByClone = false;
+        _cloneTarget = null;
+
+        // Annule la poursuite du joueur.
+        _chaseTarget = null;
+        _fieldOfViewTarget = null;
+        _isFieldOfViewChase = false;
+        _hasSeenFieldOfViewTarget = false;
+
+        _activeDecoy = decoy;
         _isInvestigatingDecoy = true;
 
-        ResetAttackProgressBar();
-        SetAgentMovement(true, true);
+        // Arrête l'ancien déplacement.
+        _agent.isStopped = false;
+        _agent.updateRotation = true;
+        _agent.ResetPath();
 
-        if (!NavMesh.SamplePosition(
-                decoyPosition,
+        _decoyRoutine = StartCoroutine(
+            InvestigateDecoyRoutine()
+        );
+    }
+
+    private IEnumerator InvestigateDecoyRoutine()
+    {
+        while (HasActiveDecoy)
+        {
+            if (!_agent.isOnNavMesh)
+            {
+                yield return null;
+                continue;
+            }
+
+            // Recherche la position actuelle de la grenade.
+            if (NavMesh.SamplePosition(
+                _activeDecoy.position,
                 out NavMeshHit hit,
                 5f,
                 NavMesh.AllAreas))
-        {
-            _isInvestigatingDecoy = false;
-            _decoyRoutine = null;
-            ReturnToPatrol();
-            yield break;
-        }
-        if (!_agent.isOnNavMesh)
-        {
-            _isInvestigatingDecoy = false;
-            _decoyRoutine = null;
-            yield break;
-        }
-        _agent.ResetPath();
-        if (!_agent.SetDestination(hit.position))
-        {
-            _isInvestigatingDecoy = false;
-            _decoyRoutine = null;
-            ReturnToPatrol();
-            yield break;
-        }
-        // Aller jusqu'au leurre.
-        while (_isInvestigatingDecoy)
-        {
-            if (!_agent.pathPending)
             {
-                if (_agent.pathStatus == NavMeshPathStatus.PathInvalid)
+                float distance = Vector3.Distance(
+                    transform.position,
+                    hit.position
+                );
+
+                if (distance > _decoyStoppingDistance)
                 {
-                    _isInvestigatingDecoy = false;
-                    _decoyRoutine = null;
-                    ReturnToPatrol();
-                    yield break;
+                    // Suit la grenade pendant qu'elle roule.
+                    _agent.isStopped = false;
+                    _agent.updateRotation = true;
+                    _agent.SetDestination(hit.position);
                 }
-                if (_agent.remainingDistance <=
-                    _agent.stoppingDistance + 0.15f)
+                else
                 {
-                    break;
+                    // Arrivé à proximité : regarde la grenade.
+                    _agent.isStopped = true;
+
+                    RotateTowardsPosition(
+                        _activeDecoy.position,
+                        detectionRotationSpeed
+                    );
                 }
             }
+
             yield return null;
         }
-        // Rester sur place pendant la durée configurée.
-        SetAgentMovement(false, true);
-        float timer = 0f;
-        while (timer < waitDuration)
-        {
-            timer += Time.deltaTime;
-            yield return null;
-        }
-        _isInvestigatingDecoy = false;
+
         _decoyRoutine = null;
-        // _currentPatrolIndex est conservé : reprise du roaming normal.
+    }
+
+    public void StopInvestigatingDecoy(Transform decoy)
+    {
+        if (!_isInvestigatingDecoy || _activeDecoy != decoy)
+            return;
+
+        _isInvestigatingDecoy = false;
+        _activeDecoy = null;
+
+        if (_decoyRoutine != null)
+        {
+            StopCoroutine(_decoyRoutine);
+            _decoyRoutine = null;
+        }
+
+        if (_agent.isOnNavMesh)
+        {
+            _agent.isStopped = false;
+            _agent.ResetPath();
+        }
+        _agent.stoppingDistance = _defaultStoppingDistance;
         ReturnToPatrol();
     }
     // =====================================================================
@@ -651,6 +699,8 @@ public class EnemyAI : MonoBehaviour
     public void OnAlerted(
         Vector3 lastKnownPlayerPosition)
     {
+        if (HasActiveDecoy)
+            return;
         if (DecoyClone.IsActive)
             return;
         if (_state == EnemyState.Chasing)
@@ -663,6 +713,8 @@ public class EnemyAI : MonoBehaviour
         Transform target,
         Vector3 playerPosition)
     {
+        if (HasActiveDecoy)
+            return;
         if (DecoyClone.IsActive)
             return;
         _chaseTarget = target;
@@ -689,6 +741,8 @@ public class EnemyAI : MonoBehaviour
     }
     public void OnSpottedBy(Transform observer)
     {
+        if (HasActiveDecoy)
+            return;
         if (DecoyClone.IsActive)
             return;
         if (observer == null)
@@ -729,6 +783,8 @@ public class EnemyAI : MonoBehaviour
     // =====================================================================
     private void TickChasing()
     {
+        if (HasActiveDecoy)
+            return;
         if (_isDistractedByClone)
         {
             TickCloneDistraction();
@@ -1121,6 +1177,8 @@ public class EnemyAI : MonoBehaviour
     }    
     private void OnCloneDetected(Transform clone)
     {
+        if (HasActiveDecoy)
+            return;
         if (clone == null)
             return;
 
@@ -1202,6 +1260,8 @@ public class EnemyAI : MonoBehaviour
 
     private void EndCloneDistraction()
     {
+        if (HasActiveDecoy)
+            return;
         _cloneTarget = null;
         _isDistractedByClone = false;
 
