@@ -7,7 +7,7 @@ public class S_Field_Of_View : MonoBehaviour
 {
     public static S_Field_Of_View instance;
 
-    public float viewRadius;
+    public float viewRadius = 40f;
     [Range(0, 360)]
     public float viewAngle;
     public Transform viewDirection;
@@ -104,28 +104,17 @@ public class S_Field_Of_View : MonoBehaviour
 
     public void TriggerFlashLight()
     {
-        if (Gamepad.current.rightStickButton.isPressed)
+        if (Gamepad.current == null)
+        return;
+
+        if (Gamepad.current.rightStickButton.wasPressedThisFrame)
         {
-            if (isActive == true)
-            {
-                Debug.Log(Gamepad.current.rightStickButton.isPressed);
+            isActive = !isActive;
 
-                Light light = GameObject.Find("FlashLight").GetComponent<Light>();
+            Light light = GameObject.Find("FlashLight").GetComponent<Light>();
 
-                light.enabled = false;
-
-                isActive = false;
-            }
-            else
-            {
-                Debug.Log(Gamepad.current.rightStickButton.isPressed);
-
-                Light light = GameObject.Find("FlashLight").GetComponent<Light>();
-
-                light.enabled = true;
-
-                isActive = true;
-            }
+            light.enabled = isActive;
+            viewRadius = isActive ? 40 : 0;
         }
         
     }
