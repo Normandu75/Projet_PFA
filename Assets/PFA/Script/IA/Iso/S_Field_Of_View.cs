@@ -1,13 +1,17 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 public class S_Field_Of_View : MonoBehaviour
 {
+    public static S_Field_Of_View instance;
+
     public float viewRadius;
     [Range(0, 360)]
     public float viewAngle;
     public Transform viewDirection;
+    public bool isActive = true;
 
     public Vector3 ViewDirection => viewDirection != null ? viewDirection.forward : transform.forward;
 
@@ -18,6 +22,14 @@ public class S_Field_Of_View : MonoBehaviour
     public List<Transform> visibleTargets = new List<Transform>();
 
     private readonly HashSet<EnemyAI> _visibleEnemies = new HashSet<EnemyAI>();
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
 
     void Start()
     {
@@ -88,6 +100,34 @@ public class S_Field_Of_View : MonoBehaviour
         Vector3 directionToTarget = target.position - transform.position;
 
         return Vector3.Angle(ViewDirection, directionToTarget) < viewAngle / 2;
+    }
+
+    public void TriggerFlashLight()
+    {
+        if (Gamepad.current.rightStickButton.isPressed)
+        {
+            if (isActive == true)
+            {
+                Debug.Log(Gamepad.current.rightStickButton.isPressed);
+
+                Light light = GameObject.Find("FlashLight").GetComponent<Light>();
+
+                light.enabled = false;
+
+                isActive = false;
+            }
+            else
+            {
+                Debug.Log(Gamepad.current.rightStickButton.isPressed);
+
+                Light light = GameObject.Find("FlashLight").GetComponent<Light>();
+
+                light.enabled = true;
+
+                isActive = true;
+            }
+        }
+        
     }
 
 }

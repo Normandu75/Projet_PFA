@@ -15,6 +15,7 @@ public class S_Input_Iso : MonoBehaviour
         S_Character_Controller.instance.PickUpRobotAlly();
         S_Camera_Controller.instance.CameraRotation();
         S_Camera_Controller.instance.RemoveMouseCursor();
+        S_Field_Of_View.instance.TriggerFlashLight();
     }
 
     void FixedUpdate()
