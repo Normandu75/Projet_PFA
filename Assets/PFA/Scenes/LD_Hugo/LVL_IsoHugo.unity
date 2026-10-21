@@ -4376,6 +4376,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1574757261}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1574757269}
   m_SourcePrefab: {fileID: 100100000, guid: f26da808b8e017742b61ea804bfb6c06, type: 3}
 --- !u!1 &711681590
 GameObject:
@@ -9259,6 +9262,29 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1574757269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574757259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f11d6a488534a874d977da901b2f317e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::S_Field_Of_View
+  viewRadius: 40
+  viewAngle: 25
+  viewDirection: {fileID: 0}
+  isActive: 1
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 8
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 4096
+  visibleTargets: []
 --- !u!1 &1602731836
 GameObject:
   m_ObjectHideFlags: 0
@@ -9399,6 +9425,10 @@ MonoBehaviour:
   currentStateReadOnly: 0
   detectionLight: {fileID: 711681593}
   attackProgressBar: {fileID: 794742884}
+  detectionProgressBar: {fileID: 0}
+  flashlightDetectionTime: 3
+  visionDetectionTime: 1.5
+  detectionDecayTime: 2
   chasingLightColor: {r: 1, g: 0.047897536, b: 0, a: 1}
   roamingLightColor: {r: 1, g: 0.9826879, b: 0.058823526, a: 1}
   lightIntensity: 30

@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,87 +8,168 @@ public class S_Field_Of_View : MonoBehaviour
 {
     public static S_Field_Of_View instance;
 
+    [Header("Lampe torche")]
     public float viewRadius = 40f;
+
     [Range(0, 360)]
     public float viewAngle;
+
     public Transform viewDirection;
     public bool isActive = true;
 
-    public Vector3 ViewDirection => viewDirection != null ? viewDirection.forward : transform.forward;
+    public Vector3 ViewDirection =>
+        viewDirection != null
+            ? viewDirection.forward
+            : transform.forward;
 
+    [Header("Détection")]
     public LayerMask targetMask;
-    [Tooltip("Layers that block line of sight to targets.")]
+
+    [Tooltip("Layers qui bloquent la lumière.")]
     public LayerMask obstacleMask;
 
-    public List<Transform> visibleTargets = new List<Transform>();
+    [SerializeField, Min(0.02f)]
+    private float detectionInterval = 0.1f;
 
-    private readonly HashSet<EnemyAI> _visibleEnemies = new HashSet<EnemyAI>();
+    public List<Transform> visibleTargets =
+        new List<Transform>();
 
-    void Awake()
+    private readonly HashSet<EnemyAI> _visibleEnemies =
+        new HashSet<EnemyAI>();
+
+    private Coroutine detectionRoutine;
+    private Light flashlightLight;
+    private Transform observer;
+
+    private void Awake()
     {
         if (instance == null)
-        {
             instance = this;
-        }
+
+        S_Robot_Controller robotController =
+            GetComponentInParent<S_Robot_Controller>();
+
+        S_Control_Ally allyController =
+            GetComponentInParent<S_Control_Ally>();
+
+        observer = robotController != null
+            ? robotController.transform
+            : allyController != null
+                ? allyController.transform
+                : transform.root;
+
+        GameObject lightObject =
+            GameObject.Find("FlashLight");
+
+        if (lightObject != null)
+            flashlightLight = lightObject.GetComponent<Light>();
     }
 
-    void Start()
+    private void OnEnable()
     {
-        StartCoroutine(FindTargetsWithDelay(3f));
+        detectionRoutine =
+            StartCoroutine(FindTargetsWithDelay());
     }
 
-    IEnumerator FindTargetsWithDelay(float delay)
+    private void OnDisable()
+    {
+        if (detectionRoutine != null)
+        {
+            StopCoroutine(detectionRoutine);
+            detectionRoutine = null;
+        }
+
+        ClearDetectedEnemies();
+
+        if (instance == this)
+            instance = null;
+    }
+
+    private void Start()
+    {
+        SetFlashlightActive(isActive);
+    }
+
+    private IEnumerator FindTargetsWithDelay()
     {
         while (true)
         {
-            yield return new WaitForSeconds(delay);
             FindVisibleTargets();
+
+            yield return new WaitForSeconds(
+                detectionInterval
+            );
         }
     }
 
-    void FindVisibleTargets()
+    private void FindVisibleTargets()
     {
+        if (!isActive)
+        {
+            ClearDetectedEnemies();
+            return;
+        }
+
         visibleTargets.Clear();
 
-        HashSet<EnemyAI> currentlyVisibleEnemies = new HashSet<EnemyAI>();
+        HashSet<EnemyAI> currentlyVisibleEnemies =
+            new HashSet<EnemyAI>();
 
-        Collider[] targetsInRange = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
+        Collider[] targetsInRange =
+            Physics.OverlapSphere(
+                transform.position,
+                viewRadius,
+                targetMask
+            );
 
         foreach (Collider target in targetsInRange)
         {
             Transform targetTransform = target.transform;
 
-            if (visibleTargets.Contains(targetTransform) || !IsInFieldOfView(targetTransform))
+            if (!IsInFieldOfView(targetTransform))
+                continue;
+
+            Vector3 directionToTarget =
+                targetTransform.position - transform.position;
+
+            float distanceToTarget =
+                directionToTarget.magnitude;
+
+            if (distanceToTarget > 0f &&
+                Physics.Raycast(
+                    transform.position,
+                    directionToTarget / distanceToTarget,
+                    distanceToTarget,
+                    obstacleMask))
             {
                 continue;
             }
 
-            Vector3 directionToTarget = targetTransform.position - transform.position;
+            if (!visibleTargets.Contains(targetTransform))
+                visibleTargets.Add(targetTransform);
 
-            float distanceToTarget = directionToTarget.magnitude;
+            EnemyAI enemy =
+                targetTransform.GetComponentInParent<EnemyAI>();
 
-            if (distanceToTarget > 0f && Physics.Raycast(transform.position, directionToTarget / distanceToTarget, distanceToTarget, obstacleMask))
+            if (enemy != null)
+                currentlyVisibleEnemies.Add(enemy);
+        }
+
+        foreach (EnemyAI enemy in currentlyVisibleEnemies)
+        {
+            if (enemy != null &&
+                !_visibleEnemies.Contains(enemy))
             {
-                continue;
+                enemy.SetObservedBy(observer, true);
             }
+        }
 
-            visibleTargets.Add(targetTransform);
-
-            EnemyAI enemy = targetTransform.GetComponentInParent<EnemyAI>();
-
-            if (enemy != null && currentlyVisibleEnemies.Add(enemy) && !_visibleEnemies.Contains(enemy))
+        foreach (EnemyAI enemy in _visibleEnemies)
+        {
+            if (enemy != null &&
+                !currentlyVisibleEnemies.Contains(enemy))
             {
-                S_Robot_Controller robotController =
-                    GetComponentInParent<S_Robot_Controller>();
-                S_Control_Ally allyController =
-                    GetComponentInParent<S_Control_Ally>();
-                Transform observer = robotController != null
-                    ? robotController.transform
-                    : allyController != null
-                        ? allyController.transform
-                        : transform.root;
-
-                enemy.OnSpottedBy(observer);
+                enemy.SetObservedBy(observer, false);
             }
         }
 
@@ -95,28 +177,48 @@ public class S_Field_Of_View : MonoBehaviour
         _visibleEnemies.UnionWith(currentlyVisibleEnemies);
     }
 
-    bool IsInFieldOfView(Transform target)
+    private void ClearDetectedEnemies()
     {
-        Vector3 directionToTarget = target.position - transform.position;
+        foreach (EnemyAI enemy in _visibleEnemies)
+        {
+            if (enemy != null)
+                enemy.SetObservedBy(observer, false);
+        }
 
-        return Vector3.Angle(ViewDirection, directionToTarget) < viewAngle / 2;
+        _visibleEnemies.Clear();
+        visibleTargets.Clear();
+    }
+
+    private bool IsInFieldOfView(Transform target)
+    {
+        Vector3 directionToTarget =
+            target.position - transform.position;
+
+        return Vector3.Angle(
+            ViewDirection,
+            directionToTarget
+        ) < viewAngle / 2f;
+    }
+
+    private void SetFlashlightActive(bool active)
+    {
+        isActive = active;
+
+        if (flashlightLight != null)
+            flashlightLight.enabled = isActive;
+
+        if (!isActive)
+            ClearDetectedEnemies();
     }
 
     public void TriggerFlashLight()
     {
         if (Gamepad.current == null)
-        return;
+            return;
 
         if (Gamepad.current.rightStickButton.wasPressedThisFrame)
         {
-            isActive = !isActive;
-
-            Light light = GameObject.Find("FlashLight").GetComponent<Light>();
-
-            light.enabled = isActive;
-            viewRadius = isActive ? 40 : 0;
+            SetFlashlightActive(!isActive);
         }
-        
     }
-
 }
