@@ -65,13 +65,15 @@ public static class S_Physics_Extension
                     && Vector3.Dot(candidate.normal, referenceNormal.Value) < minimumNormalDot)
                 {
                     Vector3 direction = transitionDirection.Value;
-                    if (direction.sqrMagnitude < 0.0001f
-                        || Vector3.Dot(direction.normalized, -candidate.normal) <= minimumNormalDot)
+                    if (direction.sqrMagnitude < 0.0001f)
                         continue;
 
                     bool matchesPreferredLayer = preferredTransitionLayer < 0
                         || IsInLayerHierarchy(candidateTransform, preferredTransitionLayer);
-                    float transitionScore = Vector3.Dot(direction.normalized, -candidate.normal);
+                    float transitionScore = Mathf.Abs(Vector3.Dot(direction.normalized, candidate.normal));
+                    if (transitionScore <= minimumNormalDot)
+                        continue;
+
                     if (matchesPreferredLayer
                         && (transitionScore > segmentTransitionScore || !foundTransitionInSegment))
                     {

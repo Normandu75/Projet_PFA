@@ -108,9 +108,9 @@ public class EnemyAI : MonoBehaviour
     [SerializeField]
     private Color chasingLightColor =
         new Color(1f, 0.25f, 0.25f);
-    [SerializeField]
-    private Color roamingLightColor =
-        new Color();
+    // [SerializeField]
+    // private Color roamingLightColor =
+    //     new Color();
     [SerializeField] private float lightIntensity = 3f;
 
     // =====================================================================
