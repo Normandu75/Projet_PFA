@@ -17,8 +17,10 @@ public static class S_Physics_Extension
         Vector3? referenceNormal = null,
         Vector3? transitionDirection = null,
         float minimumNormalDot = 0.5f,
+        float minimumTransitionDot = 0.1f,
         bool prioritizeNormalTransition = false,
-        int preferredTransitionLayer = -1)
+        int preferredTransitionLayer = -1,
+        bool raycastFromCenter = false)
     {
         hit = new RaycastHit();
         rotation *= Quaternion.Euler(-angle/2, 0, 0);
@@ -44,7 +46,10 @@ public static class S_Physics_Extension
             B = center + rotation * forwardRadius;
             AB = B - A;
 
-            int hitCount = Physics.RaycastNonAlloc(A, AB, arcHits, AB_magnitude, layer);
+            Vector3 rayOrigin = raycastFromCenter ? center : A;
+            Vector3 rayDirection = raycastFromCenter ? (A + B) * 0.5f - center : AB;
+            float rayDistance = raycastFromCenter ? radius : AB_magnitude;
+            int hitCount = Physics.RaycastNonAlloc(rayOrigin, rayDirection, arcHits, rayDistance, layer);
             bool foundHit = false;
             float nearestHitDistance = float.PositiveInfinity;
             RaycastHit nearestHit = default;
@@ -71,7 +76,7 @@ public static class S_Physics_Extension
                     bool matchesPreferredLayer = preferredTransitionLayer < 0
                         || IsInLayerHierarchy(candidateTransform, preferredTransitionLayer);
                     float transitionScore = Mathf.Abs(Vector3.Dot(direction.normalized, candidate.normal));
-                    if (transitionScore <= minimumNormalDot)
+                    if (transitionScore <= minimumTransitionDot)
                         continue;
 
                     if (matchesPreferredLayer
@@ -97,7 +102,7 @@ public static class S_Physics_Extension
                 {
                     hit = nearestHit;
                     if (drawGizmo)
-                        Gizmos.DrawLine(A, hit.point);
+                        Gizmos.DrawLine(rayOrigin, hit.point);
 
                     return true;
                 }
@@ -118,7 +123,7 @@ public static class S_Physics_Extension
             }
 
             if (drawGizmo)
-                Gizmos.DrawLine(A, B);
+                Gizmos.DrawLine(rayOrigin, rayOrigin + rayDirection.normalized * rayDistance);
         }
 
         if (prioritizeNormalTransition && (hasTransitionHit || hasFallbackHit))
