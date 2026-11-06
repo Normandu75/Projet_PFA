@@ -2506,6 +2506,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2138775045}
     m_Modifications:
+    - target: {fileID: 243548009200596506, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: m_Constraints
+      value: 116
+      objectReference: {fileID: 0}
     - target: {fileID: 2414152876157648358, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: m_Name
       value: Character_Iso
@@ -2588,11 +2592,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: runSpeed
-      value: 2.75
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: walkSpeed
-      value: 1.65
+      value: 1.95
       objectReference: {fileID: 0}
     - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: detectionRadius
@@ -2604,6 +2608,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6205391528754783465, guid: 42a3ac84d712974409a7256def885807, type: 3}
+    - {fileID: 3584468198444781130, guid: 42a3ac84d712974409a7256def885807, type: 3}
     m_RemovedGameObjects:
     - {fileID: 6360376070083741644, guid: 42a3ac84d712974409a7256def885807, type: 3}
     m_AddedGameObjects: []
@@ -2614,6 +2619,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2414152876157648358, guid: 42a3ac84d712974409a7256def885807, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1126117379}
+    - targetCorrespondingSourceObject: {fileID: 2414152876157648358, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1126117390}
   m_SourcePrefab: {fileID: 100100000, guid: 42a3ac84d712974409a7256def885807, type: 3}
 --- !u!1 &404838043
 GameObject:
@@ -2829,7 +2837,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
@@ -2847,7 +2855,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 5
+  m_Speed: 5.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -7027,6 +7035,27 @@ MonoBehaviour:
   timeBetweenPoints: 0.1
   triggerDeadzone: 0.2
   inventoryUI: {fileID: 583362175}
+--- !u!65 &1126117390
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126117377}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.0000002, y: 2, z: 1.0000002}
+  m_Center: {x: 0.00000023841858, y: 0, z: 0}
 --- !u!1 &1166832584
 GameObject:
   m_ObjectHideFlags: 0

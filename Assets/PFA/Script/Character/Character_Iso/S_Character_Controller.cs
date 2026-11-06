@@ -86,7 +86,6 @@ public class S_Character_Controller : MonoBehaviour
         }
 
         rigidBody = GetComponent<Rigidbody>();
-        rigidBody.constraints = RigidbodyConstraints.FreezeRotation;
         cam = Camera.main;
         target = GameObject.Find("See_Thrg_Wall");
     }
