@@ -2590,6 +2590,10 @@ PrefabInstance:
       propertyPath: detectionRadius
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 8312783471570707224, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: targetZoom
+      value: 8.5
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6205391528754783465, guid: 42a3ac84d712974409a7256def885807, type: 3}
     m_RemovedGameObjects:
