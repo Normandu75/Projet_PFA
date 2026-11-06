@@ -92,6 +92,7 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
         Vector3 moveDirection = right * moveInput.x + forward * moveInput.y;
         moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
         Vector3 worldVelocity = moveDirection * moveSpeed;
+        Vector3 previousSurfaceNormal = surfaceNormal;
         Vector3 castDirection = worldVelocity.sqrMagnitude > 0.0001f ? worldVelocity : forward;
         Quaternion castRotation = Quaternion.LookRotation(castDirection, surfaceNormal);
         RaycastHit surfaceHit = default;
@@ -109,7 +110,8 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
                 referenceNormal: surfaceNormal,
                 transitionDirection: moveDirection,
                 prioritizeNormalTransition: true,
-                preferredTransitionLayer: LayerMask.NameToLayer("Wall"));
+                preferredTransitionLayer: LayerMask.NameToLayer("Wall"),
+                raycastFromCenter: true);
 
         if (hasSurface)
         {
@@ -136,6 +138,7 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
                 : surfaceHit.normal;
             lastSurfaceContactTime = Time.time;
             rb.useGravity = isGround;
+            worldVelocity = Quaternion.FromToRotation(previousSurfaceNormal, surfaceNormal) * worldVelocity;
             worldVelocity = Vector3.ProjectOnPlane(worldVelocity, surfaceNormal);
             if (isGround)
             {
@@ -144,8 +147,7 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
             }
             else
             {
-                if (moveDirection.sqrMagnitude > 0.0001f)
-                    worldVelocity += surfaceNormal * GetSurfaceCorrectionVelocity(surfaceHit, surfaceNormal);
+                worldVelocity += surfaceNormal * GetSurfaceCorrectionVelocity(surfaceHit, surfaceNormal);
             }
 
             rb.linearVelocity = worldVelocity;
