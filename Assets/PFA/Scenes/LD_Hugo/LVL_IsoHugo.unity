@@ -2584,7 +2584,15 @@ PrefabInstance:
       objectReference: {fileID: 1126117379}
     - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: speed
-      value: 3
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: runSpeed
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: walkSpeed
+      value: 1.65
       objectReference: {fileID: 0}
     - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: detectionRadius
@@ -2839,7 +2847,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -2896,7 +2904,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c82d250b1b7468993ec7d6caf702a16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S_Procedural_Robot_Movement
-  moveSpeed: 3.5
+  moveSpeed: 3
   gamepadDeadzone: 0.15
   movementReference: {fileID: 0}
   onlyWhenRobotMode: 1

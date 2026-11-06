@@ -405,9 +405,7 @@ public class S_Camera_Controller : MonoBehaviour
 
         if (robotRigidbody != null)
             robotRigidbody.rotation = robotRotation;
-
-        // À faire après la rotation du corps, car orientation
-        // peut être un enfant du robot.
+            
         if (robotCameraController != null)
             robotCameraController.AlignWithPlayer(player);
     }

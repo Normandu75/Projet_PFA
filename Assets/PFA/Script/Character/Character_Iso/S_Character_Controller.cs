@@ -29,6 +29,12 @@ public class S_Character_Controller : MonoBehaviour
     [Header("Movement")]
     public float speed = 6f;
     public bool canMove = true;
+    public bool canRun = false;
+    private bool isRunning;
+    private Vector2 movementInput;
+
+    public float walkSpeed = 6f;
+    public float runSpeed = 12f;
 
     [Header("Components")]
     public Rigidbody rigidBody;
@@ -84,6 +90,61 @@ public class S_Character_Controller : MonoBehaviour
         cam = Camera.main;
         target = GameObject.Find("See_Thrg_Wall");
     }
+    void Update()
+    {
+        movementInput = ReadMovementInput();
+        run();
+        Detection();
+    }
+    void FixedUpdate()
+    {
+        Movement();
+    }
+
+    public void run()
+    {
+        if (!canMove || !canRun || cam == null ||
+            movementInput.sqrMagnitude < 0.001f)
+        {
+            isRunning = false;
+        }
+        else if (Gamepad.current != null &&
+                 Gamepad.current.leftStickButton.wasPressedThisFrame)
+        {
+            isRunning = !isRunning;
+        }
+    
+        speed = isRunning ? runSpeed : walkSpeed;
+    }
+    private Vector2 ReadMovementInput()
+    {
+        Vector2 keyboardInput = Vector2.zero;
+        Keyboard keyboard = Keyboard.current;
+
+        if (keyboard != null)
+        {
+            keyboardInput = new Vector2(
+                (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed ? 1f : 0f) -
+                (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed ? 1f : 0f),
+                (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed ? 1f : 0f) -
+                (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed ? 1f : 0f)
+            );
+        }
+
+        Vector2 gamepadInput = Gamepad.current != null
+            ? Gamepad.current.leftStick.ReadValue()
+            : Vector2.zero;
+
+        // Évite qu'une petite dérive du joystick empêche l'arrêt.
+        if (gamepadInput.sqrMagnitude <= gamepadDeadzone * gamepadDeadzone)
+            gamepadInput = Vector2.zero;
+
+        Vector2 input = gamepadInput.sqrMagnitude > keyboardInput.sqrMagnitude
+            ? gamepadInput
+            : keyboardInput;
+
+        return Vector2.ClampMagnitude(input, 1f);
+    }
 
     private void InitializeDetectionLayerMasks()
     {
@@ -105,11 +166,6 @@ public class S_Character_Controller : MonoBehaviour
                 );
             }
         }
-    }
-
-    void Update()
-    {
-        Detection();
     }
 
     public void CursorToCamera()
@@ -159,47 +215,30 @@ public class S_Character_Controller : MonoBehaviour
         */
     }
 
-    public void Movement()
-    { if (canMove)
-        {
-            
+   public void Movement()
+    {
+        if (!canMove || cam == null)
+            return;
 
-            Vector2 keyboardInput = Vector2.zero;
+        Vector3 cameraForward = cam.transform.forward;
+        Vector3 cameraRight = cam.transform.right;
 
-            if (Keyboard.current != null)
-            {
-                keyboardInput = new Vector2(
-                    (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed ? 1f : 0f) -
-                    (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed ? 1f : 0f),
-                    (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed ? 1f : 0f) -
-                    (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed ? 1f : 0f));
-            }
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
 
-            Vector2 gamepadInput = Gamepad.current != null? Gamepad.current.leftStick.ReadValue() : Vector2.zero;
-        
-            Vector2 input = gamepadInput.sqrMagnitude > keyboardInput.sqrMagnitude? gamepadInput : keyboardInput;
-                
-            if (cam == null)
-            {
-                return;
-            }
+        cameraForward.Normalize();
+        cameraRight.Normalize();
 
-            Vector3 cameraForward = cam.transform.forward;
-            Vector3 cameraRight = cam.transform.right;
+        Vector3 moveDirection =
+            cameraRight * movementInput.x +
+            cameraForward * movementInput.y;
 
-            cameraForward.y = 0f;
-            cameraRight.y = 0f;
+        Vector3 velocity = Vector3.ClampMagnitude(moveDirection, 1f) * speed;
 
-            cameraForward.Normalize();
-            cameraRight.Normalize();
-
-            Vector3 moveDirection = cameraRight * input.x + cameraForward * input.y;
-            Vector3 velocity = Vector3.ClampMagnitude(moveDirection, 1f) * speed;
-
-            rigidBody.MovePosition(rigidBody.position + velocity * Time.fixedDeltaTime);
-        }
-    }
-
+        rigidBody.MovePosition(
+            rigidBody.position + velocity * Time.fixedDeltaTime
+        );
+    }    
     public void SeeThroughWalls()
     {
         if (target == null || cam == null)
