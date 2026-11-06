@@ -5,7 +5,9 @@ using UnityEngine.AI;
 [DisallowMultipleComponent, DefaultExecutionOrder(100)]
 public class S_Robot_Follow_Player : MonoBehaviour
 {
-    static readonly Quaternion FollowRotation = Quaternion.Euler(-90f, 0f, 0f);
+    public static readonly Quaternion FollowRotation =
+        Quaternion.Euler(0f, 90f, 0f)
+        * Quaternion.Euler(-90f, 0f, 0f);
 
     [Header("Following")]
     [SerializeField, Min(0f)] float destinationRefreshInterval = 0.2f;
@@ -23,8 +25,6 @@ public class S_Robot_Follow_Player : MonoBehaviour
     bool hasWarnedAboutDestination;
     float nextDestinationUpdateTime;
     float visualHeightOffset;
-    float playerYawAtFollowStart;
-    Quaternion robotRotationAtFollowStart;
 
     public bool IsFollowing => following;
     public Vector3 MovementVelocity => following && agent != null && agent.enabled && agent.isOnNavMesh
@@ -141,13 +141,10 @@ public class S_Robot_Follow_Player : MonoBehaviour
             DisableFollowing();
             return;
         }
-
         agent.enabled = false;
         transform.position = startHit.position;
-        if (placeAtStartPosition)
-            transform.rotation = FollowRotation;
-        playerYawAtFollowStart = GetPlayerYaw();
-        robotRotationAtFollowStart = transform.rotation;
+
+        transform.rotation = GetFollowRotation();
 
         if (body != null)
         {
@@ -191,10 +188,13 @@ public class S_Robot_Follow_Player : MonoBehaviour
 
     Quaternion GetFollowRotation()
     {
-        float yawDelta = Mathf.DeltaAngle(playerYawAtFollowStart, GetPlayerYaw());
-        return Quaternion.AngleAxis(yawDelta + 180f, Vector3.up) * robotRotationAtFollowStart;
-    }
+        // Prend directement la direction actuelle du joueur.
+        Quaternion playerRotation =
+            Quaternion.AngleAxis(GetPlayerYaw(), Vector3.up);
 
+        // Conserve l'inclinaison nécessaire au modèle du robot.
+        return playerRotation * FollowRotation;
+    }
     float CalculateVisualHeightOffset(Vector3 navMeshPosition)
     {
         Bounds visualBounds = default;

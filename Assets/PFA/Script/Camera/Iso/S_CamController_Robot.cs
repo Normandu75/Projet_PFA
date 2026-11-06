@@ -176,4 +176,29 @@ public class S_CamController_Robot : MonoBehaviour
                 : Quaternion.Euler(0f, yaw, 0f);
         }
     }
+    public void AlignWithPlayer(Transform player)
+    {
+        if (player == null)
+            return;
+    
+        Vector3 direction =
+            Vector3.ProjectOnPlane(player.forward, Vector3.up);
+    
+        if (direction.sqrMagnitude < 0.0001f)
+            return;
+    
+        Quaternion playerHeading =
+            Quaternion.LookRotation(direction.normalized, Vector3.up);
+    
+        // Réinitialise aussi l'angle mémorisé par MoveCamera().
+        yaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+        lookInput = Vector2.zero;
+        returningToGround = false;
+    
+        if (orientation != null)
+            orientation.rotation = playerHeading;
+    
+        if (cam != null)
+            cam.localRotation = Quaternion.identity;
+    }
 }

@@ -330,6 +330,8 @@ public class S_Camera_Controller : MonoBehaviour
 
         if (robotController != null)
             robotController.SetRobotMode(robotMode);
+        
+        AlignRobotWithPlayer();
     }
 
     private Transform FindTransformIncludingInactive(string objectName)
@@ -381,5 +383,32 @@ public class S_Camera_Controller : MonoBehaviour
     public void RemoveMouseCursor()
     {
         Cursor.visible = false;
+    }
+    private void AlignRobotWithPlayer()
+    {
+        if (player == null || robotTarget == null)
+            return;
+
+        Vector3 direction =
+            Vector3.ProjectOnPlane(player.forward, Vector3.up);
+
+        if (direction.sqrMagnitude < 0.0001f)
+            return;
+
+        Quaternion playerHeading =
+            Quaternion.LookRotation(direction.normalized, Vector3.up);
+
+        Quaternion robotRotation =
+        playerHeading * S_Robot_Follow_Player.FollowRotation;
+
+        robotTarget.rotation = robotRotation;
+
+        if (robotRigidbody != null)
+            robotRigidbody.rotation = robotRotation;
+
+        // À faire après la rotation du corps, car orientation
+        // peut être un enfant du robot.
+        if (robotCameraController != null)
+            robotCameraController.AlignWithPlayer(player);
     }
 }
