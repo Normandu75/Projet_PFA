@@ -119,8 +119,17 @@ public class RuntimeInventoryUI : MonoBehaviour
 
     private void Update()
     {
-        HandleOpenInput();
         UpdateCloneTimerText();
+
+        if (S_Camera_Controller.instance != null &&
+            S_Camera_Controller.instance.robotMode)
+        {
+            if (isOpen)
+                CloseWheel();
+
+            return;
+        }
+        HandleOpenInput();
         if (!isOpen)
             return;
 
@@ -1488,7 +1497,9 @@ public class RuntimeInventoryUI : MonoBehaviour
         // =========================================
         if (S_Character_Controller.instance != null)
         {
-            S_Character_Controller.instance.canMove = true;
+            S_Character_Controller.instance.canMove =
+                S_Camera_Controller.instance == null ||
+                !S_Camera_Controller.instance.robotMode;
         }
     }
 

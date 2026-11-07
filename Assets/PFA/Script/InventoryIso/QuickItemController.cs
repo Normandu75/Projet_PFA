@@ -26,6 +26,12 @@ public class QuickItemController : MonoBehaviour
             FinishClone(inventory);
         }
 
+        if (S_Camera_Controller.instance != null &&
+            S_Camera_Controller.instance.robotMode)
+        {
+            return;
+        }
+
         InventoryItem quickItem = inventory.GetQuickItem();
 
         if (quickItem == null)
@@ -112,4 +118,3 @@ public class QuickItemController : MonoBehaviour
         inventory.RemoveItem(slotIndex, 1);
     }
 }
-

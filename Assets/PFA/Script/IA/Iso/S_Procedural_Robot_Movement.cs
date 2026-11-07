@@ -34,6 +34,7 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
 
     public Vector3 SurfaceNormal => surfaceNormal;
     public bool IsOnWall => isOnWall;
+    public bool HasMovementInput => moveInput.sqrMagnitude > 0f;
 
     void Awake()
     {

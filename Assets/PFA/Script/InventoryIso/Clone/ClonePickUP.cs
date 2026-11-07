@@ -27,6 +27,12 @@ public class ClonePickUp : MonoBehaviour
 
     private void Update()
     {
+        if (S_Camera_Controller.instance != null &&
+            S_Camera_Controller.instance.robotMode)
+        {
+            return;
+        }
+
         if (!playerInRange)
             return;
 

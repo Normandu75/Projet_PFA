@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using UnityEngine.UI;
 
 public class S_Camera_Controller : MonoBehaviour
 {
@@ -14,13 +15,15 @@ public class S_Camera_Controller : MonoBehaviour
     public Transform cam;
     public Transform robotCam;
     [SerializeField] private Transform robotTarget;
+    private Slider healthBarSlider;
+    private GameObject inventoryUI;
 
     [Header("Parameters")]
     public float distance;
     public float height;
     public float rotationSpeed = 90f;
     public float orbitAngle;
-    public bool robotMode { get; private set; }
+    public bool robotMode;
 
     [Header("Camera Smoothing")]
     [SerializeField] private Vector3 cameraDamping =
@@ -79,6 +82,15 @@ public class S_Camera_Controller : MonoBehaviour
             enabled = false;
             return;
         }
+
+        S_HealthBar healthBar = player.GetComponent<S_HealthBar>();
+        if (healthBar != null)
+            healthBarSlider = healthBar.healthBarSlider;
+
+        Transform inventoryTransform =
+            FindTransformIncludingInactive("UI_Inventory");
+        if (inventoryTransform != null)
+            inventoryUI = inventoryTransform.gameObject;
 
         // Recherche du Cinemachine Position Composer
         positionComposer =
@@ -319,6 +331,12 @@ public class S_Camera_Controller : MonoBehaviour
 
         if (robotCam != null)
             robotCam.gameObject.SetActive(robotMode);
+
+        if (healthBarSlider != null)
+            healthBarSlider.gameObject.SetActive(!robotMode);
+
+        if (inventoryUI != null)
+            inventoryUI.SetActive(!robotMode);
 
         if (S_Character_Controller.instance != null)
         {
