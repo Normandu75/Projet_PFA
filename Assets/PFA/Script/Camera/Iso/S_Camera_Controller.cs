@@ -25,6 +25,10 @@ public class S_Camera_Controller : MonoBehaviour
     public float orbitAngle;
     public bool robotMode;
 
+    [Header("Camera Switch")]
+    [SerializeField, Range(0f, 180f)] private float maxSurfaceNormalAngle = 20f;
+    [SerializeField, Min(0.1f)] private float surfaceCheckDistance = 3f;
+
     [Header("Camera Smoothing")]
     [SerializeField] private Vector3 cameraDamping =
         new Vector3(0.35f, 0.45f, 0.35f);
@@ -45,6 +49,8 @@ public class S_Camera_Controller : MonoBehaviour
     private S_Robot_Controller robotController;
     private S_CamController_Robot robotCameraController;
     private S_Robot_Follow_Player robotFollower;
+    private S_Procedural_Robot_Movement robotMovement;
+    private int surfaceLayerMask;
 
     public bool IsProceduralRobotMode => robotTarget != null
         && (robotTarget.GetComponent<S_Procedural_Animation>() != null
@@ -73,6 +79,7 @@ public class S_Camera_Controller : MonoBehaviour
         // Recherche du personnage et de la caméra
         player = FindTransformIncludingInactive("Character_Iso");
         cam = FindTransformIncludingInactive("Follow Camera");
+        surfaceLayerMask = LayerMask.GetMask("Ground", "Wall");
 
         if (player == null || cam == null)
         {
@@ -132,6 +139,7 @@ public class S_Camera_Controller : MonoBehaviour
             robotRigidbody = robotTarget.GetComponent<Rigidbody>();
             robotCollider = robotTarget.GetComponent<Collider>();
             robotController = robotTarget.GetComponent<S_Robot_Controller>();
+            robotMovement = robotTarget.GetComponent<S_Procedural_Robot_Movement>();
 
             robotCameraController =
                 robotTarget.GetComponentInChildren<S_CamController_Robot>(true);
@@ -300,6 +308,9 @@ public class S_Camera_Controller : MonoBehaviour
 
         if (switchRequested)
         {
+            if (!CanSwitchCamera())
+                return;
+
             bool useRobotCamera = !robotMode;
 
             if (robotController != null)
@@ -317,6 +328,37 @@ public class S_Camera_Controller : MonoBehaviour
 
             SetCameraMode(useRobotCamera);
         }
+    }
+
+    private bool CanSwitchCamera()
+    {
+        if (robotMovement == null || player == null)
+            return true;
+
+        Vector3 playerSurfaceNormal = Vector3.up;
+        Vector3 rayOrigin = player.position + Vector3.up * 0.25f;
+        if (surfaceLayerMask != 0
+            && Physics.Raycast(
+                rayOrigin,
+                Vector3.down,
+                out RaycastHit hit,
+                surfaceCheckDistance,
+                surfaceLayerMask,
+                QueryTriggerInteraction.Ignore))
+        {
+            playerSurfaceNormal = hit.normal;
+        }
+
+        float angle = Vector3.Angle(
+            playerSurfaceNormal,
+            robotMovement.SurfaceNormal);
+        if (angle <= maxSurfaceNormalAngle)
+            return true;
+
+        Debug.Log(
+            $"Changement de caméra impossible : le robot et le personnage sont sur des surfaces différentes ({angle:F0}°).",
+            this);
+        return false;
     }
 
     private void SetCameraMode(bool useRobotCamera)
