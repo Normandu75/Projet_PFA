@@ -305,28 +305,6 @@ MonoBehaviour:
   timeBetweenPoints: 0.1
   triggerDeadzone: 0.2
   inventoryUI: {fileID: 680945138}
---- !u!95 &29229269
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 29229256}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: a9b16409e7ae60f47a4390ab579a4280, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &39999304
 GameObject:
   m_ObjectHideFlags: 0
@@ -2759,9 +2737,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2414152876157648358, guid: 42a3ac84d712974409a7256def885807, type: 3}
       insertIndex: -1
       addedObject: {fileID: 29229258}
-    - targetCorrespondingSourceObject: {fileID: 2414152876157648358, guid: 42a3ac84d712974409a7256def885807, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 29229269}
   m_SourcePrefab: {fileID: 100100000, guid: 42a3ac84d712974409a7256def885807, type: 3}
 --- !u!1 &369538058
 GameObject:
