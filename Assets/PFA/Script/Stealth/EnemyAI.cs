@@ -15,7 +15,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private Transform alertLaunchPoint;
     private int _currentPatrolIndex = 0;
     // =====================================================================
-    // CLone
+    // Clone
     // =====================================================================
     [Header("Clone")]
     private Transform _cloneTarget;
@@ -663,9 +663,7 @@ public class EnemyAI : MonoBehaviour
     {
 
         _loseTargetTimer = 0f;
-
         _lastKnownPlayerPosition =
-
           playerPosition;
 
         float distance =
@@ -895,83 +893,44 @@ public class EnemyAI : MonoBehaviour
     {
 
         Transform target =
-
             attackTarget != null
-
                 ? attackTarget
-
                 : _chaseTarget;
-
         if (target == null)
-
             return;
-
         S_HealthBar playerHealth =
-
         target.GetComponentInParent<S_HealthBar>();
-
         if (playerHealth != null)
-
         {
-
             playerHealth.TakeDamage(
-
                 attackDamage
-
             );
-
             Debug.Log(
-
                 "Enemy attacks player : -" +
-
                 attackDamage
-
             );
-
         }
-
         else
-
         {
-
             PlayerHealth modernPlayerHealth =
-
                 target.GetComponentInParent<PlayerHealth>();
-
             if (modernPlayerHealth != null)
-
             {
-
                 modernPlayerHealth.TakeDamage(attackDamage);
-
                 Debug.Log(
-
                     "Enemy attacks player : -" +
-
                     attackDamage
-
                 );
-
                 return;
-
             }
-
             Debug.LogWarning(
-
                 "Aucun composant de santé trouvé sur la cible de l'ennemi."
-
             );
-
         }
-
     }
-
     // =====================================================================
-
     // BARRE D'ATTAQUE
-
     // =====================================================================
-
     private void ConfigureAttackProgressBar()
 
     {
@@ -1019,29 +978,17 @@ public class EnemyAI : MonoBehaviour
     }
 
     private void ResetAttackProgressBar()
-
     {
-
         attackTimer = 0f;
-
         isPreparingAttack = false;
-
         attackTarget = null;
-
         if (attackProgressBar != null)
-
         {
-
             attackProgressBar.value = 0f;
-
             attackProgressBar.gameObject.SetActive(
-
                 false
-
             );
-
         }
-
     }
 
     // =====================================================================
@@ -1051,43 +998,26 @@ public class EnemyAI : MonoBehaviour
     // =====================================================================
 
     private void StopBehaviourRoutine()
-
     {
-
         if (_behaviourRoutine == null)
-
             return;
-
         StopCoroutine(
-
             _behaviourRoutine
-
         );
-
         _behaviourRoutine = null;
-
     }
 
     // =====================================================================
-
     // ÉTAT
-
     // =====================================================================
 
     private void SetState(
-
         EnemyState newState)
-
     {
-
         _state = newState;
-
         UpdateDetectionLight(
-
             newState
-
         );
-
     }
 
     private void UpdateDetectionLight(EnemyState state)
@@ -1101,25 +1031,16 @@ public class EnemyAI : MonoBehaviour
         // Lumière uniquement pendant la poursuite.
 
         bool isChasing = state == EnemyState.Chasing;
-
         detectionLight.enabled = isChasing;
-
         if (isChasing)
-
         {
-
             detectionLight.color = chasingLightColor;
-
             detectionLight.intensity = lightIntensity;
-
         }
-
     }
 
     // =====================================================================
-
     // GIZMOS
-
     // =====================================================================
 
     private void OnDrawGizmosSelected()
