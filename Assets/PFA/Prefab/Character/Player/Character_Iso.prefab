@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 3397048518976672582}
   - component: {fileID: 1522784599538739657}
   - component: {fileID: 9093430943959331552}
-  - component: {fileID: 3584468198444781130}
   - component: {fileID: 243548009200596506}
   - component: {fileID: 5679439692082037498}
   - component: {fileID: 8053121967519160956}
@@ -136,29 +135,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &3584468198444781130
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2414152876157648358}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &243548009200596506
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -212,12 +188,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::S_Character_Controller
   speed: 6
   canMove: 1
+  canRun: 0
+  walkSpeed: 6
+  runSpeed: 12
   rigidBody: {fileID: 0}
   cam: {fileID: 0}
   target: {fileID: 0}
   MyLayerMask:
     serializedVersion: 2
     m_Bits: 2048
+  detectionRadius: 0
+  detectionLayers:
+  - label: Ally
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 0
+    detectedObjects: []
+  - label: Enemy
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 0
+    detectedObjects: []
   sphereMaxScale: 4.238316
   sphereScaleSpeed: 8
   gamepadDeadzone: 0.2
@@ -253,6 +244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuickItemController
   healthBar: {fileID: 2753339408654118020}
+  playerDecoyAbility: {fileID: 0}
 --- !u!114 &1674543188161324744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -342,10 +334,15 @@ MonoBehaviour:
   player: {fileID: 0}
   cam: {fileID: 0}
   robotCam: {fileID: 0}
+  robotTarget: {fileID: 0}
   distance: 0
   height: 0
   rotationSpeed: 50
   orbitAngle: 0
+  robotMode: 0
+  cameraDamping: {x: 0.35, y: 0.45, z: 0.35}
+  targetZoom: 4
+  zoomSmoothTime: 0.2
 --- !u!1 &2731426471197467379
 GameObject:
   m_ObjectHideFlags: 0
@@ -806,10 +803,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GrenadeThrow
   grenadePrefab: {fileID: 1065007385507978923, guid: 40d9d53b2d7e7224f8d8a592236b100b, type: 3}
   throwPoint: {fileID: 8711831003558826327}
-  throwForce: 10
+  minThrowForce: 4
+  maxThrowForce: 18
+  chargeSpeed: 8
+  dischargeSpeed: 12
   lineRenderer: {fileID: 4147539828530141832}
   trajectoryPoints: 30
   timeBetweenPoints: 0.1
+  triggerDeadzone: 0.2
+  inventoryUI: {fileID: 0}
 --- !u!1 &7953079999113607359
 GameObject:
   m_ObjectHideFlags: 0

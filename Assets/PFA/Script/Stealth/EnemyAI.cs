@@ -108,9 +108,9 @@ public class EnemyAI : MonoBehaviour
     [SerializeField]
     private Color chasingLightColor =
         new Color(1f, 0.25f, 0.25f);
-    [SerializeField]
-    private Color roamingLightColor =
-        new Color();
+    // [SerializeField]
+    // // private Color roamingLightColor =
+    // //     new Color();
     [SerializeField] private float lightIntensity = 3f;
 
     // =====================================================================
@@ -121,7 +121,7 @@ public class EnemyAI : MonoBehaviour
     private EnemyDetection _detection;
     private EnemyState _state = EnemyState.Roaming;
     private Transform _chaseTarget;
-    private bool _isOriginalDetector;
+    // private bool _isOriginalDetector;
     private Vector3 _lastKnownPlayerPosition;
     private Coroutine _behaviourRoutine;
     private Coroutine _decoyRoutine;
@@ -230,7 +230,7 @@ public class EnemyAI : MonoBehaviour
                 chaseTarget != null
                    ? chaseTarget.position
                    : transform.position;
-            _isOriginalDetector = true;
+            // _isOriginalDetector = true;
             BeginChase(chaseTarget, target);
         }
         _prevDebugRoaming = debugForceRoaming;
@@ -514,7 +514,7 @@ public class EnemyAI : MonoBehaviour
             return;
         if (_state == EnemyState.Chasing)
             return;
-        _isOriginalDetector = false;
+        // _isOriginalDetector = false;
         Transform target = _detection.Player;
         BeginChase(target, lastKnownPlayerPosition);
     }
@@ -556,7 +556,7 @@ public class EnemyAI : MonoBehaviour
         if (player == null)
             return;
 
-        _isOriginalDetector = true;
+        // _isOriginalDetector = true;
         BeginChase(player, player.position);
     }
     private void RotateTowardsPositionInstant(
@@ -1424,7 +1424,7 @@ public class EnemyAI : MonoBehaviour
         if (detectionProgress < 1f || player == null)
             return;
 
-        _isOriginalDetector = true;
+        // _isOriginalDetector = true;
         BeginChase(player, player.position);
     }
 
