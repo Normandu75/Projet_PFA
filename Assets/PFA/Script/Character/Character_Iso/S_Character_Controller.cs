@@ -29,7 +29,7 @@ public class S_Character_Controller : MonoBehaviour
     [Header("Movement")]
     public float speed = 6f;
     public bool canMove = true;
-    public bool canRun = false;
+    public bool canRun = true;
     private bool isRunning;
     private Vector2 movementInput;
 
@@ -67,6 +67,7 @@ public class S_Character_Controller : MonoBehaviour
     public bool pickedUp;
 
     private int allyLayer = -1;
+    private S_Animation characterAnimation;
     
     void Awake()
     {
@@ -88,13 +89,42 @@ public class S_Character_Controller : MonoBehaviour
         rigidBody = GetComponent<Rigidbody>();
         cam = Camera.main;
         target = GameObject.Find("See_Thrg_Wall");
+        characterAnimation = GetComponentInChildren<S_Animation>(true);
     }
+
+    void Start()
+    {
+        if (characterAnimation == null)
+        {
+            Debug.LogError("S_Character_Controller : S_Animation est introuvable sur le personnage.", this);
+            return;
+        }
+
+        characterAnimation.ChangeAnim("Idle");
+    }
+
     void Update()
     {
         movementInput = ReadMovementInput();
         run();
+        UpdateAnimation();
         Detection();
     }
+
+    private void UpdateAnimation()
+    {
+        if (characterAnimation == null)
+            return;
+
+        if (!canMove || cam == null || movementInput.sqrMagnitude < 0.001f)
+        {
+            characterAnimation.ChangeAnim("Idle");
+            return;
+        }
+
+        characterAnimation.ChangeAnim(isRunning ? "Run" : "Walking");
+    }
+
     void FixedUpdate()
     {
         Movement();

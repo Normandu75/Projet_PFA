@@ -17,6 +17,8 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
     [SerializeField, Min(0f)] float surfaceOffset = 0.02f;
     [SerializeField, Min(0f)] float surfaceAlignmentSpeed = 180f;
     [SerializeField, Min(0f)] float surfaceGraceTime = 0.2f;
+    [SerializeField, Min(0f)] float surfaceNormalSmoothing = 12f;
+    [SerializeField, Min(1)] int surfaceLayerConfirmationCount = 2;
     [SerializeField, Range(0f, 360f)] float arcAngle = 270f;
     [SerializeField, Min(1)] int arcResolution = 12;
     [SerializeField] LayerMask surfaceLayers;
@@ -30,6 +32,8 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
     Vector3 surfaceNormal = Vector3.up;
     float lastSurfaceContactTime = float.NegativeInfinity;
     int activeSurfaceLayer = -1;
+    int pendingSurfaceLayer = -1;
+    int pendingSurfaceLayerCount;
     int lastReportedSurfaceLayer = int.MinValue;
 
     public Vector3 SurfaceNormal => surfaceNormal;
@@ -82,6 +86,8 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
             surfaceNormal = Vector3.up;
             lastSurfaceContactTime = float.NegativeInfinity;
             activeSurfaceLayer = -1;
+            pendingSurfaceLayer = -1;
+            pendingSurfaceLayerCount = 0;
             return;
         }
 
@@ -97,6 +103,11 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
         Vector3 castDirection = worldVelocity.sqrMagnitude > 0.0001f ? worldVelocity : forward;
         Quaternion castRotation = Quaternion.LookRotation(castDirection, surfaceNormal);
         RaycastHit surfaceHit = default;
+        int groundLayer = LayerMask.NameToLayer("Ground");
+        int wallLayer = LayerMask.NameToLayer("Wall");
+        int preferredTransitionLayer = pendingSurfaceLayer >= 0
+            ? pendingSurfaceLayer
+            : activeSurfaceLayer == wallLayer ? groundLayer : wallLayer;
 
         bool hasSurface = surfaceLayers.value != 0
             && S_Physics_Extension.ArcCast(
@@ -111,19 +122,52 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
                 referenceNormal: surfaceNormal,
                 transitionDirection: moveDirection,
                 prioritizeNormalTransition: true,
-                preferredTransitionLayer: LayerMask.NameToLayer("Wall"),
+                preferredTransitionLayer: preferredTransitionLayer,
                 raycastFromCenter: true);
+
+        int detectedSurfaceLayer = -1;
+        if (hasSurface)
+        {
+            if (S_Physics_Extension.IsInLayerHierarchy(surfaceHit.transform, wallLayer))
+                detectedSurfaceLayer = wallLayer;
+            else if (S_Physics_Extension.IsInLayerHierarchy(surfaceHit.transform, groundLayer))
+                detectedSurfaceLayer = groundLayer;
+            else
+                detectedSurfaceLayer = surfaceHit.collider.gameObject.layer;
+
+            if (activeSurfaceLayer >= 0 && detectedSurfaceLayer != activeSurfaceLayer)
+            {
+                if (pendingSurfaceLayer != detectedSurfaceLayer)
+                {
+                    pendingSurfaceLayer = detectedSurfaceLayer;
+                    pendingSurfaceLayerCount = 1;
+                }
+                else
+                {
+                    pendingSurfaceLayerCount++;
+                }
+
+                if (pendingSurfaceLayerCount < surfaceLayerConfirmationCount)
+                    hasSurface = false;
+            }
+            else
+            {
+                pendingSurfaceLayer = -1;
+                pendingSurfaceLayerCount = 0;
+            }
+        }
+        else
+        {
+            pendingSurfaceLayer = -1;
+            pendingSurfaceLayerCount = 0;
+        }
 
         if (hasSurface)
         {
-            int groundLayer = LayerMask.NameToLayer("Ground");
-            int detectedWallLayer = LayerMask.NameToLayer("Wall");
-            if (S_Physics_Extension.IsInLayerHierarchy(surfaceHit.transform, detectedWallLayer))
-                activeSurfaceLayer = detectedWallLayer;
-            else if (S_Physics_Extension.IsInLayerHierarchy(surfaceHit.transform, groundLayer))
-                activeSurfaceLayer = groundLayer;
-            else
-                activeSurfaceLayer = surfaceHit.collider.gameObject.layer;
+            bool changedSurface = activeSurfaceLayer != detectedSurfaceLayer;
+            activeSurfaceLayer = detectedSurfaceLayer;
+            pendingSurfaceLayer = -1;
+            pendingSurfaceLayerCount = 0;
 
             if (activeSurfaceLayer != lastReportedSurfaceLayer)
             {
@@ -134,9 +178,15 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
             }
 
             isGround = activeSurfaceLayer == LayerMask.NameToLayer("Ground");
-            surfaceNormal = isGround
+            Vector3 detectedNormal = isGround
                 ? Vector3.up
                 : surfaceHit.normal;
+            surfaceNormal = changedSurface || surfaceNormalSmoothing <= 0f
+                ? detectedNormal
+                : Vector3.Slerp(
+                    surfaceNormal,
+                    detectedNormal,
+                    1f - Mathf.Exp(-surfaceNormalSmoothing * Time.fixedDeltaTime));
             lastSurfaceContactTime = Time.time;
             rb.useGravity = isGround;
             worldVelocity = Quaternion.FromToRotation(previousSurfaceNormal, surfaceNormal) * worldVelocity;
@@ -175,7 +225,6 @@ public class S_Procedural_Robot_Movement : MonoBehaviour
             rb.linearVelocity = worldVelocity + verticalVelocity;
         }
 
-        int wallLayer = LayerMask.NameToLayer("Wall");
         isOnWall = wallLayer >= 0 && activeSurfaceLayer == wallLayer;
         S_Camera_Controller cameraController = S_Camera_Controller.instance;
         bool followCameraYaw = cameraController != null
