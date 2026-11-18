@@ -242,9 +242,31 @@ public class S_Camera_Controller : MonoBehaviour
                 rotation = 1f;
             else if (Gamepad.current.leftShoulder.isPressed)
                 rotation = -1f;
+
+            if (robotFollower != null)
+            {
+                float gamepadDeadzone =
+                    S_Character_Controller.instance != null
+                        ? S_Character_Controller.instance.gamepadDeadzone
+                        : 0.2f;
+                float robotYawInput = Gamepad.current.rightStick.ReadValue().x;
+
+                if (Mathf.Abs(robotYawInput) > gamepadDeadzone)
+                {
+                    robotFollower.RotateRelativeYaw(
+                        robotYawInput * rotationSpeed * Time.deltaTime);
+                }
+            }
         }
 
-        orbitAngle += rotation * rotationSpeed * Time.deltaTime;
+        float rotationDelta = rotation * rotationSpeed * Time.deltaTime;
+        orbitAngle += rotationDelta;
+
+        if (rotationDelta != 0f)
+        {
+            player.rotation =
+                Quaternion.AngleAxis(rotationDelta, Vector3.up) * player.rotation;
+        }
 
         // Rotation autour du personnage
         Quaternion orbitRotation =
@@ -448,6 +470,9 @@ public class S_Camera_Controller : MonoBehaviour
     {
         if (player == null || robotTarget == null)
             return;
+
+        if (robotFollower != null)
+            robotFollower.ResetRelativeYaw();
 
         Vector3 direction =
             Vector3.ProjectOnPlane(player.forward, Vector3.up);

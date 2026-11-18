@@ -10,7 +10,6 @@ public class S_Input_Iso : MonoBehaviour
             return;
         }
 
-        S_Character_Controller.instance.CursorToCamera();
         S_Character_Controller.instance.SeeThroughWalls();
         S_Character_Controller.instance.PickUpRobotAlly();
         S_Camera_Controller.instance.RemoveMouseCursor();

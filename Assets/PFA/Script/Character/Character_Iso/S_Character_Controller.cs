@@ -122,7 +122,19 @@ public class S_Character_Controller : MonoBehaviour
             return;
         }
 
-        characterAnimation.ChangeAnim(isRunning ? "Run" : "Walking");
+        if (isRunning)
+        {
+            characterAnimation.ChangeAnim("Run");
+            return;
+        }
+
+        string animation;
+        if (Mathf.Abs(movementInput.y) >= Mathf.Abs(movementInput.x))
+            animation = movementInput.y >= 0f ? "Walking" : "Back_Walk";
+        else
+            animation = movementInput.x >= 0f ? "Right_Walk" : "Left_Walk";
+
+        characterAnimation.ChangeAnim(animation);
     }
 
     void FixedUpdate()
@@ -195,53 +207,6 @@ public class S_Character_Controller : MonoBehaviour
                 );
             }
         }
-    }
-
-    public void CursorToCamera()
-    {
-        Gamepad gamepad = Gamepad.current;
-        Vector2 rightStick = gamepad != null ? gamepad.rightStick.ReadValue() : Vector2.zero;
-
-        if (rightStick.sqrMagnitude > gamepadDeadzone * gamepadDeadzone)
-        {
-            Vector3 cameraRight = cam.transform.right;
-            Vector3 cameraForward = cam.transform.forward;
-            cameraRight.y = 0f;
-            cameraForward.y = 0f;
-
-            Vector3 gamepadDirection = cameraRight.normalized * rightStick.x + cameraForward.normalized * rightStick.y;
-
-            if (gamepadDirection.sqrMagnitude > 0.001f)
-            {
-                transform.rotation = Quaternion.LookRotation(gamepadDirection);
-            }
-
-            return;
-        }
-
-        if (Mouse.current == null)
-        {
-            return;
-        }
-
-        float distanceFromCamera = 0f;
-
-        if (!cam.orthographic && Mathf.Abs(cam.transform.forward.y) > 0.001f)
-        {
-            distanceFromCamera = (transform.position.y - cam.transform.position.y) / cam.transform.forward.y;
-        }
-
-       /* Vector2 mousePositionOnScreen = Mouse.current.position.ReadValue();
-        Vector3 mousePosition = cam.ScreenToWorldPoint(new Vector3(mousePositionOnScreen.x, mousePositionOnScreen.y, distanceFromCamera));
-        Vector3 direction = mousePosition - transform.position;
-        
-        direction.y = 0f;
-
-        if (direction.sqrMagnitude > 0.001f)
-        {
-            transform.rotation = Quaternion.LookRotation(direction);
-        }
-        */
     }
 
    public void Movement()

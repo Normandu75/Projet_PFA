@@ -25,6 +25,7 @@ public class S_Robot_Follow_Player : MonoBehaviour
     bool hasWarnedAboutDestination;
     float nextDestinationUpdateTime;
     float visualHeightOffset;
+    float relativeYawOffset;
 
     public bool IsFollowing => following;
     public Vector3 MovementVelocity => following && agent != null && agent.enabled && agent.isOnNavMesh
@@ -97,6 +98,19 @@ public class S_Robot_Follow_Player : MonoBehaviour
             EnableFollowing(!hasPlacedAtStartPosition);
         else
             DisableFollowing();
+    }
+
+    public void RotateRelativeYaw(float deltaYaw)
+    {
+        if (!following)
+            return;
+
+        relativeYawOffset = Mathf.DeltaAngle(0f, relativeYawOffset + deltaYaw);
+    }
+
+    public void ResetRelativeYaw()
+    {
+        relativeYawOffset = 0f;
     }
 
     void EnableFollowing(bool placeAtStartPosition)
@@ -188,11 +202,9 @@ public class S_Robot_Follow_Player : MonoBehaviour
 
     Quaternion GetFollowRotation()
     {
-        // Prend directement la direction actuelle du joueur.
         Quaternion playerRotation =
-            Quaternion.AngleAxis(GetPlayerYaw(), Vector3.up);
+            Quaternion.AngleAxis(GetPlayerYaw() + relativeYawOffset, Vector3.up);
 
-        // Conserve l'inclinaison nécessaire au modèle du robot.
         return playerRotation * FollowRotation;
     }
     float CalculateVisualHeightOffset(Vector3 navMeshPosition)
