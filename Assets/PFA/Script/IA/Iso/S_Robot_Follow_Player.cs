@@ -26,8 +26,10 @@ public class S_Robot_Follow_Player : MonoBehaviour
     float nextDestinationUpdateTime;
     float visualHeightOffset;
     float relativeYawOffset;
+    float followYaw;
 
     public bool IsFollowing => following;
+    public float FollowYaw => Mathf.DeltaAngle(0f, followYaw + relativeYawOffset);
     public Vector3 MovementVelocity => following && agent != null && agent.enabled && agent.isOnNavMesh
         ? agent.velocity
         : Vector3.zero;
@@ -86,6 +88,7 @@ public class S_Robot_Follow_Player : MonoBehaviour
     {
         player = playerTransform;
         startPosition = initialPosition;
+        followYaw = GetPlayerYaw();
     }
 
     public void SetFollowing(bool shouldFollow)
@@ -106,6 +109,12 @@ public class S_Robot_Follow_Player : MonoBehaviour
             return;
 
         relativeYawOffset = Mathf.DeltaAngle(0f, relativeYawOffset + deltaYaw);
+    }
+
+    public void SetFollowYaw(float yaw)
+    {
+        followYaw = Mathf.DeltaAngle(0f, yaw);
+        relativeYawOffset = 0f;
     }
 
     public void ResetRelativeYaw()
@@ -203,7 +212,7 @@ public class S_Robot_Follow_Player : MonoBehaviour
     Quaternion GetFollowRotation()
     {
         Quaternion playerRotation =
-            Quaternion.AngleAxis(GetPlayerYaw() + relativeYawOffset, Vector3.up);
+            Quaternion.AngleAxis(FollowYaw, Vector3.up);
 
         return playerRotation * FollowRotation;
     }

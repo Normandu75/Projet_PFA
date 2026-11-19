@@ -1652,6 +1652,18 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 116
       objectReference: {fileID: 0}
+    - target: {fileID: 801212589449445742, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 801212589449445742, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.835
+      objectReference: {fileID: 0}
+    - target: {fileID: 801212589449445742, guid: 42a3ac84d712974409a7256def885807, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.017
+      objectReference: {fileID: 0}
     - target: {fileID: 2414152876157648358, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: m_Name
       value: Character_Iso

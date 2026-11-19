@@ -245,16 +245,42 @@ public class S_Camera_Controller : MonoBehaviour
 
             if (robotFollower != null)
             {
+                S_Character_Controller characterController =
+                    S_Character_Controller.instance;
                 float gamepadDeadzone =
-                    S_Character_Controller.instance != null
-                        ? S_Character_Controller.instance.gamepadDeadzone
+                    characterController != null
+                        ? characterController.gamepadDeadzone
                         : 0.2f;
-                float robotYawInput = Gamepad.current.rightStick.ReadValue().x;
+                Vector2 robotAimInput = Gamepad.current.rightStick.ReadValue();
 
-                if (Mathf.Abs(robotYawInput) > gamepadDeadzone)
+                if (robotAimInput.sqrMagnitude > gamepadDeadzone * gamepadDeadzone)
                 {
-                    robotFollower.RotateRelativeYaw(
-                        robotYawInput * rotationSpeed * Time.deltaTime);
+                    Transform movementCamera =
+                        characterController != null && characterController.cam != null
+                            ? characterController.cam.transform
+                            : Camera.main != null
+                                ? Camera.main.transform
+                                : cam;
+
+                    Vector3 cameraForward = movementCamera.forward;
+                    Vector3 cameraRight = movementCamera.right;
+                    cameraForward.y = 0f;
+                    cameraRight.y = 0f;
+                    cameraForward.Normalize();
+                    cameraRight.Normalize();
+
+                    Vector3 robotDirection =
+                        cameraRight * robotAimInput.x +
+                        cameraForward * robotAimInput.y;
+
+                    if (robotDirection.sqrMagnitude > 0.001f)
+                    {
+                        float targetYaw =
+                            Mathf.Atan2(robotDirection.x, robotDirection.z)
+                            * Mathf.Rad2Deg;
+
+                        robotFollower.SetFollowYaw(targetYaw);
+                    }
                 }
             }
         }
@@ -412,7 +438,7 @@ public class S_Camera_Controller : MonoBehaviour
 
         if (robotController != null)
             robotController.SetRobotMode(robotMode);
-        
+
         AlignRobotWithPlayer();
     }
 
@@ -471,14 +497,16 @@ public class S_Camera_Controller : MonoBehaviour
         if (player == null || robotTarget == null)
             return;
 
-        if (robotFollower != null)
-            robotFollower.ResetRelativeYaw();
-
         Vector3 direction =
             Vector3.ProjectOnPlane(player.forward, Vector3.up);
 
         if (direction.sqrMagnitude < 0.0001f)
             return;
+
+        if (robotFollower != null)
+            robotFollower.SetFollowYaw(
+                Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg
+            );
 
         Quaternion playerHeading =
             Quaternion.LookRotation(direction.normalized, Vector3.up);

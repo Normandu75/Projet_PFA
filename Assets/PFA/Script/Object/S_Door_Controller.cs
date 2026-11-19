@@ -119,6 +119,8 @@ public class S_Door_Controller : MonoBehaviour
             return;
         }
 
+        Debug.Log("Trigger = true");
+
         doorCollider.isTrigger = true;
         unlockedDoors.Add(door);
     }
@@ -165,9 +167,10 @@ public class S_Door_Controller : MonoBehaviour
         yield return MoveDoor(door.transform, door.transform.position, closedPosition);
 
         Collider doorCollider = door.GetComponent<Collider>();
+
         if (doorCollider != null)
         {
-            doorCollider.isTrigger = false;
+            // doorCollider.isTrigger = false;
         }
 
         doorAnimations.Remove(door);

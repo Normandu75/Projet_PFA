@@ -8,6 +8,8 @@ public class S_Button_Door : MonoBehaviour
         {
             int buttonIndex = S_Door_Controller.instance.buttonDoors.IndexOf(gameObject);
             S_Door_Controller.instance.UnlockDoor(buttonIndex);
+
+            Debug.Log("Ouverture possible");
         }
     }
 }

@@ -36,6 +36,9 @@ public class S_Character_Controller : MonoBehaviour
     public float walkSpeed = 6f;
     public float runSpeed = 12f;
 
+    [Header("Rotation")]
+    public float rotationSpeed = 720f;
+
     [Header("Components")]
     public Rigidbody rigidBody;
     public Camera cam;
@@ -226,6 +229,20 @@ public class S_Character_Controller : MonoBehaviour
         Vector3 moveDirection =
             cameraRight * movementInput.x +
             cameraForward * movementInput.y;
+
+        if (moveDirection.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRotation =
+                Quaternion.LookRotation(moveDirection.normalized, Vector3.up);
+
+            rigidBody.MoveRotation(
+                Quaternion.RotateTowards(
+                    rigidBody.rotation,
+                    targetRotation,
+                    rotationSpeed * Time.fixedDeltaTime
+                )
+            );
+        }
 
         Vector3 velocity = Vector3.ClampMagnitude(moveDirection, 1f) * speed;
 
