@@ -139,7 +139,7 @@ public class S_Door_Controller : MonoBehaviour
             return;
         }
 
-        if (!unlockedDoors.Remove(door))
+        if (!unlockedDoors.Contains(door))
         {
             return;
         }
@@ -173,7 +173,7 @@ public class S_Door_Controller : MonoBehaviour
             // doorCollider.isTrigger = false;
         }
 
-        doorAnimations.Remove(door);
+        // doorAnimations.Remove(door);
     }
 
     private IEnumerator MoveDoor(Transform door, Vector3 startPosition, Vector3 targetPosition)

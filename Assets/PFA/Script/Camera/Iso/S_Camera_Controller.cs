@@ -224,24 +224,24 @@ public class S_Camera_Controller : MonoBehaviour
         if (cam == null || player == null)
             return;
 
-        float rotation = 0f;
+        float cameraRotation = 0f;
 
         // Rotation clavier Q / E
         if (Keyboard.current != null)
         {
             if (Keyboard.current.eKey.isPressed)
-                rotation = 1f;
+                cameraRotation = 1f;
             else if (Keyboard.current.qKey.isPressed)
-                rotation = -1f;
+                cameraRotation = -1f;
         }
 
         // Rotation manette LB / RB
         if (Gamepad.current != null)
         {
             if (Gamepad.current.rightShoulder.isPressed)
-                rotation = 1f;
+                cameraRotation = 1f;
             else if (Gamepad.current.leftShoulder.isPressed)
-                rotation = -1f;
+                cameraRotation = -1f;
 
             if (robotFollower != null)
             {
@@ -285,14 +285,10 @@ public class S_Camera_Controller : MonoBehaviour
             }
         }
 
-        float rotationDelta = rotation * rotationSpeed * Time.deltaTime;
-        orbitAngle += rotationDelta;
+        float cameraRotationDelta =
+            cameraRotation * rotationSpeed * Time.deltaTime;
 
-        if (rotationDelta != 0f)
-        {
-            player.rotation =
-                Quaternion.AngleAxis(rotationDelta, Vector3.up) * player.rotation;
-        }
+        orbitAngle += cameraRotationDelta;
 
         // Rotation autour du personnage
         Quaternion orbitRotation =
