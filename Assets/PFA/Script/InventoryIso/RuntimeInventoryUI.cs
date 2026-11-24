@@ -14,6 +14,8 @@ public class RuntimeInventoryUI : MonoBehaviour
 
     [Header("Quick Slot")]
     [SerializeField]
+    private Color quickSlotBackgroundColor = new Color(0.02f, 0.12f, 0.15f, 0.75f);
+    [SerializeField]
     private Sprite quickSlotButtonIcon;
 
     [SerializeField]
@@ -761,8 +763,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         Image background =
             quickSlotRoot.AddComponent<Image>();
 
-        background.color =
-            normalColor;
+        background.color = quickSlotBackgroundColor;
 
         background.raycastTarget =
             false;
