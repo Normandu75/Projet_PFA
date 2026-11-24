@@ -3097,7 +3097,6 @@ Transform:
   - {fileID: 1272929270}
   - {fileID: 1734793173}
   - {fileID: 1915049733}
-  - {fileID: 829244911}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &221469893
@@ -7197,7 +7196,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d0a045f3fcda1bc49bda1823a98c7064, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 25267cb78735bad46ab05a294ed91f40, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9101,7 +9100,7 @@ MonoBehaviour:
   outerRadius: 350
   innerRadius: 175
   quickSlotBackgroundColor: {r: 0.02, g: 0.12, b: 0.15, a: 0.02745098}
-  quickSlotButtonIcon: {fileID: 21300000, guid: 1839ff15860eb2a4d8392797c76c791e, type: 3}
+  quickSlotButtonIcon: {fileID: 21300000, guid: e38ff44999bcc3a42b429df80806c8d2, type: 3}
   aimButtonIcon: {fileID: 21300000, guid: b7891b70f9b60184686e157a5357b449, type: 3}
   throwButtonIcon: {fileID: 21300000, guid: 3eaff8079f97e2a49b31f76bef55bedd, type: 3}
   centerSize: 300
@@ -14559,7 +14558,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 833, y: -193.1}
+  m_AnchoredPosition: {x: 832.9, y: -201.6}
   m_SizeDelta: {x: 45, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1082752254
@@ -14582,7 +14581,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3a1a3591fe14d7e4b8a8a5d2c55c795b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 155fb0e122c9e304a82348591a47581d, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -21767,7 +21766,7 @@ GameObject:
   - component: {fileID: 1734793173}
   - component: {fileID: 1734793174}
   m_Layer: 0
-  m_Name: KeyObjects
+  m_Name: ---KEYOBJECTS---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24291,7 +24290,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 829244911}
   m_Father: {fileID: 215308009}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1916869193 stripped
@@ -26728,7 +26728,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 215308009}
+    m_TransformParent: {fileID: 1915049733}
     m_Modifications:
     - target: {fileID: 514259440245082548, guid: 50223a41c90070a41b6b383b4e403f4e, type: 3}
       propertyPath: m_AnchorMax.y
