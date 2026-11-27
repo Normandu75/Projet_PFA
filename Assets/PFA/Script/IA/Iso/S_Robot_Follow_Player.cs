@@ -12,11 +12,11 @@ public class S_Robot_Follow_Player : MonoBehaviour
     [Header("Following")]
     [SerializeField, Min(0f)] float destinationRefreshInterval = 0.2f;
     [SerializeField, Min(0f)] float navMeshSampleDistance = 2f;
-    [SerializeField, Min(0f)] float followStoppingDistance = 1.25f;
 
     NavMeshAgent agent;
     Rigidbody body;
     Transform player;
+    Transform followTarget;
     Transform startPosition;
     bool following;
     bool initialized;
@@ -49,18 +49,22 @@ public class S_Robot_Follow_Player : MonoBehaviour
 
     void Update()
     {
-        if (!following || !agent.enabled || !agent.isOnNavMesh || player == null)
+        if (!following || !agent.enabled || !agent.isOnNavMesh || followTarget == null)
             return;
 
         if (Time.time < nextDestinationUpdateTime)
             return;
 
         nextDestinationUpdateTime = Time.time + destinationRefreshInterval;
-        if (!NavMesh.SamplePosition(player.position, out NavMeshHit targetHit, navMeshSampleDistance, agent.areaMask))
+        if (!NavMesh.SamplePosition(
+                followTarget.position,
+                out NavMeshHit targetHit,
+                navMeshSampleDistance,
+                agent.areaMask))
         {
             if (!hasWarnedAboutDestination)
             {
-                Debug.LogWarning("S_Robot_Follow_Player : le personnage est trop loin du NavMesh pour être suivi.", this);
+                Debug.LogWarning("S_Robot_Follow_Player : Robot_Pos est trop loin du NavMesh pour être suivi.", this);
                 hasWarnedAboutDestination = true;
             }
 
@@ -69,7 +73,9 @@ public class S_Robot_Follow_Player : MonoBehaviour
 
         if (!agent.SetDestination(targetHit.position) && !hasWarnedAboutDestination)
         {
-            Debug.LogWarning("S_Robot_Follow_Player : le NavMeshAgent n'a pas accepté la destination du personnage.", this);
+            Debug.LogWarning(
+                "S_Robot_Follow_Player : le NavMeshAgent n'a pas accepté la destination de Robot_Pos.",
+                this);
             hasWarnedAboutDestination = true;
         }
     }
@@ -87,6 +93,7 @@ public class S_Robot_Follow_Player : MonoBehaviour
     public void Configure(Transform playerTransform, Transform initialPosition)
     {
         player = playerTransform;
+        followTarget = initialPosition != null ? initialPosition : playerTransform;
         startPosition = initialPosition;
         followYaw = GetPlayerYaw();
     }
@@ -124,9 +131,9 @@ public class S_Robot_Follow_Player : MonoBehaviour
 
     void EnableFollowing(bool placeAtStartPosition)
     {
-        if (player == null)
+        if (followTarget == null)
         {
-            Debug.LogError("S_Robot_Follow_Player : le personnage à suivre n'est pas assigné.", this);
+            Debug.LogError("S_Robot_Follow_Player : Robot_Pos ou le personnage à suivre n'est pas assigné.", this);
             following = false;
             return;
         }
@@ -141,12 +148,12 @@ public class S_Robot_Follow_Player : MonoBehaviour
             navMeshSampleDistance,
             agent.areaMask);
         if (!hasStartPosition && NavMesh.SamplePosition(
-                player.position,
-                out NavMeshHit playerHit,
+                followTarget.position,
+                out NavMeshHit followTargetHit,
                 navMeshSampleDistance,
                 agent.areaMask))
         {
-            startHit = playerHit;
+            startHit = followTargetHit;
             hasStartPosition = true;
         }
 
@@ -180,7 +187,7 @@ public class S_Robot_Follow_Player : MonoBehaviour
         agent.updateRotation = false;
         agent.enabled = true;
         agent.isStopped = false;
-        agent.stoppingDistance = followStoppingDistance;
+        agent.stoppingDistance = 0f;
 
         if (!agent.Warp(startHit.position) || !agent.isOnNavMesh)
         {
