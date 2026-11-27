@@ -1,4 +1,5 @@
 
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
@@ -28,6 +29,8 @@ public class S_Camera_Controller : MonoBehaviour
     [Header("Camera Switch")]
     [SerializeField, Range(0f, 180f)] private float maxSurfaceNormalAngle = 20f;
     [SerializeField, Min(0.1f)] private float surfaceCheckDistance = 3f;
+    [SerializeField] Image image;
+    [SerializeField, Min(0.01f)] private float cameraFadeDuration = 0.25f;
 
     [Header("Camera Smoothing")]
     [SerializeField] private Vector3 cameraDamping =
@@ -43,6 +46,7 @@ public class S_Camera_Controller : MonoBehaviour
 
     private Vector3 cameraOffset;
     private CinemachinePositionComposer positionComposer;
+    private CinemachineBrain cameraBrain;
 
     private Rigidbody robotRigidbody;
     private Collider robotCollider;
@@ -51,6 +55,8 @@ public class S_Camera_Controller : MonoBehaviour
     private S_Robot_Follow_Player robotFollower;
     private S_Procedural_Robot_Movement robotMovement;
     private int surfaceLayerMask;
+    private Coroutine cameraSwitchRoutine;
+    private bool cameraSwitchInProgress;
 
     public bool IsProceduralRobotMode => robotTarget != null
         && (robotTarget.GetComponent<S_Procedural_Animation>() != null
@@ -88,6 +94,23 @@ public class S_Camera_Controller : MonoBehaviour
             );
             enabled = false;
             return;
+        }
+
+        BlackScreen();
+
+        Camera mainCamera = Camera.main;
+        if (mainCamera != null)
+            cameraBrain = mainCamera.GetComponent<CinemachineBrain>();
+
+        if (cameraBrain == null)
+        {
+            CinemachineBrain[] brains =
+                FindObjectsByType<CinemachineBrain>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None
+                );
+            if (brains.Length > 0)
+                cameraBrain = brains[0];
         }
 
         S_HealthBar healthBar = player.GetComponent<S_HealthBar>();
@@ -352,26 +375,75 @@ public class S_Camera_Controller : MonoBehaviour
 
         if (switchRequested)
         {
+            if (cameraSwitchRoutine != null)
+                return;
+
             if (!CanSwitchCamera())
                 return;
 
             bool useRobotCamera = !robotMode;
-
-            if (robotController != null)
-            {
-                robotController.SetRobotMode(useRobotCamera);
-            }
+            if (image == null)
+                ApplyCameraMode(useRobotCamera);
             else
             {
-                if (robotRigidbody != null)
-                    robotRigidbody.isKinematic = !useRobotCamera;
-
-                if (robotCollider != null)
-                    robotCollider.isTrigger = !useRobotCamera;
+                cameraSwitchInProgress = true;
+                UpdateCharacterMovementAvailability();
+                cameraSwitchRoutine =
+                    StartCoroutine(SwitchCameraWithFade(useRobotCamera));
             }
-
-            SetCameraMode(useRobotCamera);
         }
+    }
+
+    private IEnumerator SwitchCameraWithFade(bool useRobotCamera)
+    {
+        ApplyCameraMode(useRobotCamera);
+        yield return FadeScreen(1f, cameraFadeDuration);
+
+        while (cameraBrain != null && cameraBrain.IsBlending)
+            yield return null;
+
+        yield return FadeScreen(0f, cameraFadeDuration);
+
+        cameraSwitchInProgress = false;
+        UpdateCharacterMovementAvailability();
+        cameraSwitchRoutine = null;
+    }
+
+    private IEnumerator FadeScreen(float targetAlpha, float duration)
+    {
+        Color screenColor = image.color;
+        float startAlpha = screenColor.a;
+        float elapsed = 0f;
+        duration = Mathf.Max(0.01f, duration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            screenColor.a = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
+            image.color = screenColor;
+            yield return null;
+        }
+
+        screenColor.a = targetAlpha;
+        image.color = screenColor;
+    }
+
+    private void ApplyCameraMode(bool useRobotCamera)
+    {
+        if (robotController != null)
+        {
+            robotController.SetRobotMode(useRobotCamera);
+        }
+        else
+        {
+            if (robotRigidbody != null)
+                robotRigidbody.isKinematic = !useRobotCamera;
+
+            if (robotCollider != null)
+                robotCollider.isTrigger = !useRobotCamera;
+        }
+
+        SetCameraMode(useRobotCamera);
     }
 
     private bool CanSwitchCamera()
@@ -426,7 +498,7 @@ public class S_Camera_Controller : MonoBehaviour
 
         if (S_Character_Controller.instance != null)
         {
-            S_Character_Controller.instance.canMove = !robotMode;
+            UpdateCharacterMovementAvailability();
 
             if (robotMode)
                 S_Character_Controller.instance.pickedUp = false;
@@ -436,6 +508,15 @@ public class S_Camera_Controller : MonoBehaviour
             robotController.SetRobotMode(robotMode);
 
         AlignRobotWithPlayer();
+    }
+
+    private void UpdateCharacterMovementAvailability()
+    {
+        if (S_Character_Controller.instance != null)
+        {
+            S_Character_Controller.instance.canMove =
+                !robotMode && !cameraSwitchInProgress;
+        }
     }
 
     private Transform FindTransformIncludingInactive(string objectName)
@@ -517,5 +598,32 @@ public class S_Camera_Controller : MonoBehaviour
             
         if (robotCameraController != null)
             robotCameraController.AlignWithPlayer(player);
+    }
+
+    private void BlackScreen()
+    {
+        if (image == null)
+        {
+            Transform blackScreen =
+                FindTransformIncludingInactive("Black_Screen");
+            if (blackScreen != null)
+                image = blackScreen.GetComponent<Image>();
+        }
+
+        if (image == null)
+        {
+            Debug.LogWarning(
+                "S_Camera_Controller : Image Black_Screen introuvable, le changement de caméra sera instantané.",
+                this
+            );
+            return;
+        }
+
+        image.gameObject.SetActive(true);
+        image.raycastTarget = false;
+
+        Color screenColor = image.color;
+        screenColor.a = 0f;
+        image.color = screenColor;
     }
 }
