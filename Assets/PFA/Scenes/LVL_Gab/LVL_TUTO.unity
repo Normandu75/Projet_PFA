@@ -5400,7 +5400,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: walkSpeed
-      value: 1.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8053121967519160956, guid: 42a3ac84d712974409a7256def885807, type: 3}
       propertyPath: detectionRadius
@@ -26797,6 +26797,18 @@ PrefabInstance:
     - target: {fileID: 5789688380810992467, guid: 50223a41c90070a41b6b383b4e403f4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6769663297323006688, guid: 50223a41c90070a41b6b383b4e403f4e, type: 3}
+      propertyPath: attackCooldown
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6769663297323006688, guid: 50223a41c90070a41b6b383b4e403f4e, type: 3}
+      propertyPath: loseTargetTime
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6769663297323006688, guid: 50223a41c90070a41b6b383b4e403f4e, type: 3}
+      propertyPath: attackAnimDuration
+      value: 0.35
       objectReference: {fileID: 0}
     - target: {fileID: 6769663297323006688, guid: 50223a41c90070a41b6b383b4e403f4e, type: 3}
       propertyPath: 'waypoints.Array.data[0]'
