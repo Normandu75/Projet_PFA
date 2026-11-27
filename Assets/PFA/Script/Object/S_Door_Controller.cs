@@ -31,10 +31,6 @@ public class S_Door_Controller : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
 
-        AddButtonDoors(GameObject.FindGameObjectsWithTag("ButtonDoor"));
-        AddDoors(GameObject.FindGameObjectsWithTag("Door"));
-        AddLights(GameObject.FindGameObjectsWithTag("Light"));
-
         foreach (GameObject door in doors)
         {
             if (door == null)
@@ -43,6 +39,7 @@ public class S_Door_Controller : MonoBehaviour
             }
 
             Collider doorCollider = door.GetComponent<Collider>();
+            
             if (doorCollider != null)
             {
                 doorCollider.isTrigger = false;
