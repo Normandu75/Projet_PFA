@@ -25,6 +25,7 @@ public class S_Camera_Controller : MonoBehaviour
     public float rotationSpeed = 90f;
     public float orbitAngle;
     public bool robotMode;
+    public GameObject Quick;
 
     [Header("Camera Switch")]
     [SerializeField, Range(0f, 180f)] private float maxSurfaceNormalAngle = 20f;
@@ -209,6 +210,16 @@ public class S_Camera_Controller : MonoBehaviour
         height = cameraOffset.y;
 
         SetCameraMode(false);
+    }
+
+    void Start()
+    {
+        if (Quick == null)
+        {
+            Transform quickSlot = FindTransformIncludingInactive("Quick Slot");
+            if (quickSlot != null)
+                Quick = quickSlot.gameObject;
+        }
     }
 
     private void Update()
@@ -396,6 +407,10 @@ public class S_Camera_Controller : MonoBehaviour
 
     private IEnumerator SwitchCameraWithFade(bool useRobotCamera)
     {
+        bool quickSlotWasActive = Quick != null && Quick.activeSelf;
+        if (Quick != null)
+            Quick.SetActive(false);
+
         ApplyCameraMode(useRobotCamera);
         yield return FadeScreen(1f, cameraFadeDuration);
 
@@ -403,6 +418,9 @@ public class S_Camera_Controller : MonoBehaviour
             yield return null;
 
         yield return FadeScreen(0f, cameraFadeDuration);
+
+        if (Quick != null)
+            Quick.SetActive(quickSlotWasActive);
 
         cameraSwitchInProgress = false;
         UpdateCharacterMovementAvailability();
