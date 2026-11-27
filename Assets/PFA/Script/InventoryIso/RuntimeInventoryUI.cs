@@ -13,21 +13,23 @@ public class RuntimeInventoryUI : MonoBehaviour
     private float innerRadius = 125f;
 
     [Header("Quick Slot")]
+    [SerializeField] 
+    private Vector2 quickSlotButtonSize = new Vector2(40f, 30f);
     [SerializeField]
     private Color quickSlotBackgroundColor = new Color(0.02f, 0.12f, 0.15f, 0.75f);
     [SerializeField]
     private Sprite quickSlotButtonIcon;
-
     [SerializeField]
     private Sprite aimButtonIcon;
-
+    [SerializeField]
+    private Vector2 aimButton = new Vector2(40f, 30f);
     [SerializeField]
     private Sprite throwButtonIcon;
-
+    [SerializeField]
+    private Vector2 throwButton = new Vector2(40f, 30f);
     private Image quickSlotButtonImage;
     private Image aimButtonImage;
     private Image throwButtonImage;
-
     [Header("Center")]
     [SerializeField]
     private float centerSize = 220f;
@@ -904,11 +906,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         keyRect.pivot =
             new Vector2(0.5f, 0.5f);
 
-        keyRect.sizeDelta =
-            new Vector2(
-                40f,
-                30f
-            );
+       keyRect.sizeDelta = quickSlotButtonSize;
 
         // X à gauche.
         keyRect.anchoredPosition =
@@ -957,11 +955,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         aimRect.pivot =
             new Vector2(0.5f, 0.5f);
 
-        aimRect.sizeDelta =
-            new Vector2(
-                40f,
-                30f
-            );
+        aimRect.sizeDelta = aimButton;
 
         // LT À GAUCHE.
         // Même emplacement que X.
@@ -1011,11 +1005,7 @@ public class RuntimeInventoryUI : MonoBehaviour
         throwRect.pivot =
             new Vector2(0.5f, 0.5f);
 
-        throwRect.sizeDelta =
-            new Vector2(
-                40f,
-                30f
-            );
+        throwRect.sizeDelta = throwButton;
 
         // RT À DROITE.
         throwRect.anchoredPosition =
